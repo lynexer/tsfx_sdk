@@ -1,0 +1,21 @@
+{
+    "name": "tsfx-sdk-monorepo",
+    "private": true,
+    "version": "0.0.1",
+    "description": "TSFX Bridge SDK - FiveM cross-framework development SDK",
+    "license": "MIT",
+    "type": "module",
+    "engines": {
+        "node": ">=18.0.0",
+        "pnpm": ">=8.0.0"
+    },
+    "scripts": {
+        "dev": "tsx scripts/src/dev.ts",
+        "dev:watch": "tsx scripts/src/dev-watch.ts"
+    },
+    "devDependencies": {
+        "tsx": "^4.7.0",
+        "typescript": "^5.3.0",
+        "@types/node": "^20.10.0"
+    }
+}

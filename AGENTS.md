@@ -293,3 +293,66 @@ Before submitting changes:
 - [ ] No direct framework calls outside of adapters
 - [ ] All globals properly declared before use
 - [ ] Load order in fxmanifest.lua updated if new files added
+- [ ] Use EventBus for all network events (never native handlers)
+- [ ] No indentation on empty lines
+
+## AI Agent Conventions
+
+### Always Use EventBus for Network Events
+
+**Never use native FiveM event handlers directly.** Always use the EventBus for both registering and triggering network events:
+
+❌ **Wrong:**
+```lua
+RegisterNetEvent('myevent', handler)
+TriggerServerEvent('myevent', payload)
+TriggerClientEvent('myevent', target, payload)
+```
+
+✅ **Correct:**
+```lua
+-- Registration with optional rate limiting
+EventBus.register('myevent', 10, 1000)  -- 10 calls per 1000ms per player
+EventBus.on('myevent', handler)
+
+-- Triggering
+EventBus.emitNet('myevent', payload)           -- client → server
+EventBus.emitNet('myevent', target, payload)   -- server → client
+EventBus.broadcast('myevent', payload)         -- server → all clients
+```
+
+### No Indentation on Empty Lines
+
+Empty lines within code blocks must have zero indentation:
+
+❌ **Wrong:**
+```lua
+if condition then
+    doSomething()
+    
+    doSomethingElse()
+end
+```
+
+✅ **Correct:**
+```lua
+if condition then
+    doSomething()
+
+    doSomethingElse()
+end
+```
+
+This applies to all indentation styles (spaces or tabs).
+
+### Always Comment on Linear Issues
+
+After working on any Linear issue, you **must** post a comment tracking what progress was made:
+
+**Required for every work session:**
+- What was completed
+- What remains
+- Any blockers or questions
+- Next steps
+
+This ensures traceability and keeps the team informed of ongoing work.

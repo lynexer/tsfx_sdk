@@ -125,7 +125,7 @@ function StateMachineBuilder:build(context)
 
             machine._state = restored
 
-            Log.info('StateMachine restored surviving state', {
+            Log:info('StateMachine restored surviving state', {
                 key = self._survivingStateKey,
                 state = restored
             })

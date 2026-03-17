@@ -57,7 +57,7 @@ function StateMachine.new(options, context, skipInitialSync)
         self:_syncBags(self._state)
     end
 
-    Log.info('StateMachine initialized', {
+    Log:info('StateMachine initialized', {
         initial = self._state,
         syncs = #self._syncs
     })
@@ -120,7 +120,7 @@ function StateMachine:transition(to, context)
     if not transition then
         local reason = 'no transition defined from \'' .. from .. '\' to \'' .. to .. '\''
 
-        Log.warn('Invalid state transition', { from = from, to = to, reason = reason })
+        Log:warn('Invalid state transition', { from = from, to = to, reason = reason })
 
         if self._options.onInvalidTransition then
             self._options.onInvalidTransition(from, to, self._context)
@@ -133,7 +133,7 @@ function StateMachine:transition(to, context)
         local allowed, reason = transition.guard(self, self._context)
 
         if not allowed then
-            Log.info('State transition blocked by guard', {
+            Log:info('State transition blocked by guard', {
                 from = from,
                 to = to,
                 reason = reason
@@ -154,7 +154,7 @@ function StateMachine:transition(to, context)
     self._state = to
     self:_syncBags(to)
 
-    Log.info('State transition', { from = from, to = to })
+    Log:info('State transition', { from = from, to = to })
 
     if transition.onAfter then
         transition.onAfter(self._context)
@@ -176,7 +176,7 @@ function StateMachine:_syncBags(state)
             local entity = sync.getEntity()
 
             if not entity or not DoesEntityExist(entity) then
-                Log.warn('StateBagSync skipped, entity does not exist', {
+                Log:warn('StateBagSync skipped, entity does not exist', {
                     key = sync.key,
                     state = state
                 })
@@ -190,7 +190,7 @@ function StateMachine:_syncBags(state)
             local player = sync.getPlayer()
 
             if not player then
-                Log.warn('StateBagSync skipped, no player id', {
+                Log:warn('StateBagSync skipped, no player id', {
                     key = sync.key
                 })
 
@@ -200,7 +200,7 @@ function StateMachine:_syncBags(state)
             Player(player).state:set(sync.key, value, true)
         end
 
-        Log.info('StateBagSync wrote state', {
+        Log:info('StateBagSync wrote state', {
             key = sync.key,
             value = value,
             target = sync.target
@@ -242,6 +242,6 @@ function StateMachine:readBag(key)
         end
     end
 
-    Log.warn('StateMachine:readBag called with unknown key', { key = key })
+    Log:warn('StateMachine:readBag called with unknown key', { key = key })
     return nil
 end

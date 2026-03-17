@@ -3,7 +3,7 @@
 
     This is the only place server-side exports are registered.
     All exports delegate to module methods.
-]]
+--]]
 
 -- Placeholder for server exports
 -- Example:
@@ -11,4 +11,4 @@
 --     return PlayerService:getPlayer(source)
 -- end)
 
-print('[TSFX] Server exports registered')
+Log:info('Server exports registered')

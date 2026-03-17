@@ -2,8 +2,6 @@
 -- Type definitions for TSFX EventBus
 -- This file is NOT loaded at runtime - only for LuaLS type checking
 
----@meta
-
 ---@class EventBusRateLimit
 ---@field maxCalls number Maximum calls allowed in window
 ---@field windowMs number Time window in milliseconds

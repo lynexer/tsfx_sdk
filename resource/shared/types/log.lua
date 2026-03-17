@@ -2,8 +2,6 @@
 -- Type definitions for TSFX Log
 -- This file is NOT loaded at runtime - only for LuaLS type checking
 
----@meta
-
 ---@alias LogLevel 'debug' | 'info' | 'warn' | 'error'
 
 ---@class LogEvent

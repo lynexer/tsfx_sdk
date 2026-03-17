@@ -16,6 +16,9 @@ repository 'https://github.com/tsfx/tsfx_sdk'
 -- See AGENTS.md for layer definitions
 
 shared_scripts {
+    -- 0. Context detection utility (must be first - other modules depend on this)
+    'shared/utils/context.lua',
+
     -- 1. Type definitions (not executed at runtime)
     'shared/types/*.lua',
 

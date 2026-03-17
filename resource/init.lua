@@ -8,19 +8,19 @@
 
     The TSFX global provides a chainable, context-aware facade for framework operations.
     Methods execute immediately (no ORM-style queuing) and return self for chaining.
-]]
+--]]
 
 ---@class TSFXClass
 TSFX = {}
 
--- Detect context: server or client
-local IS_SERVER = IsDuplicityVersion()
+-- Detect context: server or client using the shared utility
+local context = getContext()
 
 --[[
     Future handles will be added here:
     - TSFX:Vehicle(vehicle) - Vehicle operations
     - TSFX:Inventory(source) - Inventory operations (server only)
     - etc.
-]]
+--]]
 
-print('[TSFX] SDK initialized - ' .. (IS_SERVER and 'server' or 'client') .. ' context')
+print('[TSFX] SDK initialized - ' .. context .. ' context')

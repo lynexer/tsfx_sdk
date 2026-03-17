@@ -1,0 +1,5 @@
+{
+    "watch": ["resource"],
+    "ext": "lua,js,ts",
+    "exec": "pnpm dev"
+}

@@ -223,7 +223,37 @@ All Lua code must use consistent Lua Language Server annotations:
 
 - **`shared/types/` files use `--- @meta`** at the top and are **never listed in `fxmanifest.lua`**
 - Use `@field` annotations on class definitions — not separate `@type` annotations on properties
+- **Do NOT add function declarations to `shared/types/`** — functions defined in modules are automatically typed by LuaLS
+- Only register **fields** (state/properties) in the shared types, never methods
 - Use `@class`, `@param`, `@return` consistently throughout
+
+### Type Definition Rule
+
+**Functions belong in the module implementation, NOT in the types file.**
+
+❌ **Wrong:** Adding method declarations to types
+```lua
+-- shared/types/Log.lua (types file)
+---@class LogInstance
+---@field level string Current log level
+---@field debug fun(msg: string)  -- DON'T DO THIS
+function LogInstance:debug(msg)  -- DON'T DO THIS
+```
+
+✅ **Correct:** Only fields in types, functions in implementation
+```lua
+-- shared/types/Log.lua (types file)
+---@class LogInstance
+---@field level string Current log level
+
+-- support/Log.lua (implementation file)
+---@param msg string The message to log
+function LogInstance:debug(msg)
+    self:log('debug', msg)
+end
+```
+
+Adding functions to types causes LuaLS warnings because the functions are already defined in the actual module files.
 
 ### Annotation Template
 

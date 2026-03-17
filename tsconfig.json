@@ -8,14 +8,14 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "outDir": "./dist",
-        "rootDir": "./scripts/src",
+        "rootDir": "./scripts",
         "resolveJsonModule": true,
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true
     },
     "include": [
-        "scripts/src/**/*"
+        "scripts/*"
     ],
     "exclude": [
         "node_modules",

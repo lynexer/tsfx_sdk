@@ -1,3 +1,5 @@
+---@diagnostic disable: lowercase-global
+
 --[[
     TSFX Bridge SDK - Context Detection Utility
 

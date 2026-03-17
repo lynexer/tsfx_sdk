@@ -8,29 +8,14 @@
 ---@field level LogLevel
 ---@field message string
 ---@field data table|nil
----@field context 'server'|'client'
 ---@field resource string
 ---@field timestamp integer
----@field traceback string|nil
----@field fingerprint string|nil
----@field sourcePlayer number|nil
 
----@class LoggerConfig
----@field consoleLevel? LogLevel
----@field forwardLevels? table<LogLevel, boolean>
----@field prefix? string
-
----@class LogClass
----@field _config table
+---@class LogInstance
+---@field _resourceName string The resource this logger belongs to
+---@field _prefix string The prefix for console output (e.g., "[my-resource]")
+---@field _level LogLevel Current minimum log level
 ---@field _hooks fun(event: LogEvent)[]
----@field _levelOrder table<LogLevel, integer>
----@field _levelColors table<LogLevel, string>
----@field configure fun(opts: LoggerConfig)
----@field debug fun(message: string, data?: table)
----@field info fun(message: string, data?: table)
----@field warn fun(message: string, data?: table)
----@field error fun(message: string, data?: table): string|nil
----@field try fun(fn: function, ...): boolean, any
----@field addHook fun(fn: fun(event: LogEvent))
----@field removeHook fun(fn: fun(event: LogEvent))
----@field clearHooks fun()
+
+---@class LoggerRegistryClass
+---@field _instances table<string, LogInstance>

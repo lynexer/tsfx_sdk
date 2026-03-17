@@ -14,6 +14,9 @@ importers:
       fs-extra:
         specifier: ^11.3.4
         version: 11.3.4
+      yocto-spinner:
+        specifier: ^1.1.0
+        version: 1.1.0
       yoctocolors:
         specifier: ^2.1.2
         version: 2.1.2
@@ -255,6 +258,10 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
+  yocto-spinner@1.1.0:
+    resolution: {integrity: sha512-/BY0AUXnS7IKO354uLLA2eRcWiqDifEbd6unXCsOxkFDAkhgUL3PH9X2bFoaU0YchnDXsF+iKleeTLJGckbXfA==}
+    engines: {node: '>=18.19'}
+
   yoctocolors@2.1.2:
     resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
@@ -418,5 +425,9 @@ snapshots:
   undici-types@6.21.0: {}
 
   universalify@2.0.1: {}
+
+  yocto-spinner@1.1.0:
+    dependencies:
+      yoctocolors: 2.1.2
 
   yoctocolors@2.1.2: {}

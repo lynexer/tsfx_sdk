@@ -3,6 +3,7 @@
 .env
 .env.local
 .env.*.local
+.dev.config.json
 
 # Lua
 *.luac

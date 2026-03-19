@@ -1,5 +1,5 @@
 --[[
-    TSFX Bridge SDK - Type Definitions
+    TSFX SDK - Type Definitions
 
     Type aliases used throughout the SDK.
     These use @meta annotations and are not executed at runtime.

@@ -1,5 +1,5 @@
 --[[
-    TSFX Bridge SDK - Client Bootstrap
+    TSFX SDK - Client Bootstrap
 
     This is the only place client-side modules are instantiated and wired.
     No business logic should be placed here.

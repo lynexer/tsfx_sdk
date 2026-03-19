@@ -1,5 +1,5 @@
 --[[
-    TSFX Bridge SDK - Manifest Builder
+    TSFX SDK - Manifest Builder
 
     Facade Manifest Builder that loads module declarations and auto-generates exports.
     Includes per-resource scoped instance registry for Logger, Cache, Config, and Debug.

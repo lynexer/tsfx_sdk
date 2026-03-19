@@ -1,5 +1,5 @@
 --[[
-    TSFX Bridge SDK - EventBus
+    TSFX SDK - EventBus
 
     Internal event bus for cross-module communication and networked events.
     Provides typed event handling with rate limiting, validation, and callback support.
@@ -284,3 +284,21 @@ function EventBus.await(event, ...)
 end
 
 EventBus.register('__eventbus:callback')
+
+---@type ModuleDeclaration
+return {
+    namespace = 'Events',
+    exportPrefix = 'EventBus',
+    scoped = false,
+    context = 'shared',
+    impl = EventBus,
+    methods = {
+        { name = 'on', flat = true },
+        { name = 'off', flat = true },
+        { name = 'register', flat = true },
+        { name = 'emit', flat = true },
+        { name = 'emitNet', flat = true },
+        { name = 'broadcast', flat = true },
+        { name = 'await', flat = true }
+    }
+}

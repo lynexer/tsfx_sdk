@@ -1,5 +1,5 @@
 --[[
-    TSFX Bridge SDK - Server Bootstrap
+    TSFX SDK - Server Bootstrap
 
     This is the only place server-side modules are instantiated and wired.
     No business logic should be placed here.

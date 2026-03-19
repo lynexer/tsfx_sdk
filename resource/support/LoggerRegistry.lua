@@ -1,5 +1,5 @@
 --[[
-    TSFX Bridge SDK - LoggerRegistry
+    TSFX SDK - LoggerRegistry
 
     Per-resource scoped logger registry.
     The bridge resource owns all Logger instances.

@@ -295,7 +295,6 @@ return {
     methods = {
         { name = 'on', flat = true },
         { name = 'off', flat = true },
-        { name = 'register', flat = true },
         { name = 'emit', flat = true },
         { name = 'emitNet', flat = true },
         { name = 'broadcast', flat = true },

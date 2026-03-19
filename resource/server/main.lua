@@ -10,10 +10,13 @@
 Log = LoggerRegistry.get('SDK')
 Log:info('Server bootstrap starting...')
 
--- Module instantiation happens here
--- Example: PlayerService = PlayerService.new()
+-- Load server-side module declarations into manifest
+-- Manifest:load('server/modules/player.lua')
 
--- Initialize all modules
--- Example: PlayerService:init()
+-- Load shared support module declarations into manifest
+Manifest:load('support/EventBus.lua')
+
+-- Register all exports
+Manifest:finalize()
 
 Log:info('Server bootstrap complete')

@@ -37,7 +37,6 @@ server_scripts {
     'server/modules/**/*.lua',
 
     'server/main.lua',
-    'server/exports.lua',
 }
 
 client_scripts {
@@ -45,7 +44,6 @@ client_scripts {
     'client/modules/**/*.lua',
 
     'client/main.lua',
-    'client/exports.lua',
 }
 
 -- Note: init.lua is NOT listed here

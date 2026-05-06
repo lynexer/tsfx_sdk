@@ -392,3 +392,18 @@ After working on any Linear issue, you **must** post a comment tracking what pro
 - Next steps
 
 This ensures traceability and keeps the team informed of ongoing work.
+
+### Never Commit to Git
+
+AI agents **must not** run `git commit`, `git push`, or any other git write operations. All changes are left in the working tree for the user to review, stage, and commit themselves.
+
+**What agents do:**
+- Edit files and leave changes unstaged
+- Optionally run `git status` or `git diff` to show the user what changed
+- Stage files (`git add`) only if explicitly requested by the user
+
+**What agents never do:**
+- `git commit` (even with "suggested" messages)
+- `git push`
+- `git merge`, `git rebase`, or branch manipulation
+- Force-pushing or rewriting history

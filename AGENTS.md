@@ -152,8 +152,10 @@ end
 Support modules (`support/`) provide internal utilities:
 
 - **Support modules are flat files** — no `_index.lua` folder pattern
-- They are simple utilities with no events or state machines of their own
 - They are loaded via `shared_scripts` in `fxmanifest.lua` and available as globals in both contexts
+- Support files that participate in the manifest have a **dual responsibility**:
+  define their global class (for runtime use) AND return a `ModuleDeclaration` table
+  (for the manifest builder)
 - **Do not add folder-based modules to `support/`** — keep it flat
 
 ### Support Files
@@ -161,7 +163,8 @@ Support modules (`support/`) provide internal utilities:
 ```
 support/
 ├── EventBus.lua
-├── Log.lua
+├── LogInstance.lua
+├── LoggerRegistry.lua
 ├── StateMachine.lua
 ├── StateMachineBuilder.lua
 ├── Exports.lua
@@ -175,6 +178,9 @@ FiveM's Lua environment has specific constraints:
 - **No `require()`** — All scripts are loaded via `fxmanifest.lua` load order
 - **Globals are automatically in scope** — Files loaded earlier can be accessed from later files
 - **Do NOT `return` at the end of module files** — Globals are the export mechanism
+  - **Exception:** `support/*.lua` files that participate in the manifest MUST return
+    their `ModuleDeclaration` table as their final statement. This is required by the
+    manifest builder. The global class definition and the returned declaration coexist.
 - **Do NOT reassign globals in `main.lua`** — They are already available from load order
 
 ### Load Order (fxmanifest.lua)

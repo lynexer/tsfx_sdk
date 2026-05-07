@@ -57,8 +57,9 @@ for _, mod in ipairs(manifest) do
 
             for _, method in ipairs(mod.methods) do
                 local exportName = prefix .. '_' .. method.name
+                local scopedArg = method.scoped and GetCurrentResourceName() or nil
                 local fn = function (...)
-                    return sdk[exportName](nil, ...)
+                    return sdk[exportName](scopedArg, ...)
                 end
 
                 TSFX[mod.namespace][method.name] = fn
@@ -72,3 +73,21 @@ for _, mod in ipairs(manifest) do
 end
 
 _ENV.TSFX = TSFX
+
+-- Synchronous-style handshake: acquire session token before first emitNet
+if getContext() == 'client' then
+    CreateThread(function()
+        TriggerServerEvent('__tsfx:requestHandshake', { resource = resourceName })
+
+        local timeout = 5000
+        local elapsed = 0
+        while not sdk.EventBus_hasSessionToken() and elapsed < timeout do
+            Wait(50)
+            elapsed = elapsed + 50
+        end
+
+        if not sdk.EventBus_hasSessionToken() then
+            error(('TSFX: Handshake with tsfx_sdk timed out after %dms. Is the bridge resource running?'):format(timeout))
+        end
+    end)
+end

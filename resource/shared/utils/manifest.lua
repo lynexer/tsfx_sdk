@@ -14,6 +14,7 @@
 --- @class ManifestMethod
 --- @field name string
 --- @field flat? boolean
+--- @field scoped? boolean
 
 --- @class ManifestModule
 --- @field namespace string

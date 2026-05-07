@@ -13,9 +13,44 @@ EventBus._rateLimits = {}
 EventBus._registered = {}
 EventBus._callbacks = {}
 EventBus._callbackId = 0
+EventBus._clientTokens = {}
+EventBus._secret = nil
+EventBus._sessionTokens = {}
 
 local RESOURCE_NAME = GetCurrentResourceName()
-local RESOURCE_VERSION = GetResourceMetadata(RESOURCE_NAME, 'version', 0)
+
+---Generate a random session secret
+---@private
+---@return string
+local function generateSecret()
+    local chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    local result = {}
+    for i = 1, 32 do
+        local idx = math.random(1, #chars)
+        result[i] = chars:sub(idx, idx)
+    end
+    return table.concat(result)
+end
+
+---Generate a polynomial rolling hash token
+---@private
+---@param secret string
+---@param playerSrc number
+---@param resourceName string
+---@param timestamp number
+---@return string
+local function generateToken(secret, playerSrc, resourceName, timestamp)
+    local prime = 31
+    local mod = 4294967296
+    local hash = 0
+    local input = secret .. tostring(playerSrc) .. resourceName .. tostring(timestamp)
+
+    for i = 1, #input do
+        hash = (hash * prime + string.byte(input, i)) % mod
+    end
+
+    return string.format('%08x', hash)
+end
 
 ---Emit an internal event to all registered listeners
 ---@param event string Event name
@@ -28,8 +63,8 @@ local function emit(event, ...)
     end
 
     local finalResult = nil
-    for _, callback in ipairs(listeners) do
-        local result = callback(...)
+    for _, entry in ipairs(listeners) do
+        local result = entry.callback(...)
         if result ~= nil then
             finalResult = result
         end
@@ -74,32 +109,41 @@ end
 ---@param callbackId? string Optional callback ID
 ---@return EventBusEnvelope Envelope containing payload and metadata
 local function buildEnvelope(payload, callbackId)
-    return {
+    local resourceName = GetInvokingResource() or GetCurrentResourceName()
+    local envelope = {
         payload = payload,
         callbackId = callbackId,
         meta = {
-            resource = RESOURCE_NAME,
-            version = RESOURCE_VERSION,
+            resource = resourceName,
             timestamp = isServer() and os.time() or GetCloudTimeAsInt()
         }
     }
+
+    if not isServer() then
+        if EventBus._clientTokens[resourceName] then
+            envelope.token = EventBus._clientTokens[resourceName]
+        end
+    end
+
+    return envelope
 end
 
 ---Validate an incoming event envelope
 ---@param envelope EventBusEnvelope The envelope to validate
+---@param playerSrc? number Player server ID for full validation
 ---@return boolean isValid Whether the envelope is valid
 ---@return string? errorMessage Error message if invalid
-local function validateEnvelope(envelope)
-    if not envelope or not envelope.meta or not envelope.payload then
+local function validateEnvelope(envelope, playerSrc)
+    if not envelope or type(envelope) ~= 'table' then
         return false, 'malformed envelope'
     end
 
-    if envelope.meta.resource ~= RESOURCE_NAME then
-        return false, 'resource mismatch'
+    if not envelope.meta or not envelope.payload then
+        return false, 'malformed envelope'
     end
 
-    if envelope.meta.version ~= RESOURCE_VERSION then
-        return false, 'version mismatch'
+    if not envelope.meta.timestamp or type(envelope.meta.timestamp) ~= 'number' then
+        return false, 'malformed envelope'
     end
 
     local now = isServer() and os.time() or GetCloudTimeAsInt()
@@ -107,7 +151,44 @@ local function validateEnvelope(envelope)
         return false, 'envelope expired'
     end
 
+    -- Full validation for client->server events
+    if isServer() and playerSrc then
+        if not envelope.token or type(envelope.token) ~= 'string' then
+            return false, 'missing token'
+        end
+
+        if not envelope.meta.resource or type(envelope.meta.resource) ~= 'string' then
+            return false, 'missing resource'
+        end
+
+        local sessions = EventBus._sessionTokens[playerSrc]
+        if not sessions or not sessions[envelope.meta.resource] then
+            return false, 'unknown session'
+        end
+
+        if envelope.token ~= sessions[envelope.meta.resource].token then
+            return false, 'invalid token'
+        end
+    end
+
     return true
+end
+
+---Log a validation failure warning
+---@private
+---@param event string
+---@param reason string?
+---@param playerSrc? number
+---@param resourceName? string
+local function logValidationFailure(event, reason, playerSrc, resourceName)
+    if _TSFX and _TSFX.Log then
+        _TSFX.Log:warn('EventBus envelope rejected', {
+            event = event,
+            reason = reason,
+            source = playerSrc,
+            resource = resourceName
+        })
+    end
 end
 
 ---Generate a unique callback ID
@@ -120,7 +201,8 @@ end
 ---Register an internal event listener
 ---@param event string Event name
 ---@param callback function Callback function
-function EventBus.on(event, callback)
+---@param resourceName? string Consuming resource name (nil for internal listeners)
+function EventBus.on(event, callback, resourceName)
     if not EventBus._registered[event] then
         EventBus.register(event)
     end
@@ -129,20 +211,21 @@ function EventBus.on(event, callback)
         EventBus._listeners[event] = {}
     end
 
-    table.insert(EventBus._listeners[event], callback)
+    table.insert(EventBus._listeners[event], { callback = callback, resource = resourceName })
 end
 
 ---Unregister an internal event listener
 ---@param event string Event name
 ---@param callback function The callback to remove (must be same reference)
-function EventBus.off(event, callback)
+---@param resourceName? string Consuming resource name (nil for internal listeners)
+function EventBus.off(event, callback, resourceName)
     local listeners = EventBus._listeners[event]
     if not listeners then
         return
     end
 
-    for i, cb in ipairs(listeners) do
-        if cb == callback then
+    for i, entry in ipairs(listeners) do
+        if entry.callback == callback and entry.resource == resourceName then
             table.remove(listeners, i)
             break
         end
@@ -181,8 +264,10 @@ function EventBus.register(event, maxCalls, windowMs)
                 return
             end
 
-            local valid, reason = validateEnvelope(envelope)
+            local valid, reason = validateEnvelope(envelope, playerSrc)
+
             if not valid then
+                logValidationFailure(event, reason, playerSrc, envelope and envelope.meta and envelope.meta.resource)
                 return
             end
 
@@ -249,6 +334,13 @@ function EventBus.broadcast(event, payload)
     TriggerClientEvent(event, -1, buildEnvelope(payload))
 end
 
+---Check if a session token has been acquired for the calling resource
+---@return boolean
+function EventBus.hasSessionToken()
+    local resourceName = GetInvokingResource() or GetCurrentResourceName()
+    return EventBus._clientTokens[resourceName] ~= nil
+end
+
 ---Emit a network event and await a response via callback
 ---Client -> Server: EventBus.await(event, payload, callback)
 ---Server -> Client: EventBus.await(event, target, payload, callback)
@@ -283,6 +375,76 @@ function EventBus.await(event, ...)
     end
 end
 
+-- Handshake: server issues per-(player, resource) session tokens
+if isServer() then
+    RegisterNetEvent('__tsfx:requestHandshake', function(data)
+        local playerSrc = source
+        local resourceName = data and data.resource
+
+        if not resourceName or type(resourceName) ~= 'string' then
+            logValidationFailure('__tsfx:requestHandshake', 'missing resource', playerSrc)
+            return
+        end
+
+        if not EventBus._secret then
+            EventBus._secret = generateSecret()
+        end
+
+        local issuedAt = os.time()
+        local token = generateToken(EventBus._secret, playerSrc, resourceName, issuedAt)
+
+        if not EventBus._sessionTokens[playerSrc] then
+            EventBus._sessionTokens[playerSrc] = {}
+        end
+
+        EventBus._sessionTokens[playerSrc][resourceName] = {
+            token = token,
+            issuedAt = issuedAt
+        }
+
+        TriggerClientEvent('__tsfx:handshake', playerSrc, {
+            token = token,
+            resource = resourceName
+        })
+    end)
+
+    -- Cleanup on player disconnect
+    AddEventHandler('playerDropped', function()
+        local playerSrc = source
+        EventBus._sessionTokens[playerSrc] = nil
+    end)
+
+    -- Cleanup on resource stop
+    AddEventHandler('onResourceStop', function(stoppedResource)
+        -- Clean up session tokens for the stopped resource across all players
+        for playerSrc, tokens in pairs(EventBus._sessionTokens) do
+            tokens[stoppedResource] = nil
+            if next(tokens) == nil then
+                EventBus._sessionTokens[playerSrc] = nil
+            end
+        end
+
+        -- Clean up listeners registered by the stopped resource
+        for event, listeners in pairs(EventBus._listeners) do
+            local cleaned = {}
+            for _, entry in ipairs(listeners) do
+                if entry.resource ~= stoppedResource then
+                    table.insert(cleaned, entry)
+                end
+            end
+            EventBus._listeners[event] = cleaned
+        end
+    end)
+else
+    -- Client receives handshake response and caches token
+    RegisterNetEvent('__tsfx:handshake', function(data)
+        if data and data.token and data.resource then
+            EventBus._clientTokens[data.resource] = data.token
+            EventBus.emit('tsfx:ready')
+        end
+    end)
+end
+
 EventBus.register('__eventbus:callback')
 
 ---@type ModuleDeclaration
@@ -293,11 +455,12 @@ return {
     context = 'shared',
     impl = EventBus,
     methods = {
-        { name = 'on', flat = true },
-        { name = 'off', flat = true },
+        { name = 'on', flat = true, scoped = true },
+        { name = 'off', flat = true, scoped = true },
         { name = 'emit', flat = true },
         { name = 'emitNet', flat = true },
         { name = 'broadcast', flat = true },
-        { name = 'await', flat = true }
+        { name = 'await', flat = true },
+        { name = 'hasSessionToken' }
     }
 }

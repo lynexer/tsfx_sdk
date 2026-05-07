@@ -46,8 +46,9 @@ client_scripts {
     'client/main.lua',
 }
 
--- Note: init.lua is NOT listed here
--- It is loaded by consuming resources via @tsfx_sdk/init.lua
+files {
+    'init.lua'
+}
 
 lua54 'yes'
 use_experimental_fxv2_oal 'yes'

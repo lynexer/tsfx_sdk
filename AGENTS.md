@@ -156,17 +156,27 @@ Support modules (`support/`) provide internal utilities:
 - Support files that participate in the manifest have a **dual responsibility**:
   define their global class (for runtime use) AND return a `ModuleDeclaration` table
   (for the manifest builder)
+- **`ModuleDeclaration.mode`** controls how the module is exposed:
+  - `mode = 'export'` (default) — methods are registered as FiveM exports and
+    wrapped by `init.lua`. Safe for stateless/static methods.
+  - `mode = 'consumer_vm'` — source is loaded directly into the consumer's Lua
+    VM via `LoadResourceFile` + `load()`. Required for constructor methods that
+    return objects with instance methods, because FiveM exports serialize return
+    values and strip metatables.
+- **Dependencies between consumer_vm modules:** If a consumer_vm module
+  references internal globals (e.g., `_TSFX.Log`) that are set up by another
+  module, init.lua pre-loads the dependency before iterating the manifest.
 - **Do not add folder-based modules to `support/`** — keep it flat
 
 ### Support Files
 
 ```
 support/
-├── EventBus.lua
-├── LogInstance.lua
-├── LoggerRegistry.lua
-├── StateMachine.lua
-├── StateMachineBuilder.lua
+├── EventBus.lua          -- mode = 'export' (stateless, shared)
+├── LogInstance.lua       -- mode = 'consumer_vm' (per-resource logger instance)
+├── LoggerRegistry.lua    -- bridge-only, no manifest participation
+├── StateMachine.lua      -- mode = 'consumer_vm' (returns method-bearing objects)
+├── StateMachineBuilder.lua -- mode = 'consumer_vm'
 ├── Exports.lua
 └── Cache.lua
 ```

@@ -2,40 +2,18 @@
     TSFX SDK - Manifest Builder
 
     Facade Manifest Builder that loads module declarations and auto-generates exports.
-    Includes per-resource scoped instance registry for Logger, Cache, Config, and Debug.
+    Also supports modules with mode = 'consumer_vm' where source is loaded directly
+    into the consumer's Lua VM (required for objects with instance methods).
 
     Usage:
-        local Manifest = require('@tsfx_sdk/shared/utils/manifest')
         Manifest:load('server/modules/player.lua')
+        Manifest:load('support/EventBus.lua')
         Manifest:finalize()
 --]]
 
---- @class ScopedInstanceRegistry
---- @field loggers { [string]: LogInstance }
-local ScopedInstanceRegistry = {
-    loggers = {},
-}
-
---- Get or create a logger instance for a resource
---- @param resourceName string
---- @return LogInstance
-function ScopedInstanceRegistry.getLogger(resourceName)
-    if not ScopedInstanceRegistry.loggers[resourceName] then
-        ScopedInstanceRegistry.loggers[resourceName] = LogInstance.new(resourceName, ('[%s]'):format(resourceName))
-    end
-
-    return ScopedInstanceRegistry.loggers[resourceName]
-end
-
---- Clean up all scoped instances for a resource
---- @param resourceName string
-function ScopedInstanceRegistry.cleanup(resourceName)
-    ScopedInstanceRegistry.loggers[resourceName] = nil
-end
-
 --- @class ManifestMethod
 --- @field name string
---- @field flat boolean
+--- @field flat? boolean
 
 --- @class ManifestModule
 --- @field namespace string
@@ -43,9 +21,12 @@ end
 --- @field scoped boolean
 --- @field context 'server'|'client'|'shared'
 --- @field methods ManifestMethod[]
+--- @field mode? 'export'|'consumer_vm'
+--- @field file? string
 
 --- @class ModuleDeclaration : ManifestModule
 --- @field impl table<string, function>
+--- @field _file? string
 
 --- @class ManifestBuilder
 --- @field _modules ModuleDeclaration[]
@@ -104,6 +85,7 @@ function ManifestBuilder:load(path)
         end
     end
 
+    declaration._file = path
     table.insert(self._modules, declaration)
 end
 
@@ -118,11 +100,15 @@ function ManifestBuilder:finalize()
             scoped = module.scoped,
             context = module.context,
             methods = module.methods,
+            mode = module.mode or 'export',
+            file = module._file,
         }
 
         table.insert(manifest, metadata)
 
-        self:_registerModuleExports(module)
+        if module.mode ~= 'consumer_vm' then
+            self:_registerModuleExports(module)
+        end
     end
 
     self._cachedManifest = manifest
@@ -130,62 +116,28 @@ function ManifestBuilder:finalize()
     exports('GetFacadeManifest', function()
         return self._cachedManifest
     end)
-
-    AddEventHandler('onResourceStop', function(resourceName)
-        ScopedInstanceRegistry.cleanup(resourceName)
-    end)
 end
 
 --- Register exports for a single module
 --- @private
 --- @param module ModuleDeclaration
 function ManifestBuilder:_registerModuleExports(module)
+    if module.mode == 'consumer_vm' then
+        return
+    end
+
     local exportPrefix = module.exportPrefix or module.namespace
 
     for _, method in ipairs(module.methods) do
         local exportName = ('%s_%s'):format(exportPrefix, method.name)
+        local fn = module.impl[method.name]
 
-        if module.scoped then
-            exports(exportName, function(resourceName, ...)
-                local instance = self:_getScopedInstance(module.namespace, resourceName)
-
-                if not instance then
-                    error(('Scoped instance not found for %s: %s'):format(module.namespace, resourceName))
-                end
-
-                local fn = instance[method.name]
-
-                if type(fn) ~= 'function' then
-                    error(('Method %s not found on %s instance'):format(method.name, module.namespace))
-                end
-
-                return fn(instance, ...)
-            end)
-        else
-            exports(exportName, function(...)
-                local fn = module.impl[method.name]
-
-                if type(fn) ~= 'function' then
-                    error(('Method %s not found in %s.impl'):format(method.name, module.namespace))
-                end
-
-                return fn(...)
-            end)
+        if type(fn) ~= 'function' then
+            error(('Method %s not found in %s.impl'):format(method.name, module.namespace))
         end
-    end
-end
 
---- Get or create a scoped instance for a resource
---- @private
---- @param namespace string
---- @param resourceName string
---- @return table|nil
-function ManifestBuilder:_getScopedInstance(namespace, resourceName)
-    if namespace == 'Log' then
-        return ScopedInstanceRegistry.getLogger(resourceName)
+        exports(exportName, fn)
     end
-
-    return nil
 end
 
 --- Get the cached manifest (metadata only, no impl)

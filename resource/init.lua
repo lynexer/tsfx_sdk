@@ -6,40 +6,66 @@
 
     It is NOT listed in fxmanifest.lua - it is an external API surface.
 
-    The TSFX global provides a chainable, context-aware facade for framework operations.
-    Methods execute immediately (no ORM-style queuing) and return self for chaining.
+    The TSFX global provides a context-aware facade for framework operations.
+    Methods execute immediately (no ORM-style queuing).
 --]]
 
+local TSFX = {}
 local resourceName = GetCurrentResourceName()
 local sdk = exports.tsfx_sdk
 local manifest = sdk.GetFacadeManifest()
-local TSFX = {}
-local context = IsDuplicityVersion() and 'server' or 'client'
+
+local function loadSupportFile(path)
+    local content = LoadResourceFile('tsfx_sdk', path)
+
+    if not content then
+        error(('TSFX: Failed to load support module %s'):format(path))
+    end
+
+    local chunk, err = load(content, ('@tsfx_sdk/%s'):format(path), 't', _ENV)
+
+    if not chunk then
+        error(('TSFX: Syntax error in %s: %s'):format(path, err))
+    end
+
+    chunk()
+end
+
+-- Load shared context utilities first
+loadSupportFile('shared/utils/context.lua')
+
+-- Pre-load LogInstance and create the per-resource logger instance.
+-- Log is a dependency for other consumer_vm modules (StateMachine, etc.)
+-- that reference _TSFX.Log in their function bodies.
+loadSupportFile('support/LogInstance.lua')
+_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)) }
 
 for _, mod in ipairs(manifest) do
-    if mod.context == 'shared' or mod.context == context then
-        local prefix = mod.exportPrefix or mod.namespace
-
-        TSFX[mod.namespace] = {}
-
-        for _, method in ipairs(mod.methods) do
-            local exportName = prefix .. '_' .. method.name
-            local fn
-
-            if mod.scoped then
-                fn = function (...)
-                    return sdk[exportName](nil, resourceName, ...)
-                end
+    if mod.context == 'shared' or mod.context == getContext() then
+        if mod.mode == 'consumer_vm' then
+            if mod.namespace == 'Log' then
+                -- Already loaded above; wire to public API
+                TSFX.Log = _TSFX.Log
             else
-                fn = function (...)
+                loadSupportFile(mod.file)
+                TSFX[mod.namespace] = _ENV[mod.namespace]
+            end
+        else
+            local prefix = mod.exportPrefix or mod.namespace
+
+            TSFX[mod.namespace] = {}
+
+            for _, method in ipairs(mod.methods) do
+                local exportName = prefix .. '_' .. method.name
+                local fn = function (...)
                     return sdk[exportName](nil, ...)
                 end
-            end
 
-            TSFX[mod.namespace][method.name] = fn
+                TSFX[mod.namespace][method.name] = fn
 
-            if method.flat then
-                TSFX[method.name] = fn
+                if method.flat then
+                    TSFX[method.name] = fn
+                end
             end
         end
     end

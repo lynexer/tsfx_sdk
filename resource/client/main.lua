@@ -5,16 +5,19 @@
     No business logic should be placed here.
 --]]
 
-Log = LoggerRegistry.get('SDK')
-Log:info('Client bootstrap starting...')
+_TSFX = { Log = LoggerRegistry.get('SDK') }
+_TSFX.Log:info('Client bootstrap starting...')
 
 -- Load client-side module declarations into manifest
 -- Manifest:load('client/modules/player.lua')
 
 -- Load shared support module declarations into manifest
+Manifest:load('support/LogInstance.lua')
 Manifest:load('support/EventBus.lua')
+Manifest:load('support/StateMachine.lua')
+Manifest:load('support/StateMachineBuilder.lua')
 
 -- Register all exports
 Manifest:finalize()
 
-Log:info('Client bootstrap complete')
+_TSFX.Log:info('Client bootstrap complete')

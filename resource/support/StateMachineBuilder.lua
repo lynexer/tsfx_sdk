@@ -104,7 +104,7 @@ end
 ---@param context? table
 ---@return StateMachineClass
 function StateMachineBuilder:build(context)
-    assert(#self._transitions > 0, 'StateMachineBuilder requires at least on transition')
+    assert(#self._transitions > 0, 'StateMachineBuilder requires at least one transition')
 
     local skipInitialSync = self._survivingStateKey ~= nil
 
@@ -125,7 +125,7 @@ function StateMachineBuilder:build(context)
 
             machine._state = restored
 
-            Log:info('StateMachine restored surviving state', {
+            _TSFX.Log:info('StateMachine restored surviving state', {
                 key = self._survivingStateKey,
                 state = restored
             })

@@ -245,3 +245,16 @@ function StateMachine:readBag(key)
     _TSFX.Log:warn('StateMachine:readBag called with unknown key', { key = key })
     return nil
 end
+
+---@type ModuleDeclaration
+return {
+    namespace = 'StateMachine',
+    exportPrefix = 'StateMachine',
+    scoped = false,
+    context = 'shared',
+    impl = StateMachine,
+    mode = 'consumer_vm',
+    methods = {
+        { name = 'new' }
+    }
+}

@@ -136,3 +136,16 @@ function StateMachineBuilder:build(context)
 
     return machine
 end
+
+---@type ModuleDeclaration
+return {
+    namespace = 'StateMachineBuilder',
+    exportPrefix = 'StateMachineBuilder',
+    scoped = false,
+    context = 'shared',
+    impl = StateMachineBuilder,
+    mode = 'consumer_vm',
+    methods = {
+        { name = 'new' }
+    }
+}

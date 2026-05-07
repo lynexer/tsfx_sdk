@@ -175,3 +175,16 @@ end
 function LogInstance:clearHooks()
     self._hooks = {}
 end
+
+---@type ModuleDeclaration
+return {
+    namespace = 'Log',
+    exportPrefix = 'Log',
+    scoped = false,
+    context = 'shared',
+    impl = LogInstance,
+    mode = 'consumer_vm',
+    methods = {
+        { name = 'new' }
+    }
+}

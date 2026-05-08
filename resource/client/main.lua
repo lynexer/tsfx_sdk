@@ -16,6 +16,7 @@ Manifest:load('support/LogInstance.lua')
 Manifest:load('support/EventBus.lua')
 Manifest:load('support/StateMachine.lua')
 Manifest:load('support/StateMachineBuilder.lua')
+Manifest:load('support/Cache.lua')
 
 -- Register all exports
 Manifest:finalize()

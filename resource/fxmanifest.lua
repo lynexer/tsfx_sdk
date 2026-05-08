@@ -24,10 +24,7 @@ shared_scripts {
 
     'support/*.lua',
 
-    'adapters/framework/_base.lua',
-    'adapters/framework/*.lua',
-    'adapters/inventory/_base.lua',
-    'adapters/inventory/*.lua',
+    'adapters/**/*.lua',
 
     'facades/*.lua',
 }

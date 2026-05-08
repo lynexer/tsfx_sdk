@@ -1,8 +1,10 @@
 --[[
-    TSFX SDK - Shared Configuration
-
-    Configuration values that apply to both server and client contexts.
-    These can be overridden via convars or environment-specific config files.
+    TSFX SDK - Bridge Configuration
+    Edited once by the server operator at setup time.
 ]]
 
-Config = {}
+---@type TSFXConfig
+Config = {
+    framework = 'auto',     -- Valid: 'auto' | 'esx' | 'qbcore' | 'qbox' | 'custom'
+    inventory = 'auto',     -- Valid: 'auto' | 'ox_inventory' | 'qs-inventory' | 'ps-inventory' | 'custom'
+}

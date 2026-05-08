@@ -54,6 +54,7 @@ end
 ---@param key string The cache key
 ---@param value any The value to store
 ---@param ttl? number Optional TTL in seconds
+---@return nil
 function Cache.set(key, value, ttl)
     local entry = { value = value }
 
@@ -80,11 +81,13 @@ end
 
 ---Remove a key from the cache
 ---@param key string The cache key
+---@return nil
 function Cache.delete(key)
     Cache._data[key] = nil
 end
 
 ---Clear all public cache entries. Does NOT affect _tsfx_internal.
+---@return nil
 function Cache.flush()
     Cache._data = {}
 end

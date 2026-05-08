@@ -35,6 +35,8 @@
 local ManifestBuilder = {}
 ManifestBuilder.__index = ManifestBuilder
 
+---Create a new ManifestBuilder instance
+---@return ManifestBuilder
 function ManifestBuilder.new()
     local self = setmetatable({}, ManifestBuilder)
 
@@ -46,6 +48,7 @@ end
 
 --- Load a module declaration from a file path
 --- @param path string Relative path within tsfx_sdk resource (e.g., 'server/modules/player.lua')
+--- @return nil
 function ManifestBuilder:load(path)
     local resourceName = 'tsfx_sdk'
     local fileContent = LoadResourceFile(resourceName, path)
@@ -122,6 +125,7 @@ end
 --- Register exports for a single module
 --- @private
 --- @param module ModuleDeclaration
+--- @return nil
 function ManifestBuilder:_registerModuleExports(module)
     if module.mode == 'consumer_vm' then
         return

@@ -235,7 +235,9 @@ client_scripts {
 
 ## LuaLS Type Annotations
 
-All Lua code must use consistent Lua Language Server annotations:
+All Lua code must use consistent Lua Language Server annotations. See `docs/typing-conventions.md` for the complete, authoritative guide.
+
+Quick reference:
 
 - **`shared/types/` files use `--- @meta`** at the top and are **never listed in `fxmanifest.lua`**
 - Use `@field` annotations on class definitions — not separate `@type` annotations on properties
@@ -333,7 +335,10 @@ Maintain high code quality:
 
 Before submitting changes:
 
-- [ ] All new functions have proper LuaLS annotations
+- [ ] All new functions have proper LuaLS annotations (`@param` for every parameter, `@return` for every return value)
+- [ ] No methods declared in `shared/types/` files — fields only
+- [ ] Type assertions used where LuaLS cannot infer types (`@type`, `@cast`, or `--[[@as]]`)
+- [ ] Adapter methods match `_base.lua` contract exactly
 - [ ] No unused variables or parameters
 - [ ] No mixing of singleton and instance patterns
 - [ ] No direct framework calls outside of adapters

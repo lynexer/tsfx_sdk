@@ -46,6 +46,7 @@ end
 ---Set the log level for a specific resource's logger
 ---@param resourceName string
 ---@param level LogLevel
+---@return nil
 function LoggerRegistry.setLevel(resourceName, level)
     local logger = LoggerRegistry._instances[resourceName]
 

@@ -26,6 +26,7 @@ end
 ---@param namespace string
 ---@param methods table<string, function>
 ---@param aliases? string[] Optional list of resource names to also register these exports under
+---@return nil
 function Exports.register(namespace, methods, aliases)
     for name, handler in pairs(methods) do
         local exportName = namespace .. '_' .. name

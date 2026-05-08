@@ -34,21 +34,27 @@ resource/
 ├── .luarc.json
 │
 ├── shared/
+│   ├── utils/
+│   │   ├── context.lua               ← isServer(), isClient(), getContext()
+│   │   └── manifest.lua              ← ManifestBuilder
 │   ├── config.lua
 │   ├── constants.lua
 │   ├── enums.lua
 │   └── types/                        ← LuaLS @meta only, never executed at runtime
-│       ├── player.lua
-│       ├── handles.lua               ← PlayerHandle, VehicleHandle shapes
-│       └── bridge.lua                ← TSFX global type declaration
+│       ├── context.lua
+│       ├── eventbus.lua
+│       ├── exports.lua
+│       ├── log.lua
+│       └── statemachine.lua
 │
 ├── support/                          ← Flat utility modules, no _index pattern
-│   ├── EventBus.lua
-│   ├── Log.lua
-│   ├── StateMachine.lua
-│   ├── StateMachineBuilder.lua
+│   ├── EventBus.lua                  ← mode = 'export' (stateless, shared)
+│   ├── LogInstance.lua               ← mode = 'consumer_vm' (per-resource logger)
+│   ├── LoggerRegistry.lua            ← bridge-only, no manifest participation
+│   ├── StateMachine.lua              ← mode = 'consumer_vm' (method-bearing objects)
+│   ├── StateMachineBuilder.lua       ← mode = 'consumer_vm'
 │   ├── Exports.lua
-│   └── Cache.lua
+│   └── Cache.lua                     ← mode = 'export' (shared central cache)
 │
 ├── adapters/                         ← Framework & inventory adapters (client + server)
 │   ├── framework/
@@ -133,7 +139,10 @@ extension/
 * **Adapters are not server-only** — `adapters/` lives at resource root, loaded per context as needed
 * `init.lua` is the public API entry point — loaded by consuming resources via `@tsfx_sdk/init.lua`, not listed in fxmanifest
 * `server/main.lua` and `client/main.lua` are the resource's own bootstrap, loaded by fxmanifest
-* **Support modules are flat files** — no `_index.lua` folder pattern; they are simple and have no events or state machines
+* **Support modules are flat files** — no `_index.lua` folder pattern. They have a **dual responsibility**: define their global class (for runtime use) AND return a `ModuleDeclaration` table (for the manifest builder)
+* **Support modules declare their exposure mode** via `ModuleDeclaration.mode`:
+  - `mode = 'export'` (default) — stateless/static methods registered as FiveM exports
+  - `mode = 'consumer_vm'` — source loaded directly into the consumer's Lua VM via `LoadResourceFile` + `load()`. Required for constructors returning objects with instance methods, because FiveM exports serialize return values and strip metatables
 * `shared/types/` uses LuaLS `--- @meta` and is never executed at runtime
 
 ---

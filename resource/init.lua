@@ -74,6 +74,12 @@ end
 
 _ENV.TSFX = TSFX
 
+-- Inject Locale convenience globals into consuming resource
+if TSFX.Locale and TSFX.Locale.get then
+    _ENV._ = function(key, params) return TSFX.Locale.get(key, params) end
+    _ENV.l = _ENV._
+end
+
 -- Synchronous-style handshake: acquire session token before first emitNet
 if getContext() == 'client' then
     CreateThread(function()

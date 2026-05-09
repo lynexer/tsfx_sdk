@@ -4,6 +4,6 @@
     Interface contract that all interaction adapters must implement.
 --]]
 
----@class InteractAdapterClass
+---@class InteractAdapterClass : IInteract
 InteractAdapterClass = {}
 InteractAdapterClass.__index = InteractAdapterClass

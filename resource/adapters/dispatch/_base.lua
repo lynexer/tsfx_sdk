@@ -4,6 +4,6 @@
     Interface contract that all dispatch adapters must implement.
 --]]
 
----@class DispatchAdapterClass
+---@class DispatchAdapterClass : IDispatch
 DispatchAdapterClass = {}
 DispatchAdapterClass.__index = DispatchAdapterClass

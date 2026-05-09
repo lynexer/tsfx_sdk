@@ -4,6 +4,6 @@
     Interface contract that all fuel adapters must implement.
 --]]
 
----@class FuelAdapterClass
+---@class FuelAdapterClass : IFuel
 FuelAdapterClass = {}
 FuelAdapterClass.__index = FuelAdapterClass

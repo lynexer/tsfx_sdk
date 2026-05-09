@@ -4,6 +4,6 @@
     Interface contract that all phone adapters must implement.
 --]]
 
----@class PhoneAdapterClass
+---@class PhoneAdapterClass : IPhone
 PhoneAdapterClass = {}
 PhoneAdapterClass.__index = PhoneAdapterClass

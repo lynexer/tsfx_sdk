@@ -4,6 +4,6 @@
     Interface contract that all medical adapters must implement.
 --]]
 
----@class MedicalAdapterClass
+---@class MedicalAdapterClass : IMedical
 MedicalAdapterClass = {}
 MedicalAdapterClass.__index = MedicalAdapterClass

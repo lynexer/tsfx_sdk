@@ -4,6 +4,6 @@
     Interface contract that all keys adapters must implement.
 --]]
 
----@class KeysAdapterClass
+---@class KeysAdapterClass : IKeys
 KeysAdapterClass = {}
 KeysAdapterClass.__index = KeysAdapterClass

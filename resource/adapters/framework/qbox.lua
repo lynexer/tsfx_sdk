@@ -3,7 +3,6 @@
 
     Maps to qbx_core exports. QBox diverges from QBCore — no global object,
     everything is export-based.
-    All export references are resolved at call time to handle startup order.
 --]]
 
 ---@class QBoxAdapter : FrameworkAdapterClass
@@ -12,25 +11,22 @@ QBoxAdapter.__index = QBoxAdapter
 QBoxAdapter._core = nil
 
 function QBoxAdapter:init()
-    self._core = exports.qbx_core
+    local core = exports.qbx_core
+
+    if not core then
+        error('QBoxAdapter: exports.qbx_core not found. Ensure qbx_core is started before tsfx_sdk.')
+    end
+
+    if not (core.GetPlayer or core.GetPlayerData) then
+        error('QBoxAdapter: qbx_core is missing required player exports (GetPlayer or GetPlayerData).')
+    end
+
+    self._core = core
 end
 
 function QBoxAdapter:_getFrameworkPlayer(source)
-    local success, data = pcall(function()
-        return self._core.GetPlayer and self._core:GetPlayer(source)
-    end)
-
-    if success and data then
-        return data
-    end
-
-    -- Fallback: GetPlayerData export
-    success, data = pcall(function()
-        return self._core.GetPlayerData and self._core:GetPlayerData(source)
-    end)
-
-    if success and data then
-        return data
+    if self._core.GetPlayer then
+        return self._core:GetPlayer(source)
     end
 
     return nil
@@ -81,36 +77,16 @@ end
 function QBoxAdapter:giveMoney(source, account, amount)
     local acc = self:_normalizeAccount(account)
 
-    local success = pcall(function()
-        if self._core.AddMoney then
-            self._core:AddMoney(source, acc, amount)
-        end
-    end)
-
-    if not success then
-        local data = self:_getFrameworkPlayer(source)
-
-        if data and data.money then
-            data.money[acc] = (data.money[acc] or 0) + amount
-        end
+    if self._core.AddMoney then
+        self._core:AddMoney(source, acc, amount)
     end
 end
 
 function QBoxAdapter:takeMoney(source, account, amount)
     local acc = self:_normalizeAccount(account)
 
-    local success = pcall(function()
-        if self._core.RemoveMoney then
-            self._core:RemoveMoney(source, acc, amount)
-        end
-    end)
-
-    if not success then
-        local data = self:_getFrameworkPlayer(source)
-
-        if data and data.money then
-            data.money[acc] = math.max(0, (data.money[acc] or 0) - amount)
-        end
+    if self._core.RemoveMoney then
+        self._core:RemoveMoney(source, acc, amount)
     end
 end
 
@@ -136,11 +112,9 @@ function QBoxAdapter:getJob(source)
 end
 
 function QBoxAdapter:setJob(source, name, grade)
-    pcall(function()
-        if self._core.SetJob then
-            self._core:SetJob(source, name, grade)
-        end
-    end)
+    if self._core.SetJob then
+        self._core:SetJob(source, name, grade)
+    end
 end
 
 function QBoxAdapter:getOnDuty(source)
@@ -153,23 +127,17 @@ function QBoxAdapter:getOnDuty(source)
         return job.onduty
     end
 
-    local success, onDuty = pcall(function()
-        return self._core.IsJobDuty and self._core:IsJobDuty(source)
-    end)
-
-    if success and onDuty ~= nil then
-        return onDuty
+    if self._core.IsJobDuty then
+        return self._core:IsJobDuty(source)
     end
 
     return false
 end
 
 function QBoxAdapter:setOnDuty(source, onDuty)
-    pcall(function()
-        if self._core.SetJobDuty then
-            self._core:SetJobDuty(source, onDuty)
-        end
-    end)
+    if self._core.SetJobDuty then
+        self._core:SetJobDuty(source, onDuty)
+    end
 end
 
 function QBoxAdapter:getGang(source)
@@ -191,11 +159,9 @@ function QBoxAdapter:getGang(source)
 end
 
 function QBoxAdapter:setGang(source, name, grade)
-    pcall(function()
-        if self._core.SetGang then
-            self._core:SetGang(source, name, grade)
-        end
-    end)
+    if self._core.SetGang then
+        self._core:SetGang(source, name, grade)
+    end
 end
 
 function QBoxAdapter:getGroup(source)
@@ -234,6 +200,7 @@ end
 function QBoxAdapter:getIdentifiers(source)
     local result = { license = nil, steam = nil, discord = nil, fivem = nil, ip = nil }
     local ids = GetPlayerIdentifiers(source)
+
     for _, id in ipairs(ids) do
         if string.find(id, 'license:') == 1 then result.license = id
         elseif string.find(id, 'steam:') == 1 then result.steam = id
@@ -242,6 +209,7 @@ function QBoxAdapter:getIdentifiers(source)
         elseif string.find(id, 'ip:') == 1 then result.ip = id
         end
     end
+
     return result
 end
 
@@ -274,20 +242,13 @@ function QBoxAdapter:isLoaded(source)
 end
 
 function QBoxAdapter:save(source)
-    pcall(function()
-        if self._core.Save then
-            self._core:Save(source)
-        end
-    end)
+    if self._core.Save then
+        self._core:Save(source)
+    end
 end
 
 function QBoxAdapter:getAllPlayers()
-    local success, players = pcall(function()
-        return self._core.GetPlayers and self._core:GetPlayers() or {}
-    end)
-
-    if not success then return {} end
-
+    local players = self._core.GetPlayers and self._core:GetPlayers() or {}
     local sources = {}
 
     for _, data in ipairs(players) do
@@ -300,11 +261,7 @@ function QBoxAdapter:getAllPlayers()
 end
 
 function QBoxAdapter:getPlayerByIdentifier(idType, value)
-    local success, players = pcall(function()
-        return self._core.GetPlayers and self._core:GetPlayers() or {}
-    end)
-
-    if not success then return nil end
+    local players = self._core.GetPlayers and self._core:GetPlayers() or {}
 
     for _, data in ipairs(players) do
         if data.source then
@@ -322,11 +279,11 @@ function QBoxAdapter:getPlayerByIdentifier(idType, value)
 end
 
 function QBoxAdapter:getPlayerByCitizenId(citizenId)
-    local success, data = pcall(function()
-        return self._core.GetPlayerByCitizenId and self._core:GetPlayerByCitizenId(citizenId)
-    end)
+    if not self._core.GetPlayerByCitizenId then return nil end
 
-    if success and data and data.source then
+    local data = self._core:GetPlayerByCitizenId(citizenId)
+
+    if data and data.source then
         return data.source
     end
 
@@ -334,25 +291,13 @@ function QBoxAdapter:getPlayerByCitizenId(citizenId)
 end
 
 function QBoxAdapter:getPlayerCount()
-    local success, players = pcall(function()
-        return self._core.GetPlayers and self._core:GetPlayers() or {}
-    end)
-
-    if success then
-        return #players
-    end
-
-    return 0
+    local players = self._core.GetPlayers and self._core:GetPlayers() or {}
+    return #players
 end
 
 function QBoxAdapter:getPlayersByJob(jobName)
     local sources = {}
-
-    local success, players = pcall(function()
-        return self._core.GetPlayers and self._core:GetPlayers() or {}
-    end)
-
-    if not success then return sources end
+    local players = self._core.GetPlayers and self._core:GetPlayers() or {}
 
     for _, data in ipairs(players) do
         if data.job and data.job.name == jobName then
@@ -364,12 +309,9 @@ function QBoxAdapter:getPlayersByJob(jobName)
 end
 
 function QBoxAdapter:getJobDefinition(name)
-    local success, jobs = pcall(function()
-        return self._core.GetJobs and self._core:GetJobs() or {}
-    end)
+    if not self._core.GetJobs then return nil end
 
-    if not success then return nil end
-
+    local jobs = self._core:GetJobs()
     local job = jobs[name]
     if not job then return nil end
 
@@ -387,12 +329,9 @@ function QBoxAdapter:getJobDefinition(name)
 end
 
 function QBoxAdapter:getAllJobs()
-    local success, jobs = pcall(function()
-        return self._core.GetJobs and self._core:GetJobs() or {}
-    end)
+    if not self._core.GetJobs then return {} end
 
-    if not success then return {} end
-
+    local jobs = self._core:GetJobs()
     local result = {}
 
     for name, job in pairs(jobs) do
@@ -413,12 +352,9 @@ function QBoxAdapter:getAllJobs()
 end
 
 function QBoxAdapter:getGangDefinition(name)
-    local success, gangs = pcall(function()
-        return self._core.GetGangs and self._core:GetGangs() or {}
-    end)
+    if not self._core.GetGangs then return nil end
 
-    if not success then return nil end
-
+    local gangs = self._core:GetGangs()
     local gang = gangs[name]
     if not gang then return nil end
 
@@ -436,12 +372,9 @@ function QBoxAdapter:getGangDefinition(name)
 end
 
 function QBoxAdapter:getAllGangs()
-    local success, gangs = pcall(function()
-        return self._core.GetGangs and self._core:GetGangs() or {}
-    end)
+    if not self._core.GetGangs then return {} end
 
-    if not success then return {} end
-
+    local gangs = self._core:GetGangs()
     local result = {}
 
     for name, gang in pairs(gangs) do
@@ -466,12 +399,8 @@ function QBoxAdapter:getFrameworkName()
 end
 
 function QBoxAdapter:getFrameworkVersion()
-    local success, version = pcall(function()
-        return self._core.GetCoreVersion and self._core:GetCoreVersion()
-    end)
-
-    if success then
-        return version
+    if self._core.GetCoreVersion then
+        return self._core:GetCoreVersion()
     end
 
     return nil

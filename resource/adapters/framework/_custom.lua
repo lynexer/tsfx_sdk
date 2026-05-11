@@ -10,6 +10,9 @@ CustomFrameworkAdapter.__index = CustomFrameworkAdapter
 
 CustomFrameworkAdapter.requiresSave = false
 
+function CustomFrameworkAdapter:init()
+end
+
 function CustomFrameworkAdapter:getPlayer(source)
     _TSFX.Log:warn('CustomFrameworkAdapter:getPlayer called but no framework is configured')
     return { source = source, identifier = '', name = '' }

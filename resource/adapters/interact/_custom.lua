@@ -7,6 +7,9 @@
 CustomInteractAdapter = setmetatable({}, { __index = InteractAdapterClass })
 CustomInteractAdapter.__index = CustomInteractAdapter
 
+function CustomInteractAdapter:init()
+end
+
 function CustomInteractAdapter:addBoxZone(params)
     _TSFX.Log:warn('CustomInteractAdapter:addBoxZone called but no interaction system is configured')
 end

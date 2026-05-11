@@ -7,6 +7,9 @@
 NotifyAdapterClass = {}
 NotifyAdapterClass.__index = NotifyAdapterClass
 
+function NotifyAdapterClass:init()
+end
+
 function NotifyAdapterClass:send(source, message, type, duration)
     error('NotifyAdapterClass:send not implemented')
 end

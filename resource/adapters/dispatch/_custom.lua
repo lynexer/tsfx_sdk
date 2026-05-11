@@ -7,3 +7,6 @@
 ---@class CustomDispatchAdapter : DispatchAdapterClass
 CustomDispatchAdapter = setmetatable({}, { __index = DispatchAdapterClass })
 CustomDispatchAdapter.__index = CustomDispatchAdapter
+
+function CustomDispatchAdapter:init()
+end

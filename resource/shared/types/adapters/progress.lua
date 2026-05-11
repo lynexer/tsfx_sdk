@@ -10,6 +10,6 @@
 ---@field anim? table Animation configuration
 ---@field prop? table Prop configuration
 
----@class IProgress
+---@class IProgress : IAdapter
 ---@field start fun(source: number, params: ProgressParams)
 ---@field cancel fun(source: number)

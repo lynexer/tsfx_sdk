@@ -7,3 +7,6 @@
 ---@class CustomFuelAdapter : FuelAdapterClass
 CustomFuelAdapter = setmetatable({}, { __index = FuelAdapterClass })
 CustomFuelAdapter.__index = CustomFuelAdapter
+
+function CustomFuelAdapter:init()
+end

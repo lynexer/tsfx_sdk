@@ -7,3 +7,6 @@
 ---@class MedicalAdapterClass : IMedical
 MedicalAdapterClass = {}
 MedicalAdapterClass.__index = MedicalAdapterClass
+
+function MedicalAdapterClass:init()
+end

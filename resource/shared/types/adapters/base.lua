@@ -1,5 +1,6 @@
 --- @meta
--- Type definitions for TSFX Keys Adapters
+-- Type definitions for all Adapters
 -- This file is NOT loaded at runtime - only for LuaLS type checking
 
----@class IKeys : IAdapter
+---@class IAdapter
+---@field init fun()

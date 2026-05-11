@@ -7,6 +7,9 @@
 ProgressAdapterClass = {}
 ProgressAdapterClass.__index = ProgressAdapterClass
 
+function ProgressAdapterClass:init()
+end
+
 function ProgressAdapterClass:start(source, params)
     error('ProgressAdapterClass:start not implemented')
 end

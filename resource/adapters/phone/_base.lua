@@ -7,3 +7,6 @@
 ---@class PhoneAdapterClass : IPhone
 PhoneAdapterClass = {}
 PhoneAdapterClass.__index = PhoneAdapterClass
+
+function PhoneAdapterClass:init()
+end

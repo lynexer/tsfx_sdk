@@ -9,7 +9,7 @@
 ---@field weight number Item weight in grams
 ---@field metadata table|nil Optional item metadata
 
----@class IInventory
+---@class IInventory : IAdapter
 ---@field giveItem fun(source: number, item: string, count: number, metadata?: table)
 ---@field removeItem fun(source: number, item: string, count: number): boolean
 ---@field hasItem fun(source: number, item: string, count?: number): boolean

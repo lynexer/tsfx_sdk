@@ -45,7 +45,7 @@
 ---@field label string
 ---@field grades { [number]: { label: string } }
 
----@class IFramework
+---@class IFramework : IAdapter
 ---@field getPlayer fun(source: number): PlayerData
 ---@field getMoney fun(source: number, account: MoneyAccount): number
 ---@field setMoney fun(source: number, account: MoneyAccount, amount: number)

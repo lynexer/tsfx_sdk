@@ -7,6 +7,9 @@
 CustomInventoryAdapter = setmetatable({}, { __index = InventoryAdapterClass })
 CustomInventoryAdapter.__index = CustomInventoryAdapter
 
+function CustomInventoryAdapter:init()
+end
+
 function CustomInventoryAdapter:giveItem(source, item, count, metadata)
     _TSFX.Log:warn('CustomInventoryAdapter:giveItem called but no inventory system is configured')
 end

@@ -7,6 +7,9 @@
 CustomProgressAdapter = setmetatable({}, { __index = ProgressAdapterClass })
 CustomProgressAdapter.__index = CustomProgressAdapter
 
+function CustomProgressAdapter:init()
+end
+
 function CustomProgressAdapter:start(source, params)
     _TSFX.Log:warn('CustomProgressAdapter:start called but no progress bar system is configured')
 end

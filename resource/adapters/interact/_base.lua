@@ -7,6 +7,9 @@
 InteractAdapterClass = {}
 InteractAdapterClass.__index = InteractAdapterClass
 
+function InteractAdapterClass:init()
+end
+
 function InteractAdapterClass:addBoxZone(params)
     error('InteractAdapterClass:addBoxZone not implemented')
 end

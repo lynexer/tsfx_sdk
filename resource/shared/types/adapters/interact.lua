@@ -33,7 +33,7 @@
 ---@field drawSprite? boolean Draw interaction sprite
 ---@field options InteractOption[] Interaction options
 
----@class IInteract
+---@class IInteract : IAdapter
 ---@field addBoxZone fun(params: BoxZoneParams)
 ---@field addSphereZone fun(params: SphereZoneParams)
 ---@field addEntityZone fun(entity: number, params: EntityZoneParams)

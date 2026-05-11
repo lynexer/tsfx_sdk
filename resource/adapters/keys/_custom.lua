@@ -7,3 +7,6 @@
 ---@class CustomKeysAdapter : KeysAdapterClass
 CustomKeysAdapter = setmetatable({}, { __index = KeysAdapterClass })
 CustomKeysAdapter.__index = CustomKeysAdapter
+
+function CustomKeysAdapter:init()
+end

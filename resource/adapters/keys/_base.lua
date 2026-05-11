@@ -7,3 +7,6 @@
 ---@class KeysAdapterClass : IKeys
 KeysAdapterClass = {}
 KeysAdapterClass.__index = KeysAdapterClass
+
+function KeysAdapterClass:init()
+end

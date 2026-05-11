@@ -7,3 +7,6 @@
 ---@class DispatchAdapterClass : IDispatch
 DispatchAdapterClass = {}
 DispatchAdapterClass.__index = DispatchAdapterClass
+
+function DispatchAdapterClass:init()
+end

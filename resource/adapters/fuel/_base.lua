@@ -7,3 +7,6 @@
 ---@class FuelAdapterClass : IFuel
 FuelAdapterClass = {}
 FuelAdapterClass.__index = FuelAdapterClass
+
+function FuelAdapterClass:init()
+end

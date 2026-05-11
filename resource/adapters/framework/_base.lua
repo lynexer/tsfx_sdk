@@ -12,6 +12,9 @@ FrameworkAdapterClass.__index = FrameworkAdapterClass
 
 FrameworkAdapterClass.requiresSave = true
 
+function FrameworkAdapterClass:init()
+end
+
 function FrameworkAdapterClass:getPlayer(source)
     error('FrameworkAdapterClass:getPlayer not implemented')
 end

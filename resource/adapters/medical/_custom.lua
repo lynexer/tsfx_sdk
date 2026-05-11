@@ -7,3 +7,6 @@
 ---@class CustomMedicalAdapter : MedicalAdapterClass
 CustomMedicalAdapter = setmetatable({}, { __index = MedicalAdapterClass })
 CustomMedicalAdapter.__index = CustomMedicalAdapter
+
+function CustomMedicalAdapter:init()
+end

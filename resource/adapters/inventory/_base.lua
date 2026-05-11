@@ -7,6 +7,9 @@
 InventoryAdapterClass = {}
 InventoryAdapterClass.__index = InventoryAdapterClass
 
+function InventoryAdapterClass:init()
+end
+
 function InventoryAdapterClass:giveItem(source, item, count, metadata)
     error('InventoryAdapterClass:giveItem not implemented')
 end

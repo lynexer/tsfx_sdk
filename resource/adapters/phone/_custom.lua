@@ -7,3 +7,6 @@
 ---@class CustomPhoneAdapter : PhoneAdapterClass
 CustomPhoneAdapter = setmetatable({}, { __index = PhoneAdapterClass })
 CustomPhoneAdapter.__index = CustomPhoneAdapter
+
+function CustomPhoneAdapter:init()
+end

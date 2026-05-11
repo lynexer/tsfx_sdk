@@ -4,5 +4,5 @@
 
 ---@alias NotifyType 'success' | 'error' | 'info' | 'warning'
 
----@class INotify
+---@class INotify : IAdapter
 ---@field send fun(source: number, message: string, type: NotifyType, duration: number)

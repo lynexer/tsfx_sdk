@@ -27,8 +27,6 @@ shared_scripts {
     'support/*.lua',
 
     'adapters/**/*.lua',
-
-    'facades/*.lua',
 }
 
 server_scripts {

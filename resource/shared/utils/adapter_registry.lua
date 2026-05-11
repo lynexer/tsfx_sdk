@@ -111,6 +111,8 @@ function AdapterRegistry.resolve(category)
     local adapter = instantiate(className, cat.custom)
     AdapterRegistry._cache[category] = adapter
 
+    adapter:init()
+
     return adapter
 end
 

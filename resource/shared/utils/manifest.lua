@@ -106,6 +106,8 @@ function ManifestBuilder:finalize()
             methods = module.methods,
             mode = module.mode or 'export',
             file = module._file,
+            hidden = module.hidden,
+            callable = module.callable,
         }
 
         table.insert(manifest, metadata)

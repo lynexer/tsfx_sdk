@@ -42,10 +42,15 @@ _TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)) }
 
 for _, mod in ipairs(manifest) do
     if mod.context == 'shared' or mod.context == getContext() then
-        if mod.mode == 'consumer_vm' then
+        if mod.hidden then
+            -- Hidden modules are not consumer-facing; skip TSFX wrapper
+        elseif mod.mode == 'consumer_vm' then
             if mod.namespace == 'Log' then
                 -- Already loaded above; wire to public API
                 TSFX.Log = _TSFX.Log
+            elseif mod.callable then
+                loadSupportFile(mod.file)
+                TSFX[mod.namespace] = _ENV[mod.namespace].new
             else
                 loadSupportFile(mod.file)
                 TSFX[mod.namespace] = _ENV[mod.namespace]

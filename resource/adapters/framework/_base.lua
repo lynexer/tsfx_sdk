@@ -10,9 +10,17 @@
 FrameworkAdapterClass = {}
 FrameworkAdapterClass.__index = FrameworkAdapterClass
 
-FrameworkAdapterClass.requiresSave = true
+FrameworkAdapterClass.requiresSave = false
 
 function FrameworkAdapterClass:init()
+end
+
+function FrameworkAdapterClass:_getFrameworkPlayer(source)
+    error('FrameworkAdapterClass:_getFrameworkPlayer not implemented')
+end
+
+function FrameworkAdapterClass:_normalizeAccount(account)
+    error('FrameworkAdapterClass:_normalizeAccount not implemented')
 end
 
 function FrameworkAdapterClass:getPlayer(source)

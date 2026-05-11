@@ -46,6 +46,8 @@
 ---@field grades { [number]: { label: string } }
 
 ---@class IFramework : IAdapter
+---@field _getFrameworkPlayer fun(source: number): any
+---@field _normalizeAccount fun(account: string): string
 ---@field getPlayer fun(source: number): PlayerData
 ---@field getMoney fun(source: number, account: MoneyAccount): number
 ---@field setMoney fun(source: number, account: MoneyAccount, amount: number)

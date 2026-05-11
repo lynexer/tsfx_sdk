@@ -10,8 +10,8 @@ AdapterRegistry.register('framework', {
     configKey = 'framework',
     candidates = {
         { resource = 'es_extended', config = 'esx', class = 'ESXAdapter' },
-        { resource = 'qb-core', config = 'qbcore', class = 'QBCoreAdapter' },
         { resource = 'qbx_core', config = 'qbox', class = 'QBoxAdapter' },
+        { resource = 'qb-core', config = 'qbcore', class = 'QBCoreAdapter' },
     },
     custom = 'CustomFrameworkAdapter',
 })
@@ -19,54 +19,62 @@ AdapterRegistry.register('framework', {
 -- Inventory
 AdapterRegistry.register('inventory', {
     configKey = 'inventory',
-    candidates = {},
+    candidates = {
+        { resource = 'ox_inventory', config = 'ox_inventory', class = 'OxInventoryAdapter' },
+        { resource = 'ps-inventory', config = 'ps-inventory', class = 'PsInventoryAdapter' },
+    },
     custom = 'CustomInventoryAdapter',
 })
 
--- Interaction
-AdapterRegistry.register('interact', {
-    candidates = {},
-    custom = 'CustomInteractAdapter'
-})
+-- -- Interaction
+-- AdapterRegistry.register('interact', {
+--     candidates = {},
+--     custom = 'CustomInteractAdapter'
+-- })
 
 -- Notifications
 AdapterRegistry.register('notify', {
-    candidates = {},
+    candidates = {
+        { resource = 'es_extended', config = 'esx', class = 'EsxNotifyAdapter' },
+        { resource = 'qbx_core', config = 'qbox', class = 'QbNotifyAdapter' },
+        { resource = 'qb-core', config = 'qbcore', class = 'QbNotifyAdapter' },
+        { resource = 'ox_lib', config = 'ox_lib', class = 'OxLibNotifyAdapter' },
+    },
     custom = 'CustomNotifyAdapter',
 })
 
--- Progress
-AdapterRegistry.register('progress', {
-    candidates = {},
-    custom = 'CustomProgressAdapter',
-})
+-- -- Progress
+-- AdapterRegistry.register('progress', {
+--     candidates = {},
+--     custom = 'CustomProgressAdapter',
+-- })
 
--- Phone
-AdapterRegistry.register('phone', {
-    candidates = {},
-    custom = 'CustomPhoneAdapter',
-})
+-- -- Phone
+-- AdapterRegistry.register('phone', {
+--     candidates = {},
+--     custom = 'CustomPhoneAdapter',
+-- })
 
--- Dispatch
-AdapterRegistry.register('dispatch', {
-    candidates = {},
-    custom = 'CustomDispatchAdapter',
-})
+-- -- Dispatch
+-- AdapterRegistry.register('dispatch', {
+--     candidates = {},
+--     custom = 'CustomDispatchAdapter',
+-- })
 
--- Medical
-AdapterRegistry.register('medical', {
-    candidates = {},
-    custom = 'CustomMedicalAdapter',
-})
+-- -- Medical
+-- AdapterRegistry.register('medical', {
+--     candidates = {},
+--     custom = 'CustomMedicalAdapter',
+-- })
 
--- Vehicle Keys
-AdapterRegistry.register('keys', {
-    candidates = {},
-    custom = 'CustomKeysAdapter',
-})
+-- -- Vehicle Keys
+-- AdapterRegistry.register('keys', {
+--     candidates = {},
+--     custom = 'CustomKeysAdapter',
+-- })
 
--- Vehicle Fuel
-AdapterRegistry.register('fuel', {
-    candidates = {},
-    custom = 'CustomFuelAdapter',
-})
+-- -- Vehicle Fuel
+-- AdapterRegistry.register('fuel', {
+--     candidates = {},
+--     custom = 'CustomFuelAdapter',
+-- })

@@ -12,8 +12,8 @@ LogInstance.__index = LogInstance
 
 LogInstance._levelOrder = { debug = 1, info = 2, warn = 3, error = 4 }
 LogInstance._levelColors = {
-    debug = '^5',
-    info = '^7',
+    debug = '^6',
+    info = '^5',
     warn = '^3',
     error = '^1'
 }
@@ -80,12 +80,12 @@ function LogInstance:_printToConsole(level, message, data)
 
     if data then
         if #data <= 120 then
-            output = string.format('%s[%s]%s %s ^8%s^7', color, levelTag, self._prefix, message, data)
+            output = string.format('%s[%s]^7 %s %s ^8%s^7', color, levelTag, self._prefix, message, data)
         else
-            output = string.format('%s[%s]%s %s\n    ^8%s^7', color, levelTag, self._prefix, message, data)
+            output = string.format('%s[%s]^7 %s %s\n    ^8%s^7', color, levelTag, self._prefix, message, data)
         end
     else
-        output = string.format('%s[%s]%s %s^7', color, levelTag, self._prefix, message)
+        output = string.format('%s[%s]^7 %s %s^7', color, levelTag, self._prefix, message)
     end
 
     print(output)

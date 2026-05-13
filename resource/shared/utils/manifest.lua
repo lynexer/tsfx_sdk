@@ -27,6 +27,7 @@
 --- @field mode? 'export'|'consumer_vm'
 --- @field file? string
 --- @field globalName? string
+--- @field callable? boolean
 
 --- @class ModuleDeclaration : ManifestModule
 --- @field impl table<string, function>
@@ -112,6 +113,7 @@ function ManifestBuilder:finalize()
             hidden = module.hidden,
             preloaded = module.preloaded,
             globalName = module.globalName,
+            callable = module.callable
         }
 
         table.insert(manifest, metadata)

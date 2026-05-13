@@ -47,6 +47,9 @@ for _, mod in ipairs(manifest) do
         elseif mod.mode == 'consumer_vm' then
             if mod.preloaded then
                 TSFX[mod.namespace] = _TSFX[mod.namespace]
+            elseif mod.callable then
+                loadSupportFile(mod.file)
+                TSFX[mod.namespace] = _ENV[mod.globalName or mod.namespace].new
             else
                 loadSupportFile(mod.file)
                 TSFX[mod.namespace] = _ENV[mod.globalName or mod.namespace]

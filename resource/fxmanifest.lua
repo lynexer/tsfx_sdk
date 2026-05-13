@@ -42,7 +42,8 @@ client_scripts {
 }
 
 files {
-    'init.lua'
+    'init.lua',
+    'facades/*.lua'
 }
 
 lua54 'yes'

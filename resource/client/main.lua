@@ -9,7 +9,8 @@ _TSFX = { Log = LoggerRegistry.get('SDK') }
 _TSFX.Log:info('Client bootstrap starting...')
 
 -- Load client-side module declarations into manifest
-Manifest:load('client/modules/target.lua')
+Manifest:load('client/modules/player.lua')
+-- Manifest:load('client/modules/target.lua')
 
 -- Load shared facades into manifest
 Manifest:load('facades/PlayerHandle.lua')

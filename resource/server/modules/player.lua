@@ -82,13 +82,12 @@ end
 
 ---@type ModuleDeclaration
 return {
-    namespace = 'Player',
+    namespace = 'ServerPlayerModule',
     exportPrefix = 'Player',
     scoped = false,
     context = 'server',
     impl = PlayerModule,
     mode = 'export',
-    hidden = true,
     methods = {
         { name = 'giveMoney' },
         { name = 'takeMoney' },

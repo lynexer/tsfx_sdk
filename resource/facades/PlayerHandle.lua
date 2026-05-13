@@ -1,5 +1,6 @@
 --[[
     TSFX SDK - Player Handle Facade
+
     Chainable handle for single-player operations.
     Loaded into consumer VM via init.lua.
 --]]
@@ -7,13 +8,16 @@
 ---@class PlayerHandleClass
 PlayerHandle = {}
 PlayerHandle.__index = PlayerHandle
+PlayerHandle._source = nil
 
 ---Create a new player handle
----@param source number Player server ID
+---@param source? number Player server ID (required on server, omitted on client)
 ---@return PlayerHandleClass
 function PlayerHandle.new(source)
     local self = setmetatable({}, PlayerHandle)
+
     self._source = source
+
     return self
 end
 
@@ -22,7 +26,13 @@ end
 ---@param amount number
 ---@return PlayerHandleClass
 function PlayerHandle:GiveMoney(account, amount)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:GiveMoney is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_giveMoney(self._source, account, amount)
+
     return self
 end
 
@@ -31,7 +41,13 @@ end
 ---@param amount number
 ---@return PlayerHandleClass
 function PlayerHandle:TakeMoney(account, amount)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:TakeMoney is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_takeMoney(self._source, account, amount)
+
     return self
 end
 
@@ -40,7 +56,13 @@ end
 ---@param amount number
 ---@return PlayerHandleClass
 function PlayerHandle:SetMoney(account, amount)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:SetMoney is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_setMoney(self._source, account, amount)
+
     return self
 end
 
@@ -62,7 +84,13 @@ end
 ---@param grade number
 ---@return PlayerHandleClass
 function PlayerHandle:SetJob(name, grade)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:SetJob is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_setJob(self._source, name, grade)
+
     return self
 end
 
@@ -76,7 +104,13 @@ end
 ---@param onDuty boolean
 ---@return PlayerHandleClass
 function PlayerHandle:SetOnDuty(onDuty)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:SetOnDuty is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_setOnDuty(self._source, onDuty)
+
     return self
 end
 
@@ -91,7 +125,13 @@ end
 ---@param grade number
 ---@return PlayerHandleClass
 function PlayerHandle:SetGang(name, grade)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:SetGang is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_setGang(self._source, name, grade)
+
     return self
 end
 
@@ -104,7 +144,7 @@ end
 ---Get player's identity data
 ---@return IdentityData
 function PlayerHandle:GetIdentity()
-    return exports.tsfx_sdk.Player_getIdentity(self._source)
+    return exports.tsfx_sdk:Player_getIdentity(self._source)
 end
 
 ---Get player's identifiers
@@ -125,7 +165,13 @@ end
 ---@param value any
 ---@return PlayerHandleClass
 function PlayerHandle:SetMetadata(key, value)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:SetMetadata is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_setMetadata(self._source, key, value)
+
     return self
 end
 
@@ -133,7 +179,13 @@ end
 ---@param reason string
 ---@return PlayerHandleClass
 function PlayerHandle:Kick(reason)
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:Kick is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_kick(self._source, reason)
+
     return self
 end
 
@@ -146,7 +198,13 @@ end
 ---Save player data
 ---@return PlayerHandleClass
 function PlayerHandle:Save()
+    if not isServer() then
+        _TSFX.Log:warn('PlayerHandle:Save is not available on client')
+        return self
+    end
+
     exports.tsfx_sdk.Player_save(self._source)
+
     return self
 end
 

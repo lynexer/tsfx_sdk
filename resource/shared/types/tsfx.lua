@@ -9,7 +9,7 @@
 ---@field Locale LocaleClass
 ---@field StateMachine StateMachineClass
 ---@field StateMachineBuilder StateMachineBuilderClass
----@field Player fun(source: number): PlayerHandleClass
+---@field Player fun(source?: number): PlayerHandleClass
 ---@field Job fun(name: string): JobHandleClass
 ---@field Gang fun(name: string): GangHandleClass
 ---@field Framework fun(): FrameworkHandleClass

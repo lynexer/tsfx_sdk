@@ -21,6 +21,8 @@
 --- @field exportPrefix string|nil
 --- @field scoped boolean
 --- @field context 'server'|'client'|'shared'
+--- @field hidden? boolean
+--- @field preloaded? boolean
 --- @field methods ManifestMethod[]
 --- @field mode? 'export'|'consumer_vm'
 --- @field file? string
@@ -107,7 +109,7 @@ function ManifestBuilder:finalize()
             mode = module.mode or 'export',
             file = module._file,
             hidden = module.hidden,
-            callable = module.callable,
+            preloaded = module.preloaded
         }
 
         table.insert(manifest, metadata)

@@ -45,12 +45,8 @@ for _, mod in ipairs(manifest) do
         if mod.hidden then
             -- Hidden modules are not consumer-facing; skip TSFX wrapper
         elseif mod.mode == 'consumer_vm' then
-            if mod.namespace == 'Log' then
-                -- Already loaded above; wire to public API
-                TSFX.Log = _TSFX.Log
-            elseif mod.callable then
-                loadSupportFile(mod.file)
-                TSFX[mod.namespace] = _ENV[mod.namespace].new
+            if mod.preloaded then
+                TSFX[mod.namespace] = _TSFX[mod.namespace]
             else
                 loadSupportFile(mod.file)
                 TSFX[mod.namespace] = _ENV[mod.namespace]
@@ -62,8 +58,8 @@ for _, mod in ipairs(manifest) do
 
             for _, method in ipairs(mod.methods) do
                 local exportName = prefix .. '_' .. method.name
-                local scopedArg = method.scoped and GetCurrentResourceName() or nil
-                local fn = function (...)
+                local scopedArg = method.scoped and resourceName or nil
+                local fn = function(...)
                     return sdk[exportName](scopedArg, ...)
                 end
 

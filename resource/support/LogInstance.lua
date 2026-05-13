@@ -184,6 +184,7 @@ return {
     context = 'shared',
     impl = LogInstance,
     mode = 'consumer_vm',
+    preloaded = true,
     methods = {
         { name = 'new' }
     }

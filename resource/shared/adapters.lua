@@ -3,17 +3,25 @@
 
     Declarative configuration for all adapter categories.
     Adding a new category requires one register() call — no engine changes.
+
+    Candidates may declare per-context classes:
+      serverClass — used when AdapterRegistry.resolve() is called on the server
+      clientClass — used when AdapterRegistry.resolve() is called on the client
+      class       — fallback used when no per-context class is set
+
+    custom may be a string (same fallback for both contexts) or a table:
+      { server = 'FallbackServerClass', client = 'FallbackClientClass' }
 --]]
 
 -- Framework
 AdapterRegistry.register('framework', {
     configKey = 'framework',
     candidates = {
-        { resource = 'es_extended', config = 'esx', class = 'ESXAdapter' },
-        { resource = 'qbx_core', config = 'qbox', class = 'QBoxAdapter' },
-        { resource = 'qb-core', config = 'qbcore', class = 'QBCoreAdapter' },
+        { resource = 'es_extended', config = 'esx', serverClass = 'ESXAdapter', clientClass = 'ESXClientAdapter' },
+        { resource = 'qbx_core', config = 'qbox', serverClass = 'QBoxAdapter', clientClass = 'QBoxClientAdapter' },
+        { resource = 'qb-core', config = 'qbcore', serverClass = 'QBCoreAdapter', clientClass = 'QBCoreClientAdapter' },
     },
-    custom = 'CustomFrameworkAdapter',
+    custom = { server = 'CustomFrameworkAdapter', client = 'CustomFrameworkClientAdapter' },
 })
 
 -- Inventory

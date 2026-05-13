@@ -32,14 +32,12 @@ shared_scripts {
 server_scripts {
     'server/modules/**/*_index.lua',
     'server/modules/**/*.lua',
-
     'server/main.lua',
 }
 
 client_scripts {
     'client/modules/**/*_index.lua',
     'client/modules/**/*.lua',
-
     'client/main.lua',
 }
 

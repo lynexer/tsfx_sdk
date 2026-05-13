@@ -4,8 +4,8 @@
     Fallback when no framework resource is detected. Logs warnings for all calls.
 --]]
 
----@class CustomFrameworkAdapter : FrameworkAdapterClass
-CustomFrameworkAdapter = setmetatable({}, { __index = FrameworkAdapterClass })
+---@class CustomFrameworkAdapter : FrameworkServerAdapterClass
+CustomFrameworkAdapter = setmetatable({}, { __index = FrameworkServerAdapterClass })
 CustomFrameworkAdapter.__index = CustomFrameworkAdapter
 
 CustomFrameworkAdapter.requiresSave = false

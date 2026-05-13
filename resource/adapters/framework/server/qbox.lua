@@ -5,8 +5,8 @@
     everything is export-based.
 --]]
 
----@class QBoxAdapter : FrameworkAdapterClass
-QBoxAdapter = setmetatable({}, { __index = FrameworkAdapterClass })
+---@class QBoxAdapter : FrameworkServerAdapterClass
+QBoxAdapter = setmetatable({}, { __index = FrameworkServerAdapterClass })
 QBoxAdapter.__index = QBoxAdapter
 QBoxAdapter._core = nil
 

@@ -5,8 +5,8 @@
     Instantiates QBCore via GetCoreObject() export on first use.
 --]]
 
----@class QBCoreAdapter : FrameworkAdapterClass
-QBCoreAdapter = setmetatable({}, { __index = FrameworkAdapterClass })
+---@class QBCoreAdapter : FrameworkServerAdapterClass
+QBCoreAdapter = setmetatable({}, { __index = FrameworkServerAdapterClass })
 QBCoreAdapter.__index = QBCoreAdapter
 QBCoreAdapter._core = nil
 

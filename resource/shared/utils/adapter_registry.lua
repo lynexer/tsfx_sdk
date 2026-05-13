@@ -3,6 +3,10 @@
 
     Generic resolver for adapter categories. Concrete registrations live in
     shared/adapters.lua.
+
+    Categories may declare per-context adapter classes (serverClass / clientClass)
+    so that a single registration resolves the correct adapter for the current
+    execution context.
 --]]
 
 AdapterRegistry = {}
@@ -17,8 +21,18 @@ function AdapterRegistry.register(category, config)
         error(('AdapterRegistry.register(%s): candidates array required'):format(category))
     end
 
-    if not config.custom or type(config.custom) ~= 'string' then
-        error(('AdapterRegistry.register(%s): custom class name required'):format(category))
+    if not config.custom then
+        error(('AdapterRegistry.register(%s): custom fallback required'):format(category))
+    end
+
+    if type(config.custom) ~= 'string' and type(config.custom) ~= 'table' then
+        error(('AdapterRegistry.register(%s): custom must be a string or table'):format(category))
+    end
+
+    if type(config.custom) == 'table' then
+        if not config.custom.server or not config.custom.client then
+            error(('AdapterRegistry.register(%s): custom table must have server and client keys'):format(category))
+        end
     end
 
     AdapterRegistry._categories[category] = config
@@ -27,7 +41,7 @@ end
 ---Instantiate an adapter from a global class, falling back to custom
 ---@private
 ---@param className string Global adapter class name
----@param fallbackClassName string Fallback class name
+---@param fallbackClassName? string Fallback class name
 ---@return table
 local function instantiate(className, fallbackClassName)
     local class = _G[className]
@@ -37,7 +51,7 @@ local function instantiate(className, fallbackClassName)
         return setmetatable({}, class)
     end
 
-    local fallback = _G[fallbackClassName]
+    local fallback = fallbackClassName and _G[fallbackClassName]
 
     if fallback then
         log:warn(('Adapter class %s not found, using %s'):format(className, fallbackClassName))
@@ -62,7 +76,8 @@ local function findByConfig(candidates, config)
     return nil
 end
 
----Resolve active adapter for a registered category
+---Resolve active adapter for a registered category.
+---Picks the class based on current execution context (server / client).
 ---@param category string Category identifier
 ---@return table Adapter instance
 function AdapterRegistry.resolve(category)
@@ -78,34 +93,55 @@ function AdapterRegistry.resolve(category)
         error(('AdapterRegistry: unknown category "%s"'):format(category))
     end
 
+    local ctx = getContext()
     local override = cat.configKey and Config and Config[cat.configKey] or 'auto'
-    local className = nil
+    local candidate = nil
 
     if override ~= 'auto' then
-        local candidate = findByConfig(cat.candidates, override)
-
-        if candidate then
-            className = candidate.class
-        end
+        candidate = findByConfig(cat.candidates, override)
     else
-        for _, candidate in ipairs(cat.candidates) do
-            if GetResourceState(candidate.resource) == 'started' then
-                className = candidate.class
+        for _, c in ipairs(cat.candidates) do
+            if GetResourceState(c.resource) == 'started' then
+                candidate = c
 
-                log:info(('%s auto-detected: %s'):format(category, candidate.resource))
+                log:info(('%s auto-detected: %s'):format(category, c.resource))
 
                 break
             end
         end
     end
 
-    if not className then
-        log:warn(('No %s system detected. Using custom fallback adapter.'):format(category))
+    local className = nil
 
-        className = cat.custom
+    if candidate then
+        if ctx == 'server' then
+            className = candidate.serverClass or candidate.class
+        else
+            className = candidate.clientClass or candidate.class
+        end
     end
 
-    local adapter = instantiate(className, cat.custom)
+    if not className then
+        if type(cat.custom) == 'table' then
+            className = cat.custom[ctx]
+        else
+            className = cat.custom
+        end
+    end
+
+    if not className then
+        error(('AdapterRegistry: no adapter class available for category "%s" on %s'):format(category, ctx))
+    end
+
+    local fallbackClassName = nil
+
+    if type(cat.custom) == 'table' then
+        fallbackClassName = cat.custom[ctx]
+    else
+        fallbackClassName = cat.custom
+    end
+
+    local adapter = instantiate(className, fallbackClassName)
 
     AdapterRegistry._cache[category] = adapter
     adapter:init()

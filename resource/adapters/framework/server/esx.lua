@@ -5,8 +5,8 @@
     Instantiates ESX via getSharedObject() export on first use.
 --]]
 
----@class ESXAdapter : FrameworkAdapterClass
-ESXAdapter = setmetatable({}, { __index = FrameworkAdapterClass })
+---@class ESXAdapter : FrameworkServerAdapterClass
+ESXAdapter = setmetatable({}, { __index = FrameworkServerAdapterClass })
 ESXAdapter.__index = ESXAdapter
 ESXAdapter._core = nil
 ESXAdapter.requiresSave = true

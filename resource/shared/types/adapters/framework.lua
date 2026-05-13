@@ -9,6 +9,11 @@
 ---@field identifier string The players unique identifier
 ---@field name string The players display name
 
+---@class LocalPlayerData
+---@field source number The player server ID
+---@field identifier string The players unique identifier
+---@field name string The players display name
+
 ---@class JobData
 ---@field name string Job identifier
 ---@field label string Job display label
@@ -45,7 +50,7 @@
 ---@field label string
 ---@field grades { [number]: { label: string } }
 
----@class IFramework : IAdapter
+---@class IFrameworkServer : IAdapter
 ---@field _getFrameworkPlayer fun(source: number): any
 ---@field _normalizeAccount fun(account: string): string
 ---@field getPlayer fun(source: number): PlayerData
@@ -79,3 +84,18 @@
 ---@field getAllGangs fun(): { [string]: GangDefinition }
 ---@field getFrameworkName fun(): string
 ---@field getFrameworkVersion fun(): string|nil
+
+---@class IFrameworkClient : IAdapter
+---@field isLoaded fun(): boolean
+---@field getLocalPlayerData fun(): LocalPlayerData
+---@field getLocalJob fun(): JobData
+---@field getLocalMoney fun(account: MoneyAccount): number
+---@field getLocalGroup fun(): string
+---@field getLocalIdentity fun(): IdentityData
+---@field getLocalIdentifier fun(): string
+---@field getLocalIdentifiers fun(): IdentifierData
+---@field getLocalMetadata fun(key: string): any
+---@field hasGroup fun(filter: string|string[]): boolean
+---@field getGroups fun(): { [string]: number }
+---@field getLocalGang fun(): GangData|nil
+---@field getLocalOnDuty fun(): boolean

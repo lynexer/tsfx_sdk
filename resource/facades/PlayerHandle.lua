@@ -153,8 +153,10 @@ end
 ---@type ModuleDeclaration
 return {
     namespace = 'Player',
+    globalName = 'PlayerHandle',
     context = 'shared',
     mode = 'consumer_vm',
+    scoped = false,
     callable = true,
     impl = {},
     methods = {},

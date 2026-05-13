@@ -49,7 +49,7 @@ for _, mod in ipairs(manifest) do
                 TSFX[mod.namespace] = _TSFX[mod.namespace]
             else
                 loadSupportFile(mod.file)
-                TSFX[mod.namespace] = _ENV[mod.namespace]
+                TSFX[mod.namespace] = _ENV[mod.globalName or mod.namespace]
             end
         else
             local prefix = mod.exportPrefix or mod.namespace

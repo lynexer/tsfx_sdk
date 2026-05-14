@@ -39,7 +39,8 @@ loadSupportFile('shared/utils/module_builder.lua')
 -- Log is a dependency for other consumer_vm modules (StateMachine, etc.)
 -- that reference _TSFX.Log in their function bodies.
 loadSupportFile('support/LogInstance.lua')
-_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)) }
+loadSupportFile('support/Cache.lua')
+_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)), Cache = Cache }
 Module = ModuleBuilder.new
 
 for _, mod in ipairs(manifest) do

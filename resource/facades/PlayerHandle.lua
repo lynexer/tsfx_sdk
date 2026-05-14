@@ -205,6 +205,18 @@ function PlayerHandle:setGang(identifier, grade)
     end, self)
 end
 
+---Get player's identity data
+---@return IdentityData
+function PlayerHandle:getIdentity()
+    return self._export:Player_getIdentity(self.source)
+end
+
+---Get player's identifiers
+---@return IdentifierData
+function PlayerHandle:getIdentifiers()
+    return self._export:Player_getIdentifiers(self.source)
+end
+
 -- notify
 -- drop
 -- getMetadata
@@ -237,8 +249,6 @@ end
 -- isReloading
 -- getRoutingBucket
 -- setRoutingBucket
--- getIdentity
--- getIdentifiers
 -- save
 -- is (check multiple is conditions using project-haven conditional evaluator)
 

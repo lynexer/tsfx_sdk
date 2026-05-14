@@ -43,9 +43,24 @@ function PlayerHandle:getPed()
 
     local ped = isServer() and GetPlayerPed(self.source --[[@as number]]) or PlayerPedId()
 
-    Cache.set(cacheKey, ped, 60)
+    _TSFX.Cache.set(cacheKey, ped, 60)
 
     return ped
+end
+
+---@return number
+function PlayerHandle:getPlayerId()
+    return self:_clientOnly('getPlayerId', function ()
+        local cacheKey = 'player:local'
+        local cached = _TSFX.Cache.get(cacheKey)
+        if cached then return cached end
+
+        local playerId = PlayerId()
+
+        _TSFX.Cache.set(cacheKey, playerId, 120)
+
+        return playerId
+    end, 0)
 end
 
 ---@return integer

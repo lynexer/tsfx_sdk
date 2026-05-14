@@ -96,10 +96,11 @@ function ClientPlayerModule.save(source)
     _TSFX.Log:warn('ClientPlayerModule.save is not available on client')
 end
 
-return Module('ClientPlayerModule', 'client')
+return Module('Player', 'client')
     :mode('export')
     :exportAs('Player')
     :impl(ClientPlayerModule)
+    :hidden()
     :methods(function (m)
         m:add(
             'getJob', 'getOnDuty', 'getGang', 'getGroup', 

@@ -28,10 +28,11 @@ function InventoryModule.getInventory(source)
     return inventoryAdapter:getInventory(source)
 end
 
-return Module('ServerInventoryModule', 'server')
+return Module('Inventory', 'server')
     :mode('export')
     :exportAs('Inventory')
     :impl(InventoryModule)
+    :hidden()
     :methods(function (m)
         m:add('giveItem', 'removeItem', 'hasItem', 'getItem', 'getInventory')
     end)

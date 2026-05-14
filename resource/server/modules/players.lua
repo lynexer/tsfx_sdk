@@ -28,10 +28,11 @@ function PlayersModule.getByCitizenId(citizenId)
     return frameworkAdapter:getPlayerByCitizenId(citizenId)
 end
 
-return Module('ServerPlayersModule', 'server')
+return Module('Players', 'server')
     :mode('export')
     :exportAs('Players')
     :impl(PlayersModule)
+    :hidden()
     :methods(function (m)
         m:add('getAll', 'count', 'getByJob', 'getByIdentifier', 'getByCitizenId')
     end)

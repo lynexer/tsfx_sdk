@@ -80,10 +80,11 @@ function PlayerModule.save(source)
     frameworkAdapter:save(source)
 end
 
-return Module('ServerPlayerModule', 'server')
+return Module('Player', 'server')
     :mode('export')
     :exportAs('Player')
     :impl(PlayerModule)
+    :hidden()
     :methods(function (m)
         m:add(
             'giveMoney', 'takeMoney', 'setMoney', 'getMoney',

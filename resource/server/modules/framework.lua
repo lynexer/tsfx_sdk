@@ -45,10 +45,11 @@ function FrameworkModule.hasGangs()
     return next(gangs) ~= nil
 end
 
-return Module('ServerFrameworkModule', 'server')
+return Module('Framework', 'server')
     :mode('export')
     :exportAs('Framework')
     :impl(FrameworkModule)
+    :hidden()
     :methods(function (m)
         m:add(
             'getAllJobs', 'getJobDefinition', 'getAllGangs',

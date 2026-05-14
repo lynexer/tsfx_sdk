@@ -22,10 +22,11 @@ function NotifyModule.progressCancel(source)
     EventBus.emitNet('__tsfx:progressCancel', source, {})
 end
 
-return Module('ServerNotifyModule', 'server')
+return Module('Notify', 'server')
     :mode('export')
     :exportAs('Notify')
     :impl(NotifyModule)
+    :hidden()
     :methods(function (m)
         m:add('send', 'progressStart', 'progressCancel')
     end)

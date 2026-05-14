@@ -25,10 +25,11 @@ function TargetModule.removeZone(name)
     interactAdapter:removeZone(name)
 end
 
-return Module('ClientTargetModule', 'client')
+return Module('Target', 'client')
     :mode('export')
     :exportAs('Target')
     :impl(TargetModule)
+    :hidden()
     :methods(function (m)
         m:add('addBoxZone', 'addSphereZone', 'addEntityZone', 'removeZone')
     end)

@@ -246,7 +246,7 @@ function StateMachine:readBag(key)
     return nil
 end
 
-return Module('StateMachine', 'shared')
+return Module and Module('StateMachine', 'shared')
     :mode('consumer_vm')
     :exportAs('StateMachine')
     :impl(StateMachine)

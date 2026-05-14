@@ -176,7 +176,7 @@ function LogInstance:clearHooks()
     self._hooks = {}
 end
 
-return Module('Log', 'shared')
+return Module and Module('Log', 'shared')
     :mode('consumer_vm')
     :exportAs('Log')
     :impl(LogInstance)

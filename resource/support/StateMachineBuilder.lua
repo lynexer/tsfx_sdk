@@ -137,7 +137,7 @@ function StateMachineBuilder:build(context)
     return machine
 end
 
-return Module('StateMachineBuilder', 'shared')
+return Module and Module('StateMachineBuilder', 'shared')
     :mode('consumer_vm')
     :exportAs('StateMachineBuilder')
     :impl(StateMachineBuilder)

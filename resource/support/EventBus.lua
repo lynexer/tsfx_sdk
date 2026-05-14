@@ -447,7 +447,7 @@ end
 
 EventBus.register('__eventbus:callback')
 
-return Module('Events', 'shared')
+return Module and Module('Events', 'shared')
     :mode('export')
     :exportAs('EventBus')
     :impl(EventBus)

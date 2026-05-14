@@ -92,7 +92,7 @@ function Cache.flush()
     Cache._data = {}
 end
 
-return Module('Cache', 'shared')
+return Module and Module('Cache', 'shared')
     :mode('export')
     :exportAs('Cache')
     :impl(Cache)

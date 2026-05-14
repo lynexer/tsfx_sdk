@@ -230,7 +230,7 @@ function Locale.reload()
     _TSFX.Log:info('Locale reloaded')
 end
 
-return Module('Locale', 'shared')
+return Module and Module('Locale', 'shared')
     :mode('consumer_vm')
     :exportAs('Locale')
     :impl(Locale)

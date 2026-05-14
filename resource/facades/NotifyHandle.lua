@@ -18,15 +18,11 @@ function NotifyHandle.progressCancel(source)
     exports.tsfx_sdk.Notify_progressCancel(source)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Notify',
-    context = 'shared',
-    mode = 'consumer_vm',
-    impl = NotifyHandle,
-    methods = {
-        { name = 'send' },
-        { name = 'progressStart' },
-        { name = 'progressCancel' },
-    }
-}
+return Module('Notify', 'shared')
+    :mode('consumer_vm')
+    :globalName('NotifyHandle')
+    :impl(NotifyHandle)
+    :methods(function (m)
+        m:add('send', 'progressStart', 'progressCancel')
+    end)
+    :build()

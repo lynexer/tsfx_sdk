@@ -96,32 +96,17 @@ function ClientPlayerModule.save(source)
     _TSFX.Log:warn('ClientPlayerModule.save is not available on client')
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'ClientPlayerModule',
-    exportPrefix = 'Player',
-    scoped = false,
-    context = 'client',
-    impl = ClientPlayerModule,
-    mode = 'export',
-    methods = {
-        { name = 'getJob' },
-        { name = 'getOnDuty' },
-        { name = 'getGang' },
-        { name = 'getGroup' },
-        { name = 'getIdentity' },
-        { name = 'getIdentifiers' },
-        { name = 'getMetadata' },
-        { name = 'isLoaded' },
-        { name = 'getMoney' },
-        { name = 'giveMoney' },
-        { name = 'takeMoney' },
-        { name = 'setMoney' },
-        { name = 'setJob' },
-        { name = 'setOnDuty' },
-        { name = 'setGang' },
-        { name = 'setMetadata' },
-        { name = 'kick' },
-        { name = 'save' },
-    }
-}
+return Module('ClientPlayerModule', 'client')
+    :mode('export')
+    :exportAs('Player')
+    :impl(ClientPlayerModule)
+    :methods(function (m)
+        m:add(
+            'getJob', 'getOnDuty', 'getGang', 'getGroup', 
+            'getIdentity', 'getIdentifiers', 'getMetadata', 
+            'isLoaded', 'getMoney', 'giveMoney', 'takeMoney',
+            'setMoney', 'setJob', 'setOnDuty', 'setGang',
+            'setMetadata', 'kick', 'save'
+        )
+    end)
+    :build()

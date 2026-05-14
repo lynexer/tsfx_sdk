@@ -246,15 +246,11 @@ function StateMachine:readBag(key)
     return nil
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'StateMachine',
-    exportPrefix = 'StateMachine',
-    scoped = false,
-    context = 'shared',
-    impl = StateMachine,
-    mode = 'consumer_vm',
-    methods = {
-        { name = 'new' }
-    }
-}
+return Module('StateMachine', 'shared')
+    :mode('consumer_vm')
+    :exportAs('StateMachine')
+    :impl(StateMachine)
+    :methods(function (m)
+        m:add('new')
+    end)
+    :build()

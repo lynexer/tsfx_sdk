@@ -208,14 +208,8 @@ function PlayerHandle:Save()
     return self
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Player',
-    globalName = 'PlayerHandle',
-    context = 'shared',
-    mode = 'consumer_vm',
-    scoped = false,
-    callable = true,
-    impl = {},
-    methods = {},
-}
+return Module('Player', 'shared')
+    :mode('consumer_vm')
+    :globalName('PlayerHandle')
+    :callable()
+    :build()

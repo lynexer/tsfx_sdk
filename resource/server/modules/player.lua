@@ -80,32 +80,17 @@ function PlayerModule.save(source)
     frameworkAdapter:save(source)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'ServerPlayerModule',
-    exportPrefix = 'Player',
-    scoped = false,
-    context = 'server',
-    impl = PlayerModule,
-    mode = 'export',
-    methods = {
-        { name = 'giveMoney' },
-        { name = 'takeMoney' },
-        { name = 'setMoney' },
-        { name = 'getMoney' },
-        { name = 'getJob' },
-        { name = 'setJob' },
-        { name = 'getOnDuty' },
-        { name = 'setOnDuty' },
-        { name = 'getGang' },
-        { name = 'setGang' },
-        { name = 'getGroup' },
-        { name = 'getIdentity' },
-        { name = 'getIdentifiers' },
-        { name = 'getMetadata' },
-        { name = 'setMetadata' },
-        { name = 'kick' },
-        { name = 'isLoaded' },
-        { name = 'save' },
-    }
-}
+return Module('ServerPlayerModule', 'server')
+    :mode('export')
+    :exportAs('Player')
+    :impl(PlayerModule)
+    :methods(function (m)
+        m:add(
+            'giveMoney', 'takeMoney', 'setMoney', 'getMoney',
+            'getJob', 'setJob', 'getOnDuty', 'setOnDuty',
+            'getGang', 'setGang', 'getGroup', 'getIdentity',
+            'getIdentifiers', 'getMetadata', 'setMetadata', 'kick',
+            'isLoaded', 'save'
+        )
+    end)
+    :build()

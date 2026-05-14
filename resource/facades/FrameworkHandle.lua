@@ -73,12 +73,8 @@ function FrameworkHandle:HasGangs()
     return exports.tsfx_sdk.Framework_hasGangs()
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Framework',
-    context = 'shared',
-    mode = 'consumer_vm',
-    callable = true,
-    impl = {},
-    methods = {},
-}
+return Module('Framework', 'shared')
+    :mode('consumer_vm')
+    :globalName('FrameworkHandle')
+    :callable()
+    :build()

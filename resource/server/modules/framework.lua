@@ -45,24 +45,15 @@ function FrameworkModule.hasGangs()
     return next(gangs) ~= nil
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Framework',
-    exportPrefix = 'Framework',
-    scoped = false,
-    context = 'server',
-    impl = FrameworkModule,
-    mode = 'export',
-    hidden = true,
-    methods = {
-        { name = 'getAllJobs' },
-        { name = 'getJobDefinition' },
-        { name = 'getAllGangs' },
-        { name = 'getGangDefinition' },
-        { name = 'getName' },
-        { name = 'getVersion' },
-        { name = 'findPlayer' },
-        { name = 'findPlayerByCitizenId' },
-        { name = 'hasGangs' },
-    }
-}
+return Module('ServerFrameworkModule', 'server')
+    :mode('export')
+    :exportAs('Framework')
+    :impl(FrameworkModule)
+    :methods(function (m)
+        m:add(
+            'getAllJobs', 'getJobDefinition', 'getAllGangs',
+            'getGangDefinition', 'getName', 'getVersion', 'findPlayer',
+            'findPlayerByCitizenId', 'hasGangs'
+        )
+    end)
+    :build()

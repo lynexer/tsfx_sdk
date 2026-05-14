@@ -26,17 +26,11 @@ function InventoryHandle.getInventory(source)
     return exports.tsfx_sdk.Inventory_getInventory(source)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Inventory',
-    context = 'shared',
-    mode = 'consumer_vm',
-    impl = InventoryHandle,
-    methods = {
-        { name = 'giveItem' },
-        { name = 'removeItem' },
-        { name = 'hasItem' },
-        { name = 'getItem' },
-        { name = 'getInventory' },
-    }
-}
+return Module('Inventory', 'shared')
+    :mode('consumer_vm')
+    :globalName('InventoryHandle')
+    :impl(InventoryHandle)
+    :methods(function (m)
+        m:add('giveItem', 'removeItem', 'hasItem', 'getItem', 'getInventory')
+    end)
+    :build()

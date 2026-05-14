@@ -22,16 +22,11 @@ function TargetHandle.removeZone(name)
     exports.tsfx_sdk.Target_removeZone(name)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Target',
-    context = 'client',
-    mode = 'consumer_vm',
-    impl = TargetHandle,
-    methods = {
-        { name = 'addBoxZone' },
-        { name = 'addSphereZone' },
-        { name = 'addEntityZone' },
-        { name = 'removeZone' },
-    }
-}
+return Module('Target', 'client')
+    :mode('consumer_vm')
+    :globalName('TargetHandle')
+    :impl(TargetHandle)
+    :methods(function (m)
+        m:add('addBoxZone', 'addSphereZone', 'addEntityZone', 'removeZone')
+    end)
+    :build()

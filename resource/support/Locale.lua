@@ -230,18 +230,11 @@ function Locale.reload()
     _TSFX.Log:info('Locale reloaded')
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Locale',
-    exportPrefix = 'Locale',
-    scoped = false,
-    context = 'shared',
-    impl = Locale,
-    mode = 'consumer_vm',
-    methods = {
-        { name = 'get' },
-        { name = 'getLanguage' },
-        { name = 'getLanguageGTA' },
-        { name = 'reload' },
-    }
-}
+return Module('Locale', 'shared')
+    :mode('consumer_vm')
+    :exportAs('Locale')
+    :impl(Locale)
+    :methods(function (m)
+        m:add('get', 'getLanguage', 'getLanguageGTA', 'reload')
+    end)
+    :build()

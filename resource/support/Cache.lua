@@ -92,19 +92,11 @@ function Cache.flush()
     Cache._data = {}
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Cache',
-    exportPrefix = 'Cache',
-    scoped = false,
-    context = 'shared',
-    impl = Cache,
-    mode = 'export',
-    methods = {
-        { name = 'get', flat = false },
-        { name = 'set', flat = false },
-        { name = 'has', flat = false },
-        { name = 'delete', flat = false },
-        { name = 'flush', flat = false }
-    }
-}
+return Module('Cache', 'shared')
+    :mode('export')
+    :exportAs('Cache')
+    :impl(Cache)
+    :methods(function (m)
+        m:add('get', 'set', 'has', 'delete', 'flush')
+    end)
+    :build()

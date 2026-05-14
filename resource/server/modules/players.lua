@@ -28,20 +28,11 @@ function PlayersModule.getByCitizenId(citizenId)
     return frameworkAdapter:getPlayerByCitizenId(citizenId)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Players',
-    exportPrefix = 'Players',
-    scoped = false,
-    context = 'server',
-    impl = PlayersModule,
-    mode = 'export',
-    hidden = false,
-    methods = {
-        { name = 'getAll' },
-        { name = 'count' },
-        { name = 'getByJob' },
-        { name = 'getByIdentifier' },
-        { name = 'getByCitizenId' },
-    }
-}
+return Module('ServerPlayersModule', 'server')
+    :mode('export')
+    :exportAs('Players')
+    :impl(PlayersModule)
+    :methods(function (m)
+        m:add('getAll', 'count', 'getByJob', 'getByIdentifier', 'getByCitizenId')
+    end)
+    :build()

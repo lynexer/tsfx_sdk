@@ -25,19 +25,11 @@ function TargetModule.removeZone(name)
     interactAdapter:removeZone(name)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Target',
-    exportPrefix = 'Target',
-    scoped = false,
-    context = 'client',
-    impl = TargetModule,
-    mode = 'export',
-    hidden = true,
-    methods = {
-        { name = 'addBoxZone' },
-        { name = 'addSphereZone' },
-        { name = 'addEntityZone' },
-        { name = 'removeZone' },
-    }
-}
+return Module('ClientTargetModule', 'client')
+    :mode('export')
+    :exportAs('Target')
+    :impl(TargetModule)
+    :methods(function (m)
+        m:add('addBoxZone', 'addSphereZone', 'addEntityZone', 'removeZone')
+    end)
+    :build()

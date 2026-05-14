@@ -36,12 +36,8 @@ function JobHandle:GetGrades()
     return def and def.grades or {}
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Job',
-    context = 'shared',
-    mode = 'consumer_vm',
-    callable = true,
-    impl = {},
-    methods = {},
-}
+return Module('Job', 'shared')
+    :mode('consumer_vm')
+    :globalName('JobHandle')
+    :callable()
+    :build()

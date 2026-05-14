@@ -447,20 +447,13 @@ end
 
 EventBus.register('__eventbus:callback')
 
----@type ModuleDeclaration
-return {
-    namespace = 'Events',
-    exportPrefix = 'EventBus',
-    scoped = false,
-    context = 'shared',
-    impl = EventBus,
-    methods = {
-        { name = 'on', flat = true, scoped = true },
-        { name = 'off', flat = true, scoped = true },
-        { name = 'emit', flat = true },
-        { name = 'emitNet', flat = true },
-        { name = 'broadcast', flat = true },
-        { name = 'await', flat = true },
-        { name = 'hasSessionToken' }
-    }
-}
+return Module('Events', 'shared')
+    :mode('export')
+    :exportAs('EventBus')
+    :impl(EventBus)
+    :methods(function (m)
+        m:flat_scoped('on', 'off')
+        m:flat('emit', 'emitNet', 'broadcast', 'await')
+        m:add('hasSessionToken')
+    end)
+    :build()

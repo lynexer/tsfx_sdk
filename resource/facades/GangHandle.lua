@@ -52,12 +52,8 @@ function GangHandle:GetGrades()
     return def and def.grades or {}
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Gang',
-    context = 'shared',
-    mode = 'consumer_vm',
-    callable = true,
-    impl = {},
-    methods = {},
-}
+return Module('Gang', 'shared')
+    :mode('consumer_vm')
+    :globalName('GangHandle')
+    :callable()
+    :build()

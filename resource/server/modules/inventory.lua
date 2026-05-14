@@ -28,20 +28,11 @@ function InventoryModule.getInventory(source)
     return inventoryAdapter:getInventory(source)
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'Inventory',
-    exportPrefix = 'Inventory',
-    scoped = false,
-    context = 'server',
-    impl = InventoryModule,
-    mode = 'export',
-    hidden = true,
-    methods = {
-        { name = 'giveItem' },
-        { name = 'removeItem' },
-        { name = 'hasItem' },
-        { name = 'getItem' },
-        { name = 'getInventory' },
-    }
-}
+return Module('ServerInventoryModule', 'server')
+    :mode('export')
+    :exportAs('Inventory')
+    :impl(InventoryModule)
+    :methods(function (m)
+        m:add('giveItem', 'removeItem', 'hasItem', 'getItem', 'getInventory')
+    end)
+    :build()

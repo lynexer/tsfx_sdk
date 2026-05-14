@@ -137,15 +137,11 @@ function StateMachineBuilder:build(context)
     return machine
 end
 
----@type ModuleDeclaration
-return {
-    namespace = 'StateMachineBuilder',
-    exportPrefix = 'StateMachineBuilder',
-    scoped = false,
-    context = 'shared',
-    impl = StateMachineBuilder,
-    mode = 'consumer_vm',
-    methods = {
-        { name = 'new' }
-    }
-}
+return Module('StateMachineBuilder', 'shared')
+    :mode('consumer_vm')
+    :exportAs('StateMachineBuilder')
+    :impl(StateMachineBuilder)
+    :methods(function (m)
+        m:add('new1')
+    end)
+    :build()

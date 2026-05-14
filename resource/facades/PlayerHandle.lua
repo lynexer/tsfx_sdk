@@ -146,11 +146,48 @@ function PlayerHandle:setMoney(account, amount)
     end, self)
 end
 
--- getJob
--- setJob
--- hasJob
--- isOnDuty
--- setDuty
+---Get player's job data
+---@return JobData
+function PlayerHandle:getJob()
+    return self._export:Player_getJob(self.source)
+end
+
+---Set player's job
+---@param identifier string
+---@param grade number
+---@return PlayerHandleClass
+function PlayerHandle:setJob(identifier, grade)
+    return self:_serverOnly('setJob', function ()
+        self._export:Player_setJob(self.source, identifier, grade)
+        return self
+    end, self)
+end
+
+---Check if player has job
+---@param identifier string
+---@return boolean
+function PlayerHandle:hasJob(identifier)
+    -- TODO: Implement
+    _TSFX.Log:warn('PlayerHandle:hasJob has not been implemented yet')
+    return false
+end
+
+---Check if player is on duty
+---@return boolean
+function PlayerHandle:isOnDuty()
+    return self._export:Player_getOnDuty(self.source)
+end
+
+---Set player's on-duty status
+---@param onDuty boolean
+---@return PlayerHandleClass
+function PlayerHandle:setDuty(onDuty)
+    return self:_serverOnly('setDuty', function ()
+        self._export:Player_setOnDuty(self.source, onDuty)
+        return self
+    end, self)
+end
+
 -- getGang
 -- setGang
 -- notify

@@ -106,13 +106,20 @@ function PlayerHandle:setPosition(position, deadFlag, ragdollFlag, clearArea)
     return self
 end
 
+---Get player's money in specified account
+---@param account MoneyAccount
+---@return number
+function PlayerHandle:getMoney(account)
+    return self._export:Player_getMoney(self.source, account)
+end
+
 ---Add money to the player
 ---@param account MoneyAccount
 ---@param amount number
 ---@return PlayerHandleClass
 function PlayerHandle:addMoney(account, amount)
     return self:_serverOnly('addMoney', function ()
-        exports.tsfx_sdk:Player_giveMoney(self.source, account, amount)
+        self._export:Player_giveMoney(self.source, account, amount)
         return self
     end, self)
 end
@@ -123,7 +130,7 @@ end
 ---@return PlayerHandleClass
 function PlayerHandle:removeMoney(account, amount)
     return self:_serverOnly('removeMoney', function ()
-        exports.tsfx_sdk:Player_takeMoney(self.source, account, amount)
+        self._export:Player_takeMoney(self.source, account, amount)
         return self
     end, self)
 end
@@ -134,16 +141,9 @@ end
 ---@return PlayerHandleClass
 function PlayerHandle:setMoney(account, amount)
     return self:_serverOnly('setMoney', function ()
-        exports.tsfx_sdk:Player_setMoney(self.source, account, amount)
+        self._export:Player_setMoney(self.source, account, amount)
         return self
     end, self)
-end
-
----Get player's money in specified account
----@param account MoneyAccount
----@return number
-function PlayerHandle:getMoney(account)
-    return exports.tsfx_sdk.Player_getMoney(self.source, account)
 end
 
 -- getJob

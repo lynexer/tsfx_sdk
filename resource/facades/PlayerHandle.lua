@@ -68,14 +68,6 @@ function PlayerHandle:getModel()
     return GetEntityModel(self:getPed())
 end
 
----@return boolean
-function PlayerHandle:isDead()
-    return self:_clientOnly('isDead', function ()
-        local ped = self:getPed()
-        return ped ~= 0 and IsEntityDead(ped) or false
-    end, false)
-end
-
 ---@return number
 function PlayerHandle:getHeading()
     return GetEntityHeading(self:getPed())
@@ -305,35 +297,127 @@ function PlayerHandle:getVehicleSeat()
 end
 
 ---@return boolean
+function PlayerHandle:isDead()
+    return self:_clientOnly('isDead', function ()
+        local ped = self:getPed()
+        return ped ~= 0 and IsEntityDead(ped) or false
+    end, false)
+end
+
+---@return boolean
 function PlayerHandle:isDriver()
     return self:_clientOnly('isDriver', function ()
         return self:getVehicleSeat() == -1
     end, false)
 end
 
--- isInWater
--- isOnFoot
--- freeze
--- setInvisible
--- isInvisible
--- setInvincible
--- isInvincible
--- ragdoll
--- isRagdolling
--- isSprinting
--- isClimbing
--- isDiving
--- isSwiming
+---@return boolean
+function PlayerHandle:isInWater()
+    return self:_clientOnly('isInWater', function ()
+        return IsEntityInWater(self:getPed())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isOnFoot()
+    return self:_clientOnly('isOnFoot', function ()
+        return IsPedOnFoot(self:getPed())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isFrozen()
+    return IsEntityPositionFrozen(self:getPed())
+end
+
+---@param toggle boolean
+---@return PlayerHandleClass
+function PlayerHandle:setFrozen(toggle)
+    FreezeEntityPosition(self:getPed(), toggle)
+    return self
+end
+
+---@return boolean
+function PlayerHandle:isVisible()
+    return IsEntityVisible(self:getPed())
+end
+
+---@return boolean
+function PlayerHandle:isInvincible()
+    if isServer() then
+        return GetPlayerInvincible(self.source)
+    end
+
+    return GetPlayerInvincible_2(self:getPlayerId())
+end
+
+---@return boolean
+function PlayerHandle:isRagdolling()
+    return IsPedRagdoll(self:getPed())
+end
+
+---@return boolean
+function PlayerHandle:isSprinting()
+    return self:_clientOnly('isSprinting', function ()
+        return IsPedSprinting(self:getPed())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isClimbing()
+    return self:_clientOnly('isClimbing', function ()
+        return IsPlayerClimbing(self:getPlayerId())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isDiving()
+    return self:_clientOnly('isDiving', function ()
+        return IsPedDiving(self:getPed())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isSwimming()
+    return self:_clientOnly('isSwimming', function ()
+        return IsPedSwimming(self:getPed())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isTalking()
+    return self:_clientOnly('isTalking', function ()
+        return MumbleIsPlayerTalking(self:getPlayerId())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isAiming()
+    return self:_clientOnly('isAiming', function ()
+        return IsPlayerFreeAiming(self:getPlayerId())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isShooting()
+    return self:_clientOnly('isShooting', function ()
+        return IsPedShooting(self:getPed())
+    end, false)
+end
+
+---@return boolean
+function PlayerHandle:isReloading()
+    return self:_clientOnly('isReloading', function ()
+        return IsPedReloading(self:getPed())
+    end, false)
+end
+
 -- playAnimation
 -- stopAnimation
 -- isPlayingAnimation
 -- playScenario
 -- stopScenario
 -- clearTasks
--- isTalking
--- isAiming
--- isShooting
--- isReloading
 -- getRoutingBucket
 -- setRoutingBucket
 -- notify

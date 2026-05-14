@@ -217,11 +217,35 @@ function PlayerHandle:getIdentifiers()
     return self._export:Player_getIdentifiers(self.source)
 end
 
+---Get player metadata value
+---@param key string
+---@return any
+function PlayerHandle:getMetadata(key)
+    return self._export:Player_getMetadata(self.source, key)
+end
+
+---Set player metadata value
+---@param key string
+---@param value any
+---@return PlayerHandleClass
+function PlayerHandle:setMetadata(key, value)
+    return self:_serverOnly('setMetadata', function ()
+        self._export:Player_setMetadata(self.source, key, value)
+    end, self)
+end
+
+---Remove player metadata value
+---@param key string
+---@return PlayerHandleClass
+function PlayerHandle:removeMetadata(key)
+    return self:_serverOnly('removeMetadata', function ()
+        self._export:Player_setMetadata(self.source, key, nil)
+        return self
+    end, self)
+end
+
 -- notify
 -- drop
--- getMetadata
--- setMetadata
--- removeMetadata
 -- isInVehicle
 -- getVehicle
 -- getVehicleSeat

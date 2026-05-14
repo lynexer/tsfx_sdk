@@ -56,9 +56,51 @@ function PlayerHandle:isDead()
     end, false)
 end
 
--- getPosition
--- getHeading
--- teleport
+---@return number
+function PlayerHandle:getHeading()
+    return GetEntityHeading(self:getPed())
+end
+
+---@param heading number
+---@return PlayerHandleClass
+function PlayerHandle:setHeading(heading)
+    SetEntityHeading(self:getPed(), heading)
+
+    return self
+end
+
+---@return vector4
+function PlayerHandle:getPosition()
+    local heading = self:getHeading()
+    local position = GetEntityCoords(self:getPed())
+
+    return vector4(position.x, position.y, position.z, heading)
+end
+
+---@param position vector3|vector4
+---@param deadFlag? boolean
+---@param ragdollFlag? boolean
+---@param clearArea? boolean
+---@return PlayerHandleClass
+function PlayerHandle:setPosition(position, deadFlag, ragdollFlag, clearArea)
+    SetEntityCoords(
+        self:getPed(),
+        position.x,
+        position.y,
+        position.z,
+        true,
+        deadFlag or false,
+        ragdollFlag or false,
+        clearArea or false
+    )
+
+    if type(position) == 'vector4' then
+        self:setHeading(position.w)
+    end
+
+    return self
+end
+
 -- getJob
 -- setJob
 -- hasJob
@@ -76,7 +118,6 @@ end
 -- setMetadata
 -- removeMetadata
 -- isInVehicle
--- setHeading
 -- getVehicle
 -- getVehicleSeat
 -- isInWater

@@ -244,16 +244,65 @@ function PlayerHandle:removeMetadata(key)
     end, self)
 end
 
--- notify
--- drop
--- isInVehicle
--- getVehicle
--- getVehicleSeat
+---@param lastVehicle? boolean
+---@return number
+function PlayerHandle:getVehicle(lastVehicle)
+    -- TODO: potentially cache with event listeners for invalidation
+    return GetVehiclePedIsIn(self:getPed(), lastVehicle or false)
+end
+
+---@param lastVehicle? boolean
+---@return 'automobile'|'bike'|'boat'|'heli'|'plane'|'submarine'|'trailer'|'train'
+function PlayerHandle:getVehicleType(lastVehicle)
+    return GetVehicleType(self:getVehicle(lastVehicle))
+end
+
+---@param atGetIn? boolean
+---@return boolean
+function PlayerHandle:isInVehicle(atGetIn)
+    if isServer() then
+        if atGetIn then
+            _TSFX.Log:warn(('PlayerHandle:isInVehicle does not support `atGetIn` on the server'))
+        end
+
+        return self:getVehicle() ~= 0
+    end
+
+    return IsPedInAnyVehicle(self:getPed(), atGetIn or false)
+end
+
+---@return number
+function PlayerHandle:getVehicleSeat()
+    return self:_clientOnly('getVehicleSeat', function ()
+        local ped = self:getPed()
+        local vehicle = self:getVehicle()
+
+        if ped and vehicle then
+            for i = -2, GetVehicleMaxNumberOfPassengers(vehicle) do
+                if GetPedInVehicleSeat(vehicle, i) == ped then
+                    return i
+                end
+            end
+        end
+
+        return -2
+    end, -2)
+end
+
+---@return boolean
+function PlayerHandle:isDriver()
+    return self:_clientOnly('isDriver', function ()
+        return self:getVehicleSeat() == -1
+    end, false)
+end
+
 -- isInWater
 -- isOnFoot
 -- freeze
 -- setInvisible
+-- isInvisible
 -- setInvincible
+-- isInvincible
 -- ragdoll
 -- isRagdolling
 -- isSprinting
@@ -266,13 +315,14 @@ end
 -- playScenario
 -- stopScenario
 -- clearTasks
--- isDriver
 -- isTalking
 -- isAiming
 -- isShooting
 -- isReloading
 -- getRoutingBucket
 -- setRoutingBucket
+-- notify
+-- drop
 -- save
 -- is (check multiple is conditions using project-haven conditional evaluator)
 

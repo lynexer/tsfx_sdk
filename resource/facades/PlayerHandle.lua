@@ -188,8 +188,23 @@ function PlayerHandle:setDuty(onDuty)
     end, self)
 end
 
--- getGang
--- setGang
+---Get player's gang data
+---@return GangData?
+function PlayerHandle:getGang()
+    return self._export:Player_getGang(self.source)
+end
+
+---Set player's gang
+---@param identifier string
+---@param grade number
+---@return PlayerHandleClass
+function PlayerHandle:setGang(identifier, grade)
+    return self:_serverOnly('setGang', function ()
+        self._export:Player_setGang(self.source, identifier, grade)
+        return self
+    end, self)
+end
+
 -- notify
 -- drop
 -- getMetadata
@@ -222,7 +237,6 @@ end
 -- isReloading
 -- getRoutingBucket
 -- setRoutingBucket
--- getGroup
 -- getIdentity
 -- getIdentifiers
 -- save

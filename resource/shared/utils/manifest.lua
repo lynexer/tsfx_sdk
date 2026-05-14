@@ -11,31 +11,9 @@
         Manifest:finalize()
 --]]
 
---- @class ManifestMethod
---- @field name string
---- @field flat? boolean
---- @field scoped? boolean
-
---- @class ManifestModule
---- @field namespace string
---- @field exportPrefix string|nil
---- @field scoped boolean
---- @field context 'server'|'client'|'shared'
---- @field hidden? boolean
---- @field preloaded? boolean
---- @field methods ManifestMethod[]
---- @field mode? 'export'|'consumer_vm'
---- @field file? string
---- @field globalName? string
---- @field callable? boolean
-
---- @class ModuleDeclaration : ManifestModule
---- @field impl table<string, function>
---- @field _file? string
-
---- @class ManifestBuilder
---- @field _modules ModuleDeclaration[]
---- @field _cachedManifest ManifestModule[]|nil
+---@class ManifestBuilder
+---@field _modules ModuleDeclaration[]
+---@field _cachedManifest ManifestModule[]|nil
 local ManifestBuilder = {}
 ManifestBuilder.__index = ManifestBuilder
 
@@ -50,9 +28,9 @@ function ManifestBuilder.new()
     return self
 end
 
---- Load a module declaration from a file path
---- @param path string Relative path within tsfx_sdk resource (e.g., 'server/modules/player.lua')
---- @return nil
+---Load a module declaration from a file path
+---@param path string Relative path within tsfx_sdk resource (e.g., 'server/modules/player.lua')
+---@return nil
 function ManifestBuilder:load(path)
     local resourceName = 'tsfx_sdk'
     local fileContent = LoadResourceFile(resourceName, path)
@@ -61,12 +39,18 @@ function ManifestBuilder:load(path)
         error(('ManifestBuilder:load() - Failed to load file: %s'):format(path))
     end
 
-    local chunk, err = load(fileContent, ('@%s/%s'):format(resourceName, path), 't', _ENV)
+    local moduleEnv = setmetatable({
+        Module = ModuleBuilder.new
+    }, { __index = _ENV })
+
+    local chunk, err = load(fileContent, ('@%s/%s'):format(resourceName, path), 't', moduleEnv)
+
     if not chunk then
         error(('ManifestBuilder:load() - Syntax error in %s: %s'):format(path, err))
     end
 
     local declaration = chunk()
+
     if type(declaration) ~= 'table' then
         error(('ManifestBuilder:load() - Module %s did not return a table'):format(path))
     end
@@ -97,7 +81,7 @@ function ManifestBuilder:load(path)
     table.insert(self._modules, declaration)
 end
 
---- Register all exports for loaded modules
+---Register all exports for loaded modules
 function ManifestBuilder:finalize()
     local manifest = {}
 
@@ -130,10 +114,10 @@ function ManifestBuilder:finalize()
     end)
 end
 
---- Register exports for a single module
---- @private
---- @param module ModuleDeclaration
---- @return nil
+---Register exports for a single module
+---@private
+---@param module ModuleDeclaration
+---@return nil
 function ManifestBuilder:_registerModuleExports(module)
     if module.mode == 'consumer_vm' then
         return
@@ -153,11 +137,11 @@ function ManifestBuilder:_registerModuleExports(module)
     end
 end
 
---- Get the cached manifest (metadata only, no impl)
---- @return ManifestModule[]|nil
+---Get the cached manifest (metadata only, no impl)
+---@return ManifestModule[]|nil
 function ManifestBuilder:getManifest()
     return self._cachedManifest
 end
 
--- Global instance
+--Global instance
 Manifest = ManifestBuilder.new()

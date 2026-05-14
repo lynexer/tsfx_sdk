@@ -14,6 +14,7 @@ repository 'https://github.com/lynexer/tsfx_sdk'
 
 shared_scripts {
     'shared/utils/context.lua',
+    'shared/utils/module_builder.lua',
     'shared/utils/manifest.lua',
     'shared/utils/adapter_registry.lua',
     'shared/adapters.lua',

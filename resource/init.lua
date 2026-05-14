@@ -33,12 +33,14 @@ end
 
 -- Load shared context utilities first
 loadSupportFile('shared/utils/context.lua')
+loadSupportFile('shared/utils/module_builder.lua')
 
 -- Pre-load LogInstance and create the per-resource logger instance.
 -- Log is a dependency for other consumer_vm modules (StateMachine, etc.)
 -- that reference _TSFX.Log in their function bodies.
 loadSupportFile('support/LogInstance.lua')
 _TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)) }
+Module = ModuleBuilder.new
 
 for _, mod in ipairs(manifest) do
     if mod.context == 'shared' or mod.context == getContext() then
@@ -77,6 +79,7 @@ for _, mod in ipairs(manifest) do
 end
 
 _ENV.TSFX = TSFX
+Module = nil
 
 -- Inject Locale convenience globals into consuming resource
 if TSFX.Locale and TSFX.Locale.get then

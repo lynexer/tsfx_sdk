@@ -139,7 +139,20 @@ extension/
 * **Adapters are not server-only** — `adapters/` lives at resource root, loaded per context as needed
 * `init.lua` is the public API entry point — loaded by consuming resources via `@tsfx_sdk/init.lua`, not listed in fxmanifest
 * `server/main.lua` and `client/main.lua` are the resource's own bootstrap, loaded by fxmanifest
-* **Support modules are flat files** — no `_index.lua` folder pattern. They have a **dual responsibility**: define their global class (for runtime use) AND return a `ModuleDeclaration` table (for the manifest builder)
+* **Support modules are flat files** — no `_index.lua` folder pattern. They have a
+  **dual responsibility**: define their global class (for runtime use) AND return a
+  `ModuleDeclaration` built via `ModuleBuilder` (for the manifest builder)
+* Use the `ModuleBuilder` API to declare modules — never hand-write the
+  `ModuleDeclaration` table. The global alias `Module` is available in module
+  files and resolves to `ModuleBuilder.new`
+* **Recommended builder order** (follow this in all new modules):
+  1. `Module('Namespace', 'context')` — sets namespace and context (`server` | `client` | `shared`)
+  2. `:mode('export'|'consumer_vm')` — optional, defaults to `'export'`
+  3. `:exportAs('Prefix')` — optional, sets the public export prefix
+  4. `:impl(ImplementationTable)` — required, table containing the functions to expose
+  5. Optional flags — `:preloaded()`, `:callable()`, `:globalName('Name')`, `:hidden()`
+  6. `:methods(function(m) ... end)` — required, declares methods via `MethodsBuilder`
+  7. `:build()` — required, finalizes and returns the `ModuleDeclaration` table
 * **Support modules declare their exposure mode** via `ModuleDeclaration.mode`:
   - `mode = 'export'` (default) — stateless/static methods registered as FiveM exports
   - `mode = 'consumer_vm'` — source loaded directly into the consumer's Lua VM via `LoadResourceFile` + `load()`. Required for constructors returning objects with instance methods, because FiveM exports serialize return values and strip metatables

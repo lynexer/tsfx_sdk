@@ -154,8 +154,19 @@ Support modules (`support/`) provide internal utilities:
 - **Support modules are flat files** — no `_index.lua` folder pattern
 - They are loaded via `shared_scripts` in `fxmanifest.lua` and available as globals in both contexts
 - Support files that participate in the manifest have a **dual responsibility**:
-  define their global class (for runtime use) AND return a `ModuleDeclaration` table
-  (for the manifest builder)
+  define their global class (for runtime use) AND return a `ModuleDeclaration`
+  built via `ModuleBuilder` (for the manifest builder)
+- Use the `ModuleBuilder` API to declare modules — never hand-write the
+  `ModuleDeclaration` table. The global alias `Module` is available in module
+  files and resolves to `ModuleBuilder.new`
+- **Recommended builder order** (follow this in all new modules):
+  1. `Module('Namespace', 'context')` — sets namespace and context (`server` | `client` | `shared`)
+  2. `:mode('export'|'consumer_vm')` — optional, defaults to `'export'`
+  3. `:exportAs('Prefix')` — optional, sets the public export prefix
+  4. `:impl(ImplementationTable)` — required, table containing the functions to expose
+  5. Optional flags — `:preloaded()`, `:callable()`, `:globalName('Name')`, `:hidden()`
+  6. `:methods(function(m) ... end)` — required, declares methods via `MethodsBuilder`
+  7. `:build()` — required, finalizes and returns the `ModuleDeclaration` table
 - **`ModuleDeclaration.mode`** controls how the module is exposed:
   - `mode = 'export'` (default) — methods are registered as FiveM exports and
     wrapped by `init.lua`. Safe for stateless/static methods.
@@ -167,6 +178,32 @@ Support modules (`support/`) provide internal utilities:
   references internal globals (e.g., `_TSFX.Log`) that are set up by another
   module, init.lua pre-loads the dependency before iterating the manifest.
 - **Do not add folder-based modules to `support/`** — keep it flat
+
+### Builder Example
+
+```lua
+---@class MyServiceClass
+MyService = {}
+MyService.__index = MyService
+
+function MyService.new()
+    local self = setmetatable({}, MyService)
+    return self
+end
+
+function MyService:doThing()
+    -- implementation
+end
+
+return Module('MyService', 'shared')
+    :mode('consumer_vm')
+    :exportAs('MyService')
+    :impl(MyService)
+    :methods(function(m)
+        m:add('doThing')
+    end)
+    :build()
+```
 
 ### Support Files
 
@@ -188,9 +225,10 @@ FiveM's Lua environment has specific constraints:
 - **No `require()`** — All scripts are loaded via `fxmanifest.lua` load order
 - **Globals are automatically in scope** — Files loaded earlier can be accessed from later files
 - **Do NOT `return` at the end of module files** — Globals are the export mechanism
-  - **Exception:** `support/*.lua` files that participate in the manifest MUST return
-    their `ModuleDeclaration` table as their final statement. This is required by the
-    manifest builder. The global class definition and the returned declaration coexist.
+  - **Exception:** `support/*.lua` and module files that participate in the manifest
+    MUST return a `ModuleDeclaration` built via `ModuleBuilder` as their final
+    statement. Use `return Module('Namespace', 'context')...:build()`. The global
+    class definition and the returned declaration coexist.
 - **Do NOT reassign globals in `main.lua`** — They are already available from load order
 
 ### Load Order (fxmanifest.lua)

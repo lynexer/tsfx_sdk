@@ -48,6 +48,11 @@ function PlayerHandle:getPed()
     return ped
 end
 
+---@return integer
+function PlayerHandle:getModel()
+    return GetEntityModel(self:getPed())
+end
+
 ---@return boolean
 function PlayerHandle:isDead()
     return self:_clientOnly('isDead', function ()
@@ -137,7 +142,6 @@ end
 -- playScenario
 -- stopScenario
 -- clearTasks
--- getModel
 -- isDriver
 -- isTalking
 -- isAiming

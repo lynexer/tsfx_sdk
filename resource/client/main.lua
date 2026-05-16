@@ -31,6 +31,7 @@ Manifest:load('support/StateMachineBuilder.lua')
 Manifest:load('support/Cache.lua')
 Manifest:load('support/Locale.lua')
 Manifest:load('support/Await.lua')
+Manifest:load('support/Tick.lua')
 
 -- Register all exports
 Manifest:finalize()

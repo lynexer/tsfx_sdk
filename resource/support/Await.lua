@@ -14,7 +14,13 @@ Await.__index = Await
 ---@return T?, string?
 function Await.new(condition, timeout)
     local isCallable = type(condition) == 'function'
-    local value = isCallable and condition() or condition
+    local value
+
+    if isCallable then
+        value = condition()
+    else
+        value = condition
+    end
 
     if value ~= nil and value ~= false then return value end
     if timeout == nil then timeout = 1000 end

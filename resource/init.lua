@@ -42,7 +42,8 @@ loadSupportFile('facades/_base.lua')
 loadSupportFile('support/LogInstance.lua')
 loadSupportFile('support/Cache.lua')
 loadSupportFile('support/Await.lua')
-_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)), Cache = Cache, Await = Await.new }
+loadSupportFile('support/Streaming.lua')
+_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)), Cache = Cache, Await = Await.new, Streaming = isServer() and nil or Streaming }
 Module = ModuleBuilder.new
 
 for _, mod in ipairs(manifest) do

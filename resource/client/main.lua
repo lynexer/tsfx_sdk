@@ -5,7 +5,13 @@
     No business logic should be placed here.
 --]]
 
-_TSFX = { Log = LoggerRegistry.get('SDK'), Cache = Cache, Await = Await.new }
+_TSFX = {
+    Log = LoggerRegistry.get('SDK'),
+    Cache = Cache,
+    Await = Await.new,
+    Streaming = Streaming
+}
+
 _TSFX.Log:info('Client bootstrap starting...')
 
 -- Load client-side module declarations into manifest

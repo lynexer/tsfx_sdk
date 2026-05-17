@@ -41,7 +41,8 @@ loadSupportFile('facades/_base.lua')
 -- that reference _TSFX.Log in their function bodies.
 loadSupportFile('support/LogInstance.lua')
 loadSupportFile('support/Cache.lua')
-_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)), Cache = Cache }
+loadSupportFile('support/Await.lua')
+_TSFX = { Log = LogInstance.new(resourceName, ('[%s]'):format(resourceName)), Cache = Cache, Await = Await.new }
 Module = ModuleBuilder.new
 
 for _, mod in ipairs(manifest) do

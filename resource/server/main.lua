@@ -7,7 +7,7 @@
 
 -- Create the internal SDK logger instance
 -- This is used for tsfx_bridge internal logging only, not exposed to consumers
-_TSFX = { Log = LoggerRegistry.get('SDK'), Cache = Cache }
+_TSFX = { Log = LoggerRegistry.get('SDK'), Cache = Cache, Await = Await.new }
 _TSFX.Log:info('Server bootstrap starting...')
 
 -- Load server-side module declarations into manifest

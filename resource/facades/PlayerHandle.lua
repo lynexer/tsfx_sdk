@@ -569,47 +569,49 @@ end
 ---@param query string | table
 ---@return boolean
 function PlayerHandle:is(query)
-    if type(query) == 'string' then
-        local result
-        local negate = false
+    return self:_clientOnly('is', function ()
+        if type(query) == 'string' then
+            local result
+            local negate = false
 
-        if query:sub(1, 4) == 'NOT:' then
-            negate = true
-            query = query:sub(5)
-        end
-
-        local alias = self._conditionAlias[query]
-
-        if alias then
-            result = self:is(alias)
-        else
-            result = self:_resolveCondition(query)
-        end
-
-        return negate and not result or result
-    elseif type(query) == 'table' then
-        local operator = query[1]
-
-        if operator ~= 'AND' and operator ~= 'OR' then
-            _TSFX.Log:error(('Invalid operator in expression: %s'):format(tostring(operator)))
-        end
-
-        for i = 2, #query do
-            local result = self:is(query[i])
-
-            if operator == 'AND' and not result then
-                return false
-            elseif operator == 'OR' and result then
-                return true
+            if query:sub(1, 4) == 'NOT:' then
+                negate = true
+                query = query:sub(5)
             end
+
+            local alias = self._conditionAlias[query]
+
+            if alias then
+                result = self:is(alias)
+            else
+                result = self:_resolveCondition(query)
+            end
+
+            return negate and not result or result
+        elseif type(query) == 'table' then
+            local operator = query[1]
+
+            if operator ~= 'AND' and operator ~= 'OR' then
+                _TSFX.Log:error(('Invalid operator in expression: %s'):format(tostring(operator)))
+            end
+
+            for i = 2, #query do
+                local result = self:is(query[i])
+
+                if operator == 'AND' and not result then
+                    return false
+                elseif operator == 'OR' and result then
+                    return true
+                end
+            end
+
+            return operator == 'AND'
         end
 
-        return operator == 'AND'
-    end
+        _TSFX.Log:error(('Unsupported condition query type: %s'):format(type(query)))
 
-    _TSFX.Log:error(('Unsupported condition query type: %s'):format(type(query)))
-
-    return false
+        return false
+    end, false)
 end
 
 return Module('Player', 'shared')

@@ -33,6 +33,9 @@ Manifest:load('support/Locale.lua')
 Manifest:load('support/Await.lua')
 Manifest:load('support/Tick.lua')
 
+-- Load client-only support module declarations into manifest
+Manifest:load('support/Streaming.lua')
+
 -- Register all exports
 Manifest:finalize()
 

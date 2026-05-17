@@ -29,7 +29,7 @@ function PlayerHandle.new(playerSrc)
 
     self._class = 'PlayerHandle'
     self.source = playerSrc
-    self.citizenId = ''
+    self.citizenId = '' --TODO
     self.isOnline = true
 
     return self
@@ -483,8 +483,22 @@ function PlayerHandle:clearTasks()
     return self
 end
 
--- getRoutingBucket
--- setRoutingBucket
+---@return integer
+function PlayerHandle:getRoutingBucket()
+    return self:_serverOnly('getRoutingBucket', function ()
+        return GetPlayerRoutingBucket(self.source)
+    end, 0)
+end
+
+---@param bucket integer
+---@return PlayerHandleClass
+function PlayerHandle:setRoutingBucket(bucket)
+    return self:_serverOnly('setRoutingBucket', function ()
+        SetPlayerRoutingBucket(self.source, bucket)
+        return self
+    end, self)
+end
+
 -- notify
 -- drop
 -- save

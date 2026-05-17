@@ -67,3 +67,7 @@
 ---@field upperBody? boolean UPPERBODY (16)
 ---@field additive? boolean ADDITIVE (256)
 ---@field hideWeapon? boolean HIDE_WEAPON (1048576)
+
+---@class PlayerHandleConditionInfo
+---@field func string
+---@field resource? string If absent, resolves against self

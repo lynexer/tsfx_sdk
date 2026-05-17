@@ -14,11 +14,36 @@ PlayerHandle.citizenId = nil
 PlayerHandle.isOnline = false
 PlayerHandle._export = exports.tsfx_sdk
 
+---@type PlayerHandleConditionInfo[]
 PlayerHandle._conditions = {
-    dead = 'isDead'
+    ['on-duty'] = { func = 'isOnDuty' },
+    ['in-vehicle'] = { func = 'isInVehicle' },
+    dead = { func = 'isDead' },
+    driver = { func = 'isDriver' },
+    ['in-water'] = { func = 'isInWater' },
+    ['on-foot'] = { func = 'isOnFoot' },
+    frozen = { func = 'isFrozen' },
+    visible = { func = 'isVisible' },
+    invincible = { func = 'isInvincible' },
+    ragdoll = { func = 'isRagdolling' },
+    sprinting = { func = 'isSprinting' },
+    climbing = { func = 'isClimbing' },
+    diving = { func = 'isDiving' },
+    swimming = { func = 'isSwimming' },
+    talking = { func = 'isTalking' },
+    aiming = { func = 'isAiming' },
+    shooting = { func = 'isShooting' },
+    reloading = { func = 'isReloading' },
+    animated = { func = 'isPlayingAnimation' }
 }
 
-PlayerHandle._conditionAlias = {}
+PlayerHandle._conditionAlias = {
+    incapacitated = { 'OR', 'dead', 'ragdoll' },
+    moving = { 'OR', 'sprinting', 'climbing' },
+    engaged = { 'OR', 'aiming', 'shooting', 'reloading' },
+    free = { 'AND', 'NOT:dead', 'NOT:ragdoll', 'NOT:frozen', 'NOT:in-vehicle', 'NOT:animated' },
+    grounded = { 'AND', 'on-foot', 'NOT:ragdoll', 'NOT:climbing', 'NOT:diving' },
+}
 
 ---Create a new player handle
 ---@param playerSrc? number
@@ -515,7 +540,77 @@ function PlayerHandle:drop(reason)
     end, self)
 end
 
--- is (check multiple is conditions using project-haven conditional evaluator)
+---@param key string
+---@return boolean
+function PlayerHandle:_resolveCondition(key)
+    local info = self._conditions[key]
+
+    if not info then
+        _TSFX.Log:warn(('No condition registered for key "%s"'):format(key))
+        return false
+    end
+
+    local ok, result = pcall(function ()
+        if info.resource then
+            return exports[info.resource][info.func]()
+        else
+            return self[info.func](self)
+        end
+    end)
+
+    if not ok then
+        _TSFX.Log:error(('Error resolving condition "%s": %s'):format(key, result))
+        return false
+    end
+
+    return result
+end
+
+---@param query string | table
+---@return boolean
+function PlayerHandle:is(query)
+    if type(query) == 'string' then
+        local result
+        local negate = false
+
+        if query:sub(1, 4) == 'NOT:' then
+            negate = true
+            query = query:sub(5)
+        end
+
+        local alias = self._conditionAlias[query]
+
+        if alias then
+            result = self:is(alias)
+        else
+            result = self:_resolveCondition(query)
+        end
+
+        return negate and not result or result
+    elseif type(query) == 'table' then
+        local operator = query[1]
+
+        if operator ~= 'AND' and operator ~= 'OR' then
+            _TSFX.Log:error(('Invalid operator in expression: %s'):format(tostring(operator)))
+        end
+
+        for i = 2, #query do
+            local result = self:is(query[i])
+
+            if operator == 'AND' and not result then
+                return false
+            elseif operator == 'OR' and result then
+                return true
+            end
+        end
+
+        return operator == 'AND'
+    end
+
+    _TSFX.Log:error(('Unsupported condition query type: %s'):format(type(query)))
+
+    return false
+end
 
 return Module('Player', 'shared')
     :mode('consumer_vm')

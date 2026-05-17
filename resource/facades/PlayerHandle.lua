@@ -32,7 +32,7 @@ function PlayerHandle.new(playerSrc)
     self.citizenId = '' --TODO
     self.isOnline = true
 
-    return self
+    return self --[[@as PlayerHandleClass]]
 end
 
 ---@return integer
@@ -499,9 +499,22 @@ function PlayerHandle:setRoutingBucket(bucket)
     end, self)
 end
 
--- notify
--- drop
--- save
+function PlayerHandle:notify()
+    -- TODO: Implement
+    _TSFX.Log:warn('PlayerHandle:notify has not been implemented yet')
+    return self
+end
+
+---Drop player from server
+---@param reason string
+---@return PlayerHandleClass
+function PlayerHandle:drop(reason)
+    return self:_serverOnly('drop', function ()
+        exports.tsfx_sdk.Player_kick(self.source, reason)
+        return self
+    end, self)
+end
+
 -- is (check multiple is conditions using project-haven conditional evaluator)
 
 return Module('Player', 'shared')

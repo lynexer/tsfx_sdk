@@ -412,12 +412,77 @@ function PlayerHandle:isReloading()
     end, false)
 end
 
--- playAnimation
--- stopAnimation
--- isPlayingAnimation
--- playScenario
--- stopScenario
--- clearTasks
+---@param opts AnimationOptions
+---@return AnimationFlags
+function PlayerHandle:_resolveAnimFlags(opts)
+    local flags = opts.flags or 0
+
+    if opts.loop then flags |= 1 end
+    if opts.holdLastFrame then flags |= 2 end
+    if opts.upperBody then flags |= 16 end
+    if opts.additive then flags |= 256 end
+    if opts.hideWeapon then flags |= 1048576 end
+
+    return flags
+end
+
+---@param animationDictionary string
+---@param animationName string
+---@param options? AnimationOptions
+---@return PlayerHandleClass
+function PlayerHandle:playAnimation(animationDictionary, animationName, options)
+    return self:_clientOnly('playAnimation', function ()
+        local opts = options or {}
+
+        ---@diagnostic disable-next-line: undefined-field
+        _TSFX.Streaming.withAnimDict(animationDictionary, function(dict)
+            TaskPlayAnim(
+                self:getPed(),
+                dict,
+                animationName,
+                opts.blendIn or 8.0,
+                opts.blendOut or -8.0,
+                opts.duration or -1,
+                self:_resolveAnimFlags(opts),
+                opts.startPhase or 0.0,
+                opts.phaseControlled or false,
+                ---@diagnostic disable-next-line: param-type-mismatch
+                opts.controlFlags or 0,
+                opts.overrideCloneUpdate or false
+            )
+        end)
+
+        return self
+    end, self)
+end
+
+---@param animationDictionary string
+---@param animationName string
+---@param animationExitSpeed? number
+---@return PlayerHandleClass
+function PlayerHandle:stopAnimation(animationDictionary, animationName, animationExitSpeed)
+    return self:_clientOnly('stopAnimation', function ()
+        StopAnimTask(self:getPed(), animationDictionary, animationName, animationExitSpeed or -8.0)
+        return self
+    end, self)
+end
+
+---@param animationDictionary string
+---@param animationName string
+---@param isSynchronizedScene? boolean
+---@return boolean
+function PlayerHandle:isPlayingAnimation(animationDictionary, animationName, isSynchronizedScene)
+    return self:_clientOnly('isPlayingAnimation', function ()
+        return IsEntityPlayingAnim(self:getPed(), animationDictionary, animationName, isSynchronizedScene and 2 or 3)
+    end, false)
+end
+
+---@return PlayerHandleClass
+function PlayerHandle:clearTasks()
+    ClearPedTasks(self:getPed())
+    return self
+end
+
 -- getRoutingBucket
 -- setRoutingBucket
 -- notify

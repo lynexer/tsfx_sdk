@@ -20,6 +20,7 @@ pnpm-debug.log*
 dist/
 build/
 *.tgz
+extension/out/
 
 # Editor files
 .vscode/*
@@ -31,6 +32,7 @@ build/
 *.swp
 *.swo
 *~
+*.vsix
 
 # OS files
 .DS_Store

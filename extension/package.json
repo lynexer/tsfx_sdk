@@ -1,36 +1,76 @@
 {
-    "name": "tsfx-vscode-extension",
+    "name": "tsfx-sdk-extension",
     "displayName": "TSFX SDK Support",
     "description": "VSCode extension for TSFX Bridge SDK development support",
     "version": "0.0.1",
+    "publisher": "lynexer",
     "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lynexer/tsfx_sdk.git"
+    },
     "engines": {
         "vscode": "^1.80.0"
     },
     "categories": [
+        "Programming Languages",
+        "Snippets",
         "Other"
     ],
+    "keywords": [
+        "fivem",
+        "lua",
+        "tsfx",
+        "sdk"
+    ],
     "activationEvents": [
+        "onLanguage:lua",
         "workspaceContains:**/fxmanifest.lua"
     ],
     "main": "./out/extension.js",
     "contributes": {
         "commands": [
             {
-                "command": "tsfx.helloWorld",
-                "title": "Hello World",
-                "category": "TSFX"
+                "command": "tsfx.reloadWorkspace",
+                "title": "Reload TSFX Workspace Detection",
+                "category": "TSFX SDK"
+            }
+        ],
+        "configuration": {
+            "title": "TSFX SDK",
+            "properties": {
+                "tsfx.diagnostics.wrongContext": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Warn when TSFX SDK methods are called in the wrong context (client/server)."
+                },
+                "tsfx.diagnostics.unknownMoneyAccount": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Warn when an unrecognised money account string is passed to GiveMoney/TakeMoney."
+                }
+            }
+        },
+        "snippets": [
+            {
+                "language": "lua",
+                "path": "./snippets/tsfx.json"
             }
         ]
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
+        "vscode:prepublish": "pnpm run extract-types && pnpm run compile",
         "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./"
+        "watch": "tsc -watch -p ./",
+        "package": "vsce package --no-dependencies",
+        "publish": "vsce publish",
+        "extract-types": "tsx scripts/extract-types.ts"
     },
     "devDependencies": {
         "@types/node": "^20.10.0",
         "@types/vscode": "^1.80.0",
+        "@vscode/vsce": "^2.22.0",
+        "tsx": "^4.7.0",
         "typescript": "^5.3.0"
     }
 }

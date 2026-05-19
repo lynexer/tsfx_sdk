@@ -1,0 +1,14 @@
+src/**
+scripts/**
+out/**/*.map
+out/**/*.d.ts
+out/**/*.d.ts.map
+tsconfig.json
+**/*.ts
+**/.eslintrc
+**/biome.json
+**/.gitignore
+**/node_modules/**
+.vscode/**
+README.md
+CHANGELOG.md

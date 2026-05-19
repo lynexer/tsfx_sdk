@@ -55,7 +55,8 @@
         "vscode:prepublish": "pnpm run extract-types && pnpm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "package": "vsce package --no-dependencies",
+        "package": "vsce package --no-dependencies && pnpm run clean-types",
+        "clean-types": "node -e \"require('fs').rmSync('types', {recursive:true, force:true})\"",
         "publish": "vsce publish",
         "extract-types": "tsx scripts/extract-types.ts"
     },

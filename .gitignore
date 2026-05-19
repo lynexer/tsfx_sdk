@@ -21,6 +21,7 @@ dist/
 build/
 *.tgz
 extension/out/
+extension/types/
 
 # Editor files
 .vscode/*

@@ -1,10 +1,24 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 const LIBRARY_SETTING = 'workspace.library';
 const LUA_CONFIG_SECTION = 'Lua';
 
-function getTypesPath(context: vscode.ExtensionContext): string {
-    // Normalize to forward slashes — LuaLS does not always parse Windows backslashes
+function resolveTypesPath(context: vscode.ExtensionContext): string {
+    // During local development the extension runs from the monorepo workspace.
+    // Prefer the live types directory so edits are reflected immediately.
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+        for (const folder of workspaceFolders) {
+            const liveTypes = path.join(folder.uri.fsPath, 'resource', 'shared', 'types');
+            if (fs.existsSync(liveTypes)) {
+                return liveTypes.replace(/\\/g, '/');
+            }
+        }
+    }
+
+    // Published installs fall back to the bundled types copied at build time.
     return context.asAbsolutePath('types').replace(/\\/g, '/');
 }
 
@@ -12,7 +26,7 @@ export async function injectTypes(context: vscode.ExtensionContext): Promise<voi
     try {
         const config = vscode.workspace.getConfiguration(LUA_CONFIG_SECTION);
         const library = config.get<string[]>(LIBRARY_SETTING) ?? [];
-        const typesPath = getTypesPath(context);
+        const typesPath = resolveTypesPath(context);
 
         if (library.includes(typesPath)) {
             return;
@@ -38,7 +52,7 @@ export async function removeTypes(context: vscode.ExtensionContext): Promise<voi
     try {
         const config = vscode.workspace.getConfiguration(LUA_CONFIG_SECTION);
         const library = config.get<string[]>(LIBRARY_SETTING) ?? [];
-        const typesPath = getTypesPath(context);
+        const typesPath = resolveTypesPath(context);
 
         if (!library.includes(typesPath)) {
             return;

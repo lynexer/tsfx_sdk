@@ -14,7 +14,6 @@
     },
     "categories": [
         "Programming Languages",
-        "Snippets",
         "Other"
     ],
     "keywords": [
@@ -50,13 +49,7 @@
                     "description": "Warn when an unrecognised money account string is passed to GiveMoney/TakeMoney."
                 }
             }
-        },
-        "snippets": [
-            {
-                "language": "lua",
-                "path": "./snippets/tsfx.json"
-            }
-        ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "pnpm run extract-types && pnpm run compile",

@@ -1,5 +1,6 @@
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: Classes created for easier organization */
 import fs from 'fs-extra';
-import { red, yellow, green, blue, cyan, dim } from 'yoctocolors';
+import { blue, cyan, dim, green, red, yellow } from 'yoctocolors';
 
 export class Logger {
     static info(message: string, detail?: string): void {
@@ -24,7 +25,7 @@ export class Logger {
 }
 
 export interface Config {
-    serverPath: string;
+    serverPath: string | string[];
     resourcePath: string;
     category?: string;
     autoRestart?: boolean;

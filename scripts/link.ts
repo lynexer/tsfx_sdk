@@ -1,7 +1,7 @@
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
-import path from "path";
-import { fileURLToPath } from "url";
 import createSpinner from 'yocto-spinner';
 import { ConfigLoader, Logger } from './utils';
 
@@ -11,11 +11,13 @@ class LinkCommand {
     private targetDir: string;
     private category: string;
     private autoRestart: boolean;
+    private serverName: string;
 
-    constructor(targetDir: string, category: string, autoRestart: boolean) {
+    constructor(targetDir: string, category: string, autoRestart: boolean, serverName: string) {
         this.targetDir = targetDir;
         this.category = category;
         this.autoRestart = autoRestart;
+        this.serverName = serverName;
     }
 
     private async bundleResource(): Promise<void> {
@@ -54,7 +56,7 @@ class LinkCommand {
     }
 
     async execute(): Promise<void> {
-        Logger.step('Starting link process...');
+        Logger.step(`Starting link process for ${this.serverName}...`);
 
         await this.bundleResource();
 
@@ -68,16 +70,22 @@ async function main() {
     const configPath = path.resolve(__dirname, '../.dev.config.json');
     const config = await ConfigLoader.load(configPath);
 
-    const command = new LinkCommand(
-        config.resourcePath,
-        config.category || 'tsfx',
-        config.autoRestart ?? true
-    );
+    const servers = Array.isArray(config.serverPath) ? config.serverPath : [config.serverPath];
 
-    await command.execute();
+    for (const server of servers) {
+        const targetDir = path.resolve(server, config.resourcePath);
+        const command = new LinkCommand(
+            targetDir,
+            config.category || 'tsfx',
+            config.autoRestart ?? false,
+            path.basename(server)
+        );
+
+        await command.execute();
+    }
 }
 
-main().catch(err => {
+main().catch((err) => {
     Logger.error('Link failed', err.message);
     process.exit(1);
 });

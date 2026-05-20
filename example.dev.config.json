@@ -1,6 +1,8 @@
 {
-    "serverPath": "",
-    "resourcePath": "",
+    "serverPath": [
+        ""
+    ],
+    "resourcePath": "resources",
     "category": "tsfx",
     "autoRestart": false
 }

@@ -86,12 +86,13 @@ function simpleType(type: string): string {
 	if (type.includes('number') || type.includes('integer') || type.includes('float')) return 'number';
 	if (type.includes('boolean')) return 'boolean';
 	if (type.includes('string')) return 'string';
+	if (type.includes("'")) return 'string';
 	return 'any';
 }
 
 function isComplexType(type: string): boolean {
-	const simple = ['number', 'integer', 'float', 'string', 'boolean', 'vector3', 'vector4', 'any', 'table'];
-	return !simple.some(p => type.toLowerCase().includes(p));
+	const t = type.toLowerCase();
+	return t.includes('table') || t.includes('{') || t.includes('fun(') || t.includes('function');
 }
 
 export function parseFacadeFile(filePath: string): FacadeInfo | null {

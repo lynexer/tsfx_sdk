@@ -26,11 +26,8 @@ export interface FacadeInfo {
 
 function extractStrings(content: string): string[] {
 	const results: string[] = [];
-	const regex = /'([^']+)'/g;
-	let m: RegExpExecArray | null = regex.exec(content);
-	while (m !== null) {
-		results.push(m[1]);
-		m = regex.exec(content);
+	for (const match of content.matchAll(/'([^']+)'/g)) {
+		results.push(match[1]);
 	}
 	return results;
 }
@@ -136,9 +133,7 @@ export function parseFacadeFile(filePath: string): FacadeInfo | null {
 	}
 
 	const methods: FacadeMethod[] = [];
-	const methodRegex = /function\s+(\w+)[.:](\w+)\(([^)]*)\)/g;
-	let match: RegExpExecArray | null = methodRegex.exec(content);
-	while (match !== null) {
+	for (const match of content.matchAll(/function\s+(\w+)[.:](\w+)\(([^)]*)\)/g)) {
 		const funcClass = match[1];
 		const funcName = match[2];
 
@@ -166,8 +161,6 @@ export function parseFacadeFile(filePath: string): FacadeInfo | null {
 			isServerOnly,
 			isClientOnly,
 		});
-
-		match = methodRegex.exec(content);
 	}
 
 	// For impl facades, add any explicit methods not found via regex
@@ -215,7 +208,8 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 		if (namespace === 'Target') {
 			// Target methods do not take player source
 		} else if (side === 'server') {
-			argExpressions.push('source');
+			argExpressions.push('(tonumber(args[1]) or source)');
+			argIndex = 2;
 		} else {
 			// Client-side shared impl methods need the local player's server id
 			argExpressions.push('GetPlayerServerId(PlayerId())');
@@ -223,9 +217,10 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 	} else if (callable && className) {
 		if (namespace === 'Player') {
 			if (side === 'server') {
-				argExpressions.push('source');
+				argExpressions.push('(tonumber(args[1]) or source)');
+				argIndex = 2;
 			}
-			// client: no source arg for TSFX:Player()
+			// client: no source arg for TSFX.Player()
 		} else if (namespace === 'Gang' || namespace === 'Job') {
 			argExpressions.push(`coerce(args[${argIndex}])`);
 			argIndex++;
@@ -262,8 +257,9 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 	} else if (callable && className) {
 		if (namespace === 'Player') {
 			if (side === 'server') {
+				const ctorArg = argExpressions[0];
 				const rest = argExpressions.slice(1).join(', ');
-				callExpr = `TSFX.Player(source):${name}(${rest})`;
+				callExpr = `TSFX.Player(${ctorArg}):${name}(${rest})`;
 			} else {
 				callExpr = `TSFX.Player():${name}(${argExpressions.join(', ')})`;
 			}
@@ -277,13 +273,14 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 	}
 
 	const returnsSelf = returns && (returns.includes('HandleClass') || returns.includes(namespace + 'HandleClass'));
+	const resultArg = side === 'server' ? '' : 'source, ';
 	let lua = '';
 	if (returnsSelf || !returns) {
 		lua += `        ${callExpr}\n`;
-		lua += `        printResult(source, 'OK')`;
+		lua += `        printResult(${resultArg}'OK')`;
 	} else {
 		lua += `        local result = ${callExpr}\n`;
-		lua += `        printResult(source, result)`;
+		lua += `        printResult(${resultArg}result)`;
 	}
 
 	return lua;
@@ -292,7 +289,12 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): string {
 	let lua = `-- Auto-generated TSFX SDK test commands (${side})\n`;
 	lua += `-- Regenerated on every link.\n`;
-	lua += `-- Usage: /tsfx <namespace> <method> [args...]\n`;
+	if (side === 'server') {
+		lua += `-- Usage: /tsfx <namespace> <method> [target] [args...]\n`;
+		lua += `--        target = player source (defaults to caller)\n`;
+	} else {
+		lua += `-- Usage: /tsfx <namespace> <method> [args...]\n`;
+	}
 	lua += `--        /tsfx list\n\n`;
 
 	lua += `local function coerce(val)\n`;
@@ -304,23 +306,27 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	lua += `    return val\n`;
 	lua += `end\n\n`;
 
-	lua += `local function printResult(source, result)\n`;
-	lua += `    local text\n`;
-	lua += `    if type(result) == 'table' then\n`;
-	lua += `        text = json.encode(result)\n`;
-	lua += `    else\n`;
-	lua += `        text = tostring(result)\n`;
-	lua += `    end\n`;
 	if (side === 'server') {
-		lua += `    if source > 0 then\n`;
-		lua += `        TriggerClientEvent('chat:addMessage', source, { color = {0, 255, 100}, multiline = true, args = { '[TSFX]', text } })\n`;
+		lua += `local function printResult(result)\n`;
+		lua += `    local text\n`;
+		lua += `    if type(result) == 'table' then\n`;
+		lua += `        text = json.encode(result)\n`;
 		lua += `    else\n`;
-		lua += `        print('[TSFX] ' .. text)\n`;
+		lua += `        text = tostring(result)\n`;
 		lua += `    end\n`;
+		lua += `    print('[TSFX] ' .. text)\n`;
+		lua += `end\n\n`;
 	} else {
+		lua += `local function printResult(source, result)\n`;
+		lua += `    local text\n`;
+		lua += `    if type(result) == 'table' then\n`;
+		lua += `        text = json.encode(result)\n`;
+		lua += `    else\n`;
+		lua += `        text = tostring(result)\n`;
+		lua += `    end\n`;
 		lua += `    TriggerEvent('chat:addMessage', { color = {0, 255, 100}, multiline = true, args = { '[TSFX]', text } })\n`;
+		lua += `end\n\n`;
 	}
-	lua += `end\n\n`;
 
 	lua += `local Dispatch = {}\n\n`;
 
@@ -344,7 +350,7 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	lua += `RegisterCommand('tsfx', function(source, args, raw)\n`;
 	lua += `    if #args < 1 then\n`;
 	if (side === 'server') {
-		lua += `        TriggerClientEvent('chat:addMessage', source, { color = {255, 0, 0}, args = { '[TSFX]', 'Usage: /tsfx <namespace> <method> [args...]' } })\n`;
+		lua += `        print('[TSFX] Usage: /tsfx <namespace> <method> [target] [args...]')\n`;
 	} else {
 		lua += `        TriggerEvent('chat:addMessage', { color = {255, 0, 0}, args = { '[TSFX]', 'Usage: /tsfx <namespace> <method> [args...]' } })\n`;
 	}
@@ -363,13 +369,17 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	lua += `            table.insert(lines, ns .. ': ' .. table.concat(names, ', '))\n`;
 	lua += `        end\n`;
 	lua += `        table.sort(lines)\n`;
-	lua += `        printResult(source, table.concat(lines, '\\n'))\n`;
+	if (side === 'server') {
+		lua += `        printResult(table.concat(lines, '\\n'))\n`;
+	} else {
+		lua += `        printResult(source, table.concat(lines, '\\n'))\n`;
+	}
 	lua += `        return\n`;
 	lua += `    end\n\n`;
 
 	lua += `    if #args < 2 then\n`;
 	if (side === 'server') {
-		lua += `        TriggerClientEvent('chat:addMessage', source, { color = {255, 0, 0}, args = { '[TSFX]', 'Usage: /tsfx <namespace> <method> [args...]' } })\n`;
+		lua += `        print('[TSFX] Usage: /tsfx <namespace> <method> [target] [args...]')\n`;
 	} else {
 		lua += `        TriggerEvent('chat:addMessage', { color = {255, 0, 0}, args = { '[TSFX]', 'Usage: /tsfx <namespace> <method> [args...]' } })\n`;
 	}
@@ -385,7 +395,7 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	lua += `    local ns = Dispatch[namespace]\n`;
 	lua += `    if not ns then\n`;
 	if (side === 'server') {
-		lua += `        TriggerClientEvent('chat:addMessage', source, { color = {255, 0, 0}, args = { '[TSFX]', 'Unknown namespace: ' .. namespace } })\n`;
+		lua += `        print('[TSFX] Unknown namespace: ' .. namespace)\n`;
 	} else {
 		lua += `        TriggerEvent('chat:addMessage', { color = {255, 0, 0}, args = { '[TSFX]', 'Unknown namespace: ' .. namespace } })\n`;
 	}
@@ -395,7 +405,7 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	lua += `    local fn = ns[method]\n`;
 	lua += `    if not fn then\n`;
 	if (side === 'server') {
-		lua += `        TriggerClientEvent('chat:addMessage', source, { color = {255, 0, 0}, args = { '[TSFX]', 'Unknown method: ' .. method .. ' in ' .. namespace } })\n`;
+		lua += `        print('[TSFX] Unknown method: ' .. method .. ' in ' .. namespace)\n`;
 	} else {
 		lua += `        TriggerEvent('chat:addMessage', { color = {255, 0, 0}, args = { '[TSFX]', 'Unknown method: ' .. method .. ' in ' .. namespace } })\n`;
 	}
@@ -407,7 +417,7 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	lua += `    end)\n`;
 	lua += `    if not ok then\n`;
 	if (side === 'server') {
-		lua += `        TriggerClientEvent('chat:addMessage', source, { color = {255, 0, 0}, args = { '[TSFX]', 'Error: ' .. tostring(err) } })\n`;
+		lua += `        print('[TSFX] Error: ' .. tostring(err))\n`;
 	} else {
 		lua += `        TriggerEvent('chat:addMessage', { color = {255, 0, 0}, args = { '[TSFX]', 'Error: ' .. tostring(err) } })\n`;
 	}

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import createSpinner from 'yocto-spinner';
+import { generateTestResource } from './generate-test-resource.js';
 import { ConfigLoader, Logger } from './utils';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +43,23 @@ class LinkCommand {
         }
     }
 
+    private async bundleTestResource(): Promise<void> {
+        const name = 'tsfx_sdk_test';
+        const spinner = createSpinner({ text: `Generating ${name}` }).start();
+
+        try {
+            const categoryFolder = path.join(this.targetDir, `[${this.category}]`);
+            const dest = path.join(categoryFolder, name);
+
+            await generateTestResource(dest);
+
+            spinner.success(`Generated ${name} -> [${this.category}]/${name}`);
+        } catch (error) {
+            spinner.error(`Failed to generate ${name}`);
+            throw error;
+        }
+    }
+
     private async restartServer(): Promise<void> {
         if (!this.autoRestart) return;
 
@@ -59,8 +77,9 @@ class LinkCommand {
         Logger.step(`Starting link process for ${this.serverName}...`);
 
         await this.bundleResource();
+        await this.bundleTestResource();
 
-        Logger.success(`Resource linked to [${this.category}]\n`);
+        Logger.success(`Resources linked to [${this.category}]\n`);
 
         await this.restartServer();
     }

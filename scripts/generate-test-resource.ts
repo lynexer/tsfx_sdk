@@ -260,16 +260,16 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 		if (namespace === 'Player') {
 			if (side === 'server') {
 				const rest = argExpressions.slice(1).join(', ');
-				callExpr = `TSFX:Player(source):${name}(${rest})`;
+				callExpr = `TSFX.Player(source):${name}(${rest})`;
 			} else {
-				callExpr = `TSFX:Player():${name}(${argExpressions.join(', ')})`;
+				callExpr = `TSFX.Player():${name}(${argExpressions.join(', ')})`;
 			}
 		} else if (namespace === 'Framework') {
-			callExpr = `TSFX:Framework():${name}(${argExpressions.join(', ')})`;
+			callExpr = `TSFX.Framework():${name}(${argExpressions.join(', ')})`;
 		} else if (namespace === 'Gang' || namespace === 'Job') {
 			const ctorArg = argExpressions[0];
 			const rest = argExpressions.slice(1).join(', ');
-			callExpr = `TSFX:${namespace}(${ctorArg}):${name}(${rest})`;
+			callExpr = `TSFX.${namespace}(${ctorArg}):${name}(${rest})`;
 		}
 	}
 

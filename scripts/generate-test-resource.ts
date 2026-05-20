@@ -27,9 +27,10 @@ export interface FacadeInfo {
 function extractStrings(content: string): string[] {
 	const results: string[] = [];
 	const regex = /'([^']+)'/g;
-	let m: RegExpExecArray | null;
-	while ((m = regex.exec(content)) !== null) {
+	let m: RegExpExecArray | null = regex.exec(content);
+	while (m !== null) {
 		results.push(m[1]);
+		m = regex.exec(content);
 	}
 	return results;
 }
@@ -135,9 +136,9 @@ export function parseFacadeFile(filePath: string): FacadeInfo | null {
 	}
 
 	const methods: FacadeMethod[] = [];
-	const methodRegex = new RegExp(`function\\s+(\\w+)[.:](\\w+)\\(([^)]*)\\)`, 'g');
-	let match: RegExpExecArray | null;
-	while ((match = methodRegex.exec(content)) !== null) {
+	const methodRegex = /function\s+(\w+)[.:](\w+)\(([^)]*)\)/g;
+	let match: RegExpExecArray | null = methodRegex.exec(content);
+	while (match !== null) {
 		const funcClass = match[1];
 		const funcName = match[2];
 
@@ -165,6 +166,8 @@ export function parseFacadeFile(filePath: string): FacadeInfo | null {
 			isServerOnly,
 			isClientOnly,
 		});
+
+		match = methodRegex.exec(content);
 	}
 
 	// For impl facades, add any explicit methods not found via regex

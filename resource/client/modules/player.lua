@@ -13,10 +13,6 @@ function ClientPlayerModule.getJob()
 end
 
 function ClientPlayerModule.getOnDuty()
-    if clientAdapter.getLocalOnDuty then
-        return clientAdapter:getLocalOnDuty()
-    end
-
     local job = clientAdapter:getLocalJob()
 
     if job and job.onduty ~= nil then

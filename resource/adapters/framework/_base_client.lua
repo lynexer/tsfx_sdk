@@ -62,7 +62,3 @@ end
 function FrameworkClientAdapterClass:getLocalGang()
     return nil
 end
-
-function FrameworkClientAdapterClass:getLocalOnDuty()
-    return false
-end

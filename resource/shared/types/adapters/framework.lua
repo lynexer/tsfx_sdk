@@ -98,4 +98,3 @@
 ---@field hasGroup fun(filter: string|string[]): boolean
 ---@field getGroups fun(): { [string]: number }
 ---@field getLocalGang fun(): GangData|nil
----@field getLocalOnDuty fun(): boolean

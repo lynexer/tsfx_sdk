@@ -101,7 +101,7 @@ end
 ---@param heading number
 ---@return PlayerHandleClass
 function PlayerHandle:setHeading(heading)
-    SetEntityHeading(self:getPed(), heading)
+    SetEntityHeading(self:getPed(), heading + 0.0)
 
     return self
 end

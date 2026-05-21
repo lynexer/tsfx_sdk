@@ -52,6 +52,7 @@ function QBoxClientAdapter:getLocalJob()
         label = job.label or 'Unemployed',
         grade = job.grade and (tonumber(job.grade.level) or tonumber(job.grade)) or 0,
         gradeLabel = job.grade and job.grade.name or '',
+        onDuty = job.onduty or false
     }
 end
 

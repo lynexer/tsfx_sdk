@@ -15,8 +15,8 @@ end
 function ClientPlayerModule.getOnDuty()
     local job = clientAdapter:getLocalJob()
 
-    if job and job.onduty ~= nil then
-        return job.onduty
+    if job and job.onDuty ~= nil then
+        return job.onDuty
     end
 
     return false
@@ -50,7 +50,7 @@ function ClientPlayerModule.isLoaded()
     return clientAdapter:isLoaded()
 end
 
-function ClientPlayerModule.getMoney(account)
+function ClientPlayerModule.getMoney(source, account)
     return clientAdapter:getLocalMoney(account)
 end
 

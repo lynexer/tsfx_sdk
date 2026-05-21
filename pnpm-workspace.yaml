@@ -1,8 +1,0 @@
-packages:
-  - resource
-  - extension
-
-onlyBuiltDependencies:
-  - '@vscode/vsce-sign'
-  - esbuild
-  - keytar

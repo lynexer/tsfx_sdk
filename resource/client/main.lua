@@ -41,6 +41,7 @@ Manifest:load('support/Tick.lua')
 
 -- Load client-only support module declarations into manifest
 Manifest:load('support/Streaming.lua')
+Manifest:load('support/EntityManager.lua')
 
 -- Register all exports
 Manifest:finalize()

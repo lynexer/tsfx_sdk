@@ -98,11 +98,17 @@ function ModuleBuilder:callable()
     return self
 end
 
----Mark the module as preloaded
+---Mark the module as bound to _TSFX (auto-populated in both SDK and consumer VMs)
+---@return ModuleBuilderClass
+function ModuleBuilder:bind()
+    self._decl.bind = true
+    return self
+end
+
+---Deprecated alias for :bind()
 ---@return ModuleBuilderClass
 function ModuleBuilder:preloaded()
-    self._decl.preloaded = true
-    return self
+    return self:bind()
 end
 
 ---Mark the module as hidden

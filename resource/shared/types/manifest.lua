@@ -15,7 +15,7 @@
 ---@field mode? ManifestModuleMode
 ---@field impl? table<string, function>
 ---@field callable? boolean
----@field preloaded? boolean
+---@field bind? boolean
 ---@field hidden? boolean
 
 ---@class ModuleBuilderClass
@@ -35,7 +35,7 @@
 ---@field scoped boolean
 ---@field context ManifestModuleContext
 ---@field hidden? boolean
----@field preloaded? boolean
+---@field bind? boolean
 ---@field methods ManifestMethod[]
 ---@field mode? ManifestModuleMode
 ---@field file? string

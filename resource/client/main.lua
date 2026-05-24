@@ -6,11 +6,7 @@
 --]]
 
 _TSFX = {
-    Log = LoggerRegistry.get('SDK'),
-    Cache = Cache,
-    Await = Await.new,
-    Streaming = Streaming,
-    Tick = Tick.new
+    Log = LoggerRegistry.get('SDK')
 }
 
 _TSFX.Log:info('Client bootstrap starting...')
@@ -43,6 +39,9 @@ Manifest:load('support/Tick.lua')
 -- Load client-only support module declarations into manifest
 Manifest:load('support/Streaming.lua')
 Manifest:load('support/EntityManager.lua')
+
+-- Auto-bind modules marked with :bind() to _TSFX
+Manifest:bind()
 
 -- Register all exports
 Manifest:finalize()

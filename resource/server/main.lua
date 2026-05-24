@@ -6,10 +6,7 @@
 --]]
 
 _TSFX = {
-    Log = LoggerRegistry.get('SDK'),
-    Cache = Cache,
-    Await = Await.new,
-    Tick = Tick.new
+    Log = LoggerRegistry.get('SDK')
 }
 
 _TSFX.Log:info('Server bootstrap starting...')
@@ -38,6 +35,9 @@ Manifest:load('support/Cache.lua')
 Manifest:load('support/Locale.lua')
 Manifest:load('support/Await.lua')
 Manifest:load('support/Tick.lua')
+
+-- Auto-bind modules marked with :bind() to _TSFX
+Manifest:bind()
 
 -- Register all exports
 Manifest:finalize()

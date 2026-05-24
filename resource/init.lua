@@ -40,11 +40,27 @@ loadSupportFile('facades/_base.lua')
 -- Log is a dependency for other consumer_vm modules (StateMachine, etc.)
 -- that reference _TSFX.Log in their function bodies.
 loadSupportFile('support/LogInstance.lua')
-loadSupportFile('support/Cache.lua')
-loadSupportFile('support/Await.lua')
-loadSupportFile('support/Streaming.lua')
-loadSupportFile('support/Tick.lua')
-_TSFX = { Log = LogInstance.new(resourceName, ''), Cache = Cache, Await = Await.new, Streaming = isServer() and nil or Streaming, Tick = Tick.new }
+_TSFX = { Log = LogInstance.new(resourceName, '') }
+
+-- Auto-bind modules marked with :bind() from manifest metadata.
+-- Ensures _TSFX is populated before other consumer_vm modules load.
+for _, mod in ipairs(manifest) do
+    if mod.context == 'shared' or mod.context == getContext() then
+        if mod.bind and mod.namespace ~= 'Log' then
+            loadSupportFile(mod.file)
+
+            local globalName = mod.globalName or mod.exportPrefix or mod.namespace
+            local target = _ENV[globalName]
+
+            if mod.callable then
+                _TSFX[mod.namespace] = target.new
+            else
+                _TSFX[mod.namespace] = target
+            end
+        end
+    end
+end
+
 Module = ModuleBuilder.new
 
 for _, mod in ipairs(manifest) do
@@ -52,7 +68,7 @@ for _, mod in ipairs(manifest) do
         if mod.hidden then
             -- Hidden modules are not consumer-facing; skip TSFX wrapper
         elseif mod.mode == 'consumer_vm' then
-            if mod.preloaded then
+            if mod.bind then
                 TSFX[mod.namespace] = _TSFX[mod.namespace]
             elseif mod.callable then
                 loadSupportFile(mod.file)

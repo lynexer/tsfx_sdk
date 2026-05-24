@@ -95,7 +95,7 @@ function ManifestBuilder:finalize()
             mode = module.mode or 'export',
             file = module._file,
             hidden = module.hidden,
-            preloaded = module.preloaded,
+            bind = module.bind,
             globalName = module.globalName,
             callable = module.callable
         }
@@ -134,6 +134,37 @@ function ManifestBuilder:_registerModuleExports(module)
         end
 
         exports(exportName, fn)
+    end
+end
+
+---Auto-bind marked modules to the _TSFX global.
+---Call after all Manifest:load() and before Manifest:finalize().
+function ManifestBuilder:bind()
+    for _, module in ipairs(self._modules) do
+        if module.bind then
+            if module.namespace == 'Log' then
+                goto continue
+            end
+
+            local globalName = module.globalName or module.exportPrefix or module.namespace
+            local target = _ENV[globalName]
+
+            if target == nil then
+                error(('ManifestBuilder:bind() - Global %s not found for module %s'):format(globalName, module.namespace))
+            end
+
+            if module.callable then
+                if type(target.new) ~= 'function' then
+                    error(('ManifestBuilder:bind() - Module %s is callable but %s.new is not a function'):format(module.namespace, globalName))
+                end
+
+                _TSFX[module.namespace] = target.new
+            else
+                _TSFX[module.namespace] = target
+            end
+        end
+
+        ::continue::
     end
 end
 

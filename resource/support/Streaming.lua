@@ -237,7 +237,7 @@ return Module and Module('Streaming', 'client')
     :mode('export')
     :exportAs('Streaming')
     :impl(Streaming)
-    :preloaded()
+    :bind()
     :methods(function (m)
         m:add(
             'requestModel', 'withModel', 'requestAnimDict', 'withAnimDict',

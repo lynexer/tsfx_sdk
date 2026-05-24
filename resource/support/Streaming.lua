@@ -5,7 +5,7 @@
     lifetime management via StreamingHandle and automatic scoped release via With* functions
 --]]
 
----@class SteamingClass
+---@class StreamingClass
 Streaming = {}
 Streaming.__index = Streaming
 

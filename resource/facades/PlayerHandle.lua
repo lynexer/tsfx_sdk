@@ -263,6 +263,7 @@ end
 function PlayerHandle:setMetadata(key, value)
     return self:_serverOnly('setMetadata', function ()
         self._export:Player_setMetadata(self.source, key, value)
+        return self
     end, self)
 end
 

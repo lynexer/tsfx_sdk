@@ -1,0 +1,43 @@
+{
+	"File Header": {
+		"scope": "lua",
+		"prefix": "tfheader",
+		"body": [
+			"--[[",
+			"    MODULE: TSFX SDK - ${1:Module Name}",
+			"",
+			"    ${2:Description}",
+			"--]]",
+			"$0"
+		],
+		"description": "TSFX file header with MODULE anchor"
+	},
+	"Section Header": {
+		"scope": "lua",
+		"prefix": "tfsection",
+		"body": [
+			"-- SECTION: ${1:Section Name} // ----------------------------------------",
+			"$0"
+		],
+		"description": "TSFX section separator with SECTION anchor"
+	},
+	"Section End": {
+		"scope": "lua",
+		"prefix": "tfsectionend",
+		"body": [
+			"-- !SECTION",
+			"$0"
+		]
+	},
+	"Section Transition": {
+		"scope": "lua",
+		"prefix": "tfsectiontrans",
+		"body": [
+			"-- !SECTION",
+			"",
+			"-- SECTION: ${1:Section Name} // ----------------------------------------",
+			"$0"
+		],
+		"description": "TSFX section separator transition with SECTION anchors"
+	}
+}

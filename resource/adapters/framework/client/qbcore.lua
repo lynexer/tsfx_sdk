@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - QBCore Client Adapter
+    MODULE: TSFX SDK - QBCore Client Adapter
 
     Reads local player state from QBCore.Functions.GetPlayerData() cache.
 --]]

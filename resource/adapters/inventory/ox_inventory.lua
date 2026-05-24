@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - ox_inventory Adapter
+    MODULE: TSFX SDK - ox_inventory Adapter
+
     Maps to ox_inventory exports.
 --]]
 

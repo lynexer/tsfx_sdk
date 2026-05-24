@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Custom Progress Adapter
+    MODULE: TSFX SDK - Custom Progress Adapter
+
     Fallback when no progress bar system is detected. Logs warnings for all calls.
 --]]
 

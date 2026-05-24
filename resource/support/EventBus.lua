@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - EventBus
+    MODULE: TSFX SDK - EventBus
 
     Internal event bus for cross-module communication and networked events.
     Provides typed event handling with rate limiting, validation, and callback support.
@@ -8,6 +8,7 @@
 ---@class EventBusClass
 EventBus = {}
 EventBus.__index = EventBus
+
 EventBus._listeners = {}
 EventBus._rateLimits = {}
 EventBus._registered = {}

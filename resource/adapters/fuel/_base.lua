@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Fuel Adapter Base
+    MODULE: TSFX SDK - Fuel Adapter Base
 
     Interface contract that all fuel adapters must implement.
 --]]

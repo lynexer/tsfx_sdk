@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - ox_lib Progress Adapter
+    MODULE: TSFX SDK - ox_lib Progress Adapter
 
     Maps to ox_lib progress bar (client-side only).
     Lazily loads ox_lib's init.lua into our VM on first use.

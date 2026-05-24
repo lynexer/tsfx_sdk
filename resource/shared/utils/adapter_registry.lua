@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Adapter Registry Engine
+    MODULE: TSFX SDK - Adapter Registry Engine
 
     Generic resolver for adapter categories. Concrete registrations live in
     shared/adapters.lua.

@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - ox_target Interact Adapter
+    MODULE: TSFX SDK - ox_target Interact Adapter
+
     Maps to ox_target exports.
 --]]
 

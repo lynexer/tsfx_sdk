@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Manifest Builder
+    MODULE: TSFX SDK - Manifest Builder
 
     Facade Manifest Builder that loads module declarations and auto-generates exports.
     Also supports modules with mode = 'consumer_vm' where source is loaded directly

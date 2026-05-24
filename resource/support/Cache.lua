@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Cache
+    MODULE: TSFX SDK - Cache
 
     Central in-memory cache for the bridge resource. Values are stored
     with optional TTL. A private _tsfx_internal table is reserved for

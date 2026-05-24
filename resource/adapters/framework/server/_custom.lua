@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Custom Framework Adapter
+    MODULE: TSFX SDK - Custom Framework Adapter
 
     Fallback when no framework resource is detected. Logs warnings for all calls.
 --]]

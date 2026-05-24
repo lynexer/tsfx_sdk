@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - ESX Client Adapter
+    MODULE: TSFX SDK - ESX Client Adapter
 
     Reads local player state from ESX.PlayerData cache.
 --]]

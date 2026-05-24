@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Custom Inventory Adapter
+    MODULE: TSFX SDK - Custom Inventory Adapter
+
     Fallback when no inventory system is detected. Logs warnings for all calls.
 --]]
 

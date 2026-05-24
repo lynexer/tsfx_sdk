@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - QBox Framework Adapter
+    MODULE: TSFX SDK - QBox Framework Adapter
 
     Maps to qbx_core exports. QBox diverges from QBCore — no global object,
     everything is export-based.

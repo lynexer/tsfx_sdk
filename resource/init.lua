@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Public API Entry Point
+    ANCHOR: TSFX SDK - Public API Entry Point
 
     This file is loaded by consuming resources via:
     shared_scripts { '@tsfx_sdk/init.lua' }

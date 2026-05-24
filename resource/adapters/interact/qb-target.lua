@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - qb-target Interact Adapter
+    MODULE: TSFX SDK - qb-target Interact Adapter
+
     Maps to qb-target exports.
 --]]
 

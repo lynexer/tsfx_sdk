@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Custom Notify Adapter
+    MODULE: TSFX SDK - Custom Notify Adapter
+
     Fallback when no notification system is detected. Logs warnings for all calls.
 --]]
 

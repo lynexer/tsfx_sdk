@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Custom Phone Adapter
+    MODULE: TSFX SDK - Custom Phone Adapter
 
     Fallback when no phone system is detected. Logs warnings for all calls.
 --]]

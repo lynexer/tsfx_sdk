@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Framework Client Adapter Base
+    MODULE: TSFX SDK - Framework Client Adapter Base
 
     Thin interface contract for client-side local player reads.
     Required methods have error stubs.

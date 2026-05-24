@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Medical Adapter Base
+    MODULE: TSFX SDK - Medical Adapter Base
 
     Interface contract that all medical adapters must implement.
 --]]

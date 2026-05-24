@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Framework Adapter Base
+    MODULE: TSFX SDK - Framework Adapter Base
 
     Interface contract. Required methods have error stubs.
     Optional methods (gangs) have default no-ops so frameworks without

@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Interact Adapter Base
+    MODULE: TSFX SDK - Interact Adapter Base
+
     Interface contract that all interaction adapters must implement.
 --]]
 

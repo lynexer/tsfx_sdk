@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Client Player Module
+    MODULE: TSFX SDK - Client Player Module
+
     Local player data reads and mutation stubs. Delegates to the client framework adapter.
 ]]
 

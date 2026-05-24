@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - ps-inventory Adapter
+    MODULE: TSFX SDK - ps-inventory Adapter
+
     Maps to ps-inventory exports.
 --]]
 

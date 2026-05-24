@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Target Module
+    MODULE: TSFX SDK - Target Module
+
     Client-side interaction zone operations.
     Delegates to the active interact adapter.
 --]]

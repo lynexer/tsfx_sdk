@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Player Module
+    MODULE: TSFX SDK - Player Module
+
     Single-player operations. Delegates to the active framework adapter.
 --]]
 

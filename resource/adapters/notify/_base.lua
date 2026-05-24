@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Notify Adapter Base
+    MODULE: TSFX SDK - Notify Adapter Base
+
     Interface contract that all notification adapters must implement.
 --]]
 

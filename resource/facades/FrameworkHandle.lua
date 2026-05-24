@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Framework Handle Facade
+    MODULE: TSFX SDK - Framework Handle Facade
+
     Chainable handle for server-level framework queries.
 --]]
 

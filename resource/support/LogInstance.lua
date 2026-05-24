@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - LogInstance
+    MODULE: TSFX SDK - LogInstance
 
     Per-resource logger instance.
     Instances are created by LoggerRegistry and scoped to individual resources.

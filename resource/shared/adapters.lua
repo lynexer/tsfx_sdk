@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Adapter Category Registrations
+    ANCHOR: TSFX SDK - Adapter Category Registrations
 
     Declarative configuration for all adapter categories.
     Adding a new category requires one register() call — no engine changes.
@@ -13,7 +13,8 @@
       { server = 'FallbackServerClass', client = 'FallbackClientClass' }
 --]]
 
--- Framework
+-- SECTION: Framework // ----------------------------------------
+
 AdapterRegistry.register('framework', {
     configKey = 'framework',
     candidates = {
@@ -24,7 +25,10 @@ AdapterRegistry.register('framework', {
     custom = { server = 'CustomFrameworkAdapter', client = 'CustomFrameworkClientAdapter' },
 })
 
--- Inventory
+-- !SECTION
+
+-- SECTION: Inventory // ----------------------------------------
+
 AdapterRegistry.register('inventory', {
     configKey = 'inventory',
     candidates = {
@@ -34,13 +38,19 @@ AdapterRegistry.register('inventory', {
     custom = 'CustomInventoryAdapter',
 })
 
--- -- Interaction
+-- !SECTION
+
+-- SECTION: Interaction // ----------------------------------------
+
 -- AdapterRegistry.register('interact', {
 --     candidates = {},
 --     custom = 'CustomInteractAdapter'
 -- })
 
--- Notifications
+-- !SECTION
+
+-- SECTION: Notifications // ----------------------------------------
+
 AdapterRegistry.register('notify', {
     candidates = {
         { resource = 'es_extended', config = 'esx', class = 'EsxNotifyAdapter' },
@@ -51,38 +61,58 @@ AdapterRegistry.register('notify', {
     custom = 'CustomNotifyAdapter',
 })
 
--- -- Progress
+-- !SECTION
+
+-- SECTION: Progress // ----------------------------------------
+
 -- AdapterRegistry.register('progress', {
 --     candidates = {},
 --     custom = 'CustomProgressAdapter',
 -- })
 
--- -- Phone
+-- !SECTION
+
+-- SECTION: Phone // ----------------------------------------
+
 -- AdapterRegistry.register('phone', {
 --     candidates = {},
 --     custom = 'CustomPhoneAdapter',
 -- })
 
--- -- Dispatch
+-- !SECTION
+
+-- SECTION: Dispatch // ----------------------------------------
+
 -- AdapterRegistry.register('dispatch', {
 --     candidates = {},
 --     custom = 'CustomDispatchAdapter',
 -- })
 
--- -- Medical
+-- !SECTION
+
+-- SECTION: Medical // ----------------------------------------
+
 -- AdapterRegistry.register('medical', {
 --     candidates = {},
 --     custom = 'CustomMedicalAdapter',
 -- })
 
--- -- Vehicle Keys
+-- !SECTION
+
+-- SECTION: Vehicle Keys // ----------------------------------------
+
 -- AdapterRegistry.register('keys', {
 --     candidates = {},
 --     custom = 'CustomKeysAdapter',
 -- })
 
--- -- Vehicle Fuel
+-- !SECTION
+
+-- SECTION: Vehicle Fuel // ----------------------------------------
+
 -- AdapterRegistry.register('fuel', {
 --     candidates = {},
 --     custom = 'CustomFuelAdapter',
 -- })
+
+-- !SECTION

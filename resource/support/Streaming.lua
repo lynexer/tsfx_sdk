@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Streaming
+    MODULE: TSFX SDK - Streaming
 
     Streaming — Public API for loading and releasing game assets. Supports both manual
     lifetime management via StreamingHandle and automatic scoped release via With* functions

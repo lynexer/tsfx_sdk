@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Inventory Module
+    MODULE: TSFX SDK - Inventory Module
+
     Inventory operations. Delegates to the active inventory adapter.
 --]]
 

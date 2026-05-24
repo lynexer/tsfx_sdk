@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Tick
+    MODULE: TSFX SDK - Tick
 
     Creates a managed, stoppable game loop on its own thread. 
     Supports dynamic intervals and exposes a handle for full lifecycle control.

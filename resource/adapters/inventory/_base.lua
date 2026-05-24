@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Inventory Adapter Base
+    MODULE: TSFX SDK - Inventory Adapter Base
+
     Interface contract that all inventory adapters must implement.
 --]]
 

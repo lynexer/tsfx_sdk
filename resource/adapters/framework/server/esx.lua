@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - ESX Framework Adapter
+    MODULE: TSFX SDK - ESX Framework Adapter
 
     Maps to ESX Legacy 1.9+ exports.
     Instantiates ESX via getSharedObject() export on first use.

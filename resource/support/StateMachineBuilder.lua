@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - StateMachineBuilder
+    MODULE: TSFX SDK - StateMachineBuilder
 
     Fluent builder API for constructing StateMachine instances.
     Provides chainable methods for defining transitions, syncs, and callbacks.

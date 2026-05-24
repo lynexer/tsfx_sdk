@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Bridge Configuration
+    ANCHOR: TSFX SDK - Bridge Configuration
+
     Edited once by the server operator at setup time.
 ]]
 

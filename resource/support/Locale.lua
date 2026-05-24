@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Locale
+    MODULE: TSFX SDK - Locale
 
     Self-contained i18n module for consuming resources.
     Loaded directly into the consumer's Lua VM (consumer_vm).

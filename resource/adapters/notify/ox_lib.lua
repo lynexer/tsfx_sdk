@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - ox_lib Notify Adapter
+    MODULE: TSFX SDK - ox_lib Notify Adapter
+
     Maps to ox_lib notification trigger.
 --]]
 

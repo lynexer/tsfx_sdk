@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Client Notify Handlers
+    MODULE: TSFX SDK - Client Notify Handlers
+
     Handles server-triggered progress bar events.
     Loaded by fxmanifest.lua; no ModuleDeclaration needed.
 --]]

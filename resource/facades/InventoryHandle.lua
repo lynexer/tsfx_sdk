@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Inventory Handle Facade
+    MODULE: TSFX SDK - Inventory Handle Facade
+
     Stateless table facade for inventory operations.
 --]]
 

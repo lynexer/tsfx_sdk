@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Await
+    MODULE: TSFX SDK - Await
 
     Polls a condition each frame until it returns a truthy value, or times out.
     Designed to feel like a native async primitive.

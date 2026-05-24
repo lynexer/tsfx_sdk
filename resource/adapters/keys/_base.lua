@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Keys Adapter Base
+    MODULE: TSFX SDK - Keys Adapter Base
 
     Interface contract that all keys adapters must implement.
 --]]

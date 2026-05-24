@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Target Handle Facade
+    MODULE: TSFX SDK - Target Handle Facade
+
     Stateless table facade for client-side interaction zones.
 --]]
 

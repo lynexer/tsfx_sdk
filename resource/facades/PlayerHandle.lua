@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Player Handle Facade
+    MODULE: TSFX SDK - Player Handle Facade
 
     Chainable handle for single-player operations.
     Loaded into consumer VM via init.lua.

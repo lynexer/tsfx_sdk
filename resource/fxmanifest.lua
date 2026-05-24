@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - FiveM Resource Manifest
+    ANCHOR: TSFX SDK - FiveM Resource Manifest
+
     https://github.com/lynexer/tsfx_sdk
 --]]
 

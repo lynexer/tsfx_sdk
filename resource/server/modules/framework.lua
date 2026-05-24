@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Framework Module
+    MODULE: TSFX SDK - Framework Module
+
     Shared framework data and lookup operations.
 --]]
 

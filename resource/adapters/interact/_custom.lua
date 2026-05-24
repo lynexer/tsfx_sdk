@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Custom Interact Adapter
+    MODULE: TSFX SDK - Custom Interact Adapter
+
     Fallback when no interaction resource is detected. Logs warnings for all calls.
 --]]
 

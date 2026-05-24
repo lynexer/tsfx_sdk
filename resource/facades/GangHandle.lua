@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Gang Handle Facade
+    MODULE: TSFX SDK - Gang Handle Facade
+
     Chainable handle for framework gang definition lookups.
     Gracefully degrades on frameworks without gang support (e.g. ESX).
 --]]

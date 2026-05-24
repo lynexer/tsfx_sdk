@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Notify Module
+    MODULE: TSFX SDK - Notify Module
+
     Notification and progress bar operations.
     Send delegates to notify adapter.
     Progress methods trigger client events for client-side progress bars.

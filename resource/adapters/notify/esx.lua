@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - ESX Notify Adapter
+    MODULE: TSFX SDK - ESX Notify Adapter
+
     Maps to ESX built-in notification (server -> client trigger).
     ESX notifications do not natively support type/duration.
 --]]

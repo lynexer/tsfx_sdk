@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - QBCore Framework Adapter
+    MODULE: TSFX SDK - QBCore Framework Adapter
 
     Maps to QBCore.Functions and PlayerData.
     Instantiates QBCore via GetCoreObject() export on first use.

@@ -1,3 +1,11 @@
+--[[
+    MODULE: TSFX SDK - Module Builder
+
+    Fluent builder API for declaring SDK modules and their exported methods.
+    Used by support files and module declarations to construct the manifest
+    consumed by ManifestBuilder for export registration and _TSFX binding.
+--]]
+
 ---@class MethodsBuilderClass
 local MethodsBuilder = {}
 MethodsBuilder.__index = MethodsBuilder

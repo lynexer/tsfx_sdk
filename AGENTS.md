@@ -360,6 +360,48 @@ Consistent naming improves readability and maintainability:
 - **Adapter implementations** use PascalCase with framework prefix: `ESXAdapter`, `QBCoreAdapter`
 - **Support modules** use PascalCase: `EventBus`, `Log`, `StateMachine`
 
+## File Header and Section Separators
+
+All new or significantly modified Lua files must follow these formatting conventions.
+
+### File Headers
+
+Use a `--[[ ... --]]` block at the top of every file. The first line uses either `MODULE:` or `ANCHOR:` prefix followed by `TSFX SDK - <Name>`. Subsequent lines are a concise description.
+
+```lua
+--[[
+    MODULE: TSFX SDK - Module Name
+
+    Description of what this file does.
+--]]
+```
+
+Use `MODULE:` for files that define or implement a class/module. Use `ANCHOR:` for configuration or registry files that wire things together declaratively.
+
+### Section Separators
+
+Use section markers to group related declarations within large files.
+
+```lua
+-- SECTION: Section Name // ----------------------------------------
+
+-- code here
+
+-- !SECTION
+```
+
+When transitioning directly between sections, stack them:
+
+```lua
+-- !SECTION
+
+-- SECTION: Next Section // ----------------------------------------
+```
+
+- Every section must end with `-- !SECTION`
+- Section names use Title Case
+- Leave one blank line after `-- !SECTION` when starting the next section
+
 ## Clean Code Practices
 
 Maintain high code quality:

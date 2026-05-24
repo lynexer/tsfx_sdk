@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - Exports
+    MODULE: TSFX SDK - Exports
 
     Utility module for registering and managing FiveM exports.
     Provides standardized success/error response helpers and namespace-based export registration.

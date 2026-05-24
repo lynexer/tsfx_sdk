@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Job Handle Facade
+    MODULE: TSFX SDK - Job Handle Facade
+
     Chainable handle for framework job definition lookups.
 --]]
 

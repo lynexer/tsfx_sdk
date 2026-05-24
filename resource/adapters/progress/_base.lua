@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Progress Adapter Base
+    MODULE: TSFX SDK - Progress Adapter Base
+
     Interface contract that all progress adapters must implement.
 --]]
 

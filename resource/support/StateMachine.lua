@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - StateMachine
+    MODULE: TSFX SDK - StateMachine
 
     Core state machine implementation for managing entity/player lifecycle states.
     Supports guarded transitions, callbacks, and automatic StateBag synchronization.

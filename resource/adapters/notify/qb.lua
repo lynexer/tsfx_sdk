@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - QB Notify Adapter
+    MODULE: TSFX SDK - QB Notify Adapter
+
     Maps to QBCore/QBox notification trigger.
 --]]
 

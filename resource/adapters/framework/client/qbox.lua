@@ -1,5 +1,5 @@
 --[[
-    TSFX SDK - QBox Client Adapter
+    MODULE: TSFX SDK - QBox Client Adapter
 
     Reads local player state from a cache populated by QBCore client events,
     plus qbx_core exports for group checks.

@@ -1,5 +1,6 @@
 --[[
-    TSFX SDK - Notify Handle Facade
+    MODULE: TSFX SDK - Notify Handle Facade
+
     Stateless table facade for notification and progress operations.
 --]]
 

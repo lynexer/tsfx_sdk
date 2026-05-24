@@ -1,7 +1,7 @@
 ---@diagnostic disable: lowercase-global
 
 --[[
-    TSFX SDK - Context Detection Utility
+    MODULE: TSFX SDK - Context Detection Utility
 
     Shared utility for detecting execution context (server vs client).
     All SDK code routes through this module instead of calling IsDuplicityVersion() directly.

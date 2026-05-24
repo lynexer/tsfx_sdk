@@ -38,7 +38,7 @@ end
 ---@param resourceName string
 ---@return LogInstance
 function LoggerRegistry._create(resourceName)
-    local prefix = string.format('[%s]', resourceName)
+    local prefix = string.format(' [%s]', resourceName)
 
     return LogInstance.new(resourceName, prefix)
 end

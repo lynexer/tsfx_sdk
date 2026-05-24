@@ -80,12 +80,12 @@ function LogInstance:_printToConsole(level, message, data)
 
     if data then
         if #data <= 120 then
-            output = string.format('%s[%s]^7 %s %s ^8%s^7', color, levelTag, self._prefix, message, data)
+            output = string.format('%s[%s]^7%s %s ^8%s^7', color, levelTag, self._prefix, message, data)
         else
-            output = string.format('%s[%s]^7 %s %s\n    ^8%s^7', color, levelTag, self._prefix, message, data)
+            output = string.format('%s[%s]^7%s %s\n    ^8%s^7', color, levelTag, self._prefix, message, data)
         end
     else
-        output = string.format('%s[%s]^7 %s %s^7', color, levelTag, self._prefix, message)
+        output = string.format('%s[%s]^7%s %s^7', color, levelTag, self._prefix, message)
     end
 
     print(output)

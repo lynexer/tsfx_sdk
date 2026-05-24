@@ -314,11 +314,8 @@ function EntityManager.new()
 
     -- TODO: add custom ped skin sync events
 
-    CreateThread(function ()
-        while true do
-            Wait(1000)
-            self:handleRender()
-        end
+    _TSFX.Tick(1000, function ()
+        self:handleRender()
     end)
 
     return self

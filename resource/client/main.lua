@@ -9,7 +9,8 @@ _TSFX = {
     Log = LoggerRegistry.get('SDK'),
     Cache = Cache,
     Await = Await.new,
-    Streaming = Streaming
+    Streaming = Streaming,
+    Tick = Tick.new
 }
 
 _TSFX.Log:info('Client bootstrap starting...')

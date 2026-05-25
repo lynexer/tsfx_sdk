@@ -35,6 +35,7 @@ end
 loadSupportFile('shared/utils/context.lua')
 loadSupportFile('shared/utils/module_builder.lua')
 loadSupportFile('facades/_base.lua')
+loadSupportFile('shared/constants.lua')
 
 -- Pre-load LogInstance and create the per-resource logger instance.
 -- Log is a dependency for other consumer_vm modules (StateMachine, etc.)
@@ -59,6 +60,11 @@ for _, mod in ipairs(manifest) do
             end
         end
     end
+end
+
+-- Flat-bind constants to _TSFX (primitives direct, tables as categories)
+for key, value in pairs(Constants) do
+    _TSFX[key] = value
 end
 
 Module = ModuleBuilder.new
@@ -96,6 +102,13 @@ for _, mod in ipairs(manifest) do
                 end
             end
         end
+    end
+end
+
+-- Flat-bind public constants to TSFX (skip _-prefixed internals)
+for key, value in pairs(Constants) do
+    if not key:match('^_') then
+        TSFX[key] = value
     end
 end
 

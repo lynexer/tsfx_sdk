@@ -39,6 +39,11 @@ Manifest:load('support/Tick.lua')
 -- Auto-bind modules marked with :bind() to _TSFX
 Manifest:bind()
 
+-- Flat-bind constants to _TSFX (primitives direct, tables as categories)
+for key, value in pairs(Constants) do
+    _TSFX[key] = value
+end
+
 -- Register all exports
 Manifest:finalize()
 

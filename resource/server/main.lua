@@ -25,6 +25,7 @@ Manifest:load('facades/GangHandle.lua')
 Manifest:load('facades/FrameworkHandle.lua')
 Manifest:load('facades/InventoryHandle.lua')
 Manifest:load('facades/NotifyHandle.lua')
+Manifest:load('facades/GridHandle.lua')
 
 -- Load shared support module declarations into manifest
 Manifest:load('support/LogInstance.lua')

@@ -35,6 +35,7 @@ Manifest:load('support/Cache.lua')
 Manifest:load('support/Locale.lua')
 Manifest:load('support/Await.lua')
 Manifest:load('support/Tick.lua')
+Manifest:load('support/SpatialGrid.lua')
 
 -- Load client-only support module declarations into manifest
 Manifest:load('support/Streaming.lua')

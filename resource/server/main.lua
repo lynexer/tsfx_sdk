@@ -35,6 +35,7 @@ Manifest:load('support/Cache.lua')
 Manifest:load('support/Locale.lua')
 Manifest:load('support/Await.lua')
 Manifest:load('support/Tick.lua')
+Manifest:load('support/SpatialGrid.lua')
 
 -- Auto-bind modules marked with :bind() to _TSFX
 Manifest:bind()

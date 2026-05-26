@@ -29,6 +29,8 @@ shared_scripts {
     'support/*.lua',
 
     'adapters/**/*.lua',
+
+    'facades/GridHandle.lua',
 }
 
 server_scripts {

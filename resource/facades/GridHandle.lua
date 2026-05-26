@@ -46,8 +46,9 @@ function GridHandle:setDebug(enabled)
     return self
 end
 
-return Module('Grid', 'shared')
+return Module and Module('Grid', 'shared')
     :mode('consumer_vm')
     :globalName('GridHandle')
     :callable()
+    :bind()
     :build()

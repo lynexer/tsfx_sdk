@@ -13,7 +13,7 @@
 
 ---@class StyledPedSkin
 ---@field identifier string
----@field model string
+---@field model string | number
 ---@field components StyledPedSkinComponent[]
 ---@field props? StyledPedSkinProps
 ---@field headBlend? StyledPedSkinHeadBlend
@@ -24,11 +24,11 @@
 ---@field tattoos? StyledPedSkinTattoos
 
 ---@class EntityData
----@field model string|number
+---@field model string | number
 ---@field position vector4
 ---@field renderDistance? number
----@field onRender? fun(entity: string)
----@field onDestroy? fun(entity: string)
+---@field onRender? fun(entity: number)
+---@field onDestroy? fun(entity: number)
 
 ---@class PedData : EntityData
 ---@field animation? PedAnimationData
@@ -41,13 +41,14 @@
 ---@field skinIdentifier string
 ---@field position vector4
 ---@field renderDistance? number
----@field onRender? fun(entity: string)
----@field onDestroy? fun(entity: string)
+---@field onRender? fun(entity: number)
+---@field onDestroy? fun(entity: number)
 ---@field animation? PedAnimationData
 ---@field scenario? string
 
----@class EntityClass
----@field model string|number
+---@class EntityClass : SpatialGridEntry
+---@field _key number? Cached hash key/ Set on first call to hash()
+---@field model string | number
 ---@field position vector4
 ---@field renderDistance number
 ---@field isRendered boolean
@@ -69,4 +70,8 @@
 
 ---@class EntityManagerClass
 ---@field entities table<string, PedClass | StyledPedClass | ObjectClass>
+---@field _rendered table<string, PedClass | StyledPedClass | ObjectClass>
+---@field _grid GridHandleClass
+---@field _maxRenderDistance number
+---@field _maxRenderDirty boolean
 ---@field pedSkins table<string, StyledPedSkin>

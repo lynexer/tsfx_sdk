@@ -29,6 +29,8 @@ end
 
 ---@return number
 function Entity:hash()
+    if self._key then return self._key end
+
     local concat = ('%s%.4f%.4f%.4f%.4f'):format(
         self.model,
         self.position.x,
@@ -37,7 +39,9 @@ function Entity:hash()
         self.position.w
     )
 
-    return joaat(concat, false)
+    self._key = joaat(concat, false)
+
+    return self._key
 end
 
 function Entity:_postSpawn()
@@ -239,7 +243,7 @@ function StyledPed:_isFreemodeModel()
     return false
 end
 
-function StyledPed:_applyApperance()
+function StyledPed:_applyAppearance()
     if not (self.entity and DoesEntityExist(self.entity)) then return end
 
     local freemode = self:_isFreemodeModel()
@@ -288,7 +292,7 @@ end
 
 function StyledPed:render()
     self:_spawnPed()
-    self:_applyApperance()
+    self:_applyAppearance()
     self:_applyTasks()
     self:_postSpawn()
 end
@@ -309,6 +313,10 @@ EntityManager.__index = EntityManager
 function EntityManager.new()
     local self = setmetatable({
         entities = {},
+        _rendered = {},
+        _grid = _TSFX.Grid('entities'),
+        _maxRenderDistance = 0,
+        _maxRenderDirty = false,
         pedSkins = {}
     }, EntityManager)
 
@@ -322,18 +330,44 @@ function EntityManager.new()
 end
 
 function EntityManager:handleRender()
+    if self._maxRenderDirty then
+        CreateThread(function ()
+            local max = 0
+
+            for _, e in pairs(self.entities) do
+                if e.renderDistance > max then
+                     max = e.renderDistance
+                end
+            end
+
+            self._maxRenderDistance = max
+            self._maxRenderDirty = false
+        end)
+    end
+
     local playerPosition = GetEntityCoords(PlayerPedId())
 
-    for _, entity in pairs(self.entities) do
-        local entityPosition = vector3(entity.position.x, entity.position.y, entity.position.z)
-        local distance = #(playerPosition - entityPosition)
+    for key, entity in pairs(self._rendered) do
+        local distance = #(playerPosition - vector3(entity.position.x, entity.position.y, entity.position.z))
 
-        if distance < entity.renderDistance then
-            if not entity.isRendered then
-                entity:render()
-            end
-        elseif entity.isRendered then
+        if distance >= entity.renderDistance then
             entity:destroy()
+            self._rendered[key] = nil
+        end
+    end
+
+    local candidates = self._grid:getNearby(playerPosition, self._maxRenderDistance, true) --[[ @as EntityClass[] ]]
+
+    for i = 1, #candidates do
+        local entity = self.entities[tostring(candidates[i]._key)] --[[@as PedClass | StyledPedClass | ObjectClass]]
+
+        if not entity.isRendered then
+            local distance = #(playerPosition - vector3(entity.position.x, entity.position.y, entity.position.z))
+
+            if distance < entity.renderDistance then
+                entity:render()
+                self._rendered[tostring(entity:hash())] = entity
+            end
         end
     end
 end
@@ -345,9 +379,18 @@ function EntityManager:_register(entity)
 
     if self.entities[key] then
         _TSFX.Log:warn('Entity hash collision on register. Existing entity will be overwritten', { model = entity.model, position = entity.position })
+        self._grid:remove(self.entities[key])
     end
 
+    entity.radius = entity.renderDistance
+
     self.entities[key] = entity
+    self._grid:add(entity)
+
+    if entity.renderDistance > self._maxRenderDistance then
+        self._maxRenderDistance = entity.renderDistance
+    end
+
     return key
 end
 
@@ -362,7 +405,13 @@ function EntityManager:remove(hash)
     end
 
     entity:destroy()
+    self._grid:remove(entity)
     self.entities[key] = nil
+    self._rendered[key] = nil
+
+    if entity.renderDistance >= self._maxRenderDistance then
+        self._maxRenderDirty = true
+    end
 end
 
 function EntityManager:removeAll()
@@ -381,7 +430,7 @@ end
 
 ---@param data StyledPedData
 ---@return StyledPedClass?
-function EntityManager:addStyledped(data)
+function EntityManager:addStyledPed(data)
     local skin = self.pedSkins[data.skinIdentifier] --[[@as StyledPedSkin?]]
 
     if not skin then

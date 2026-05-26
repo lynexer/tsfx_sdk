@@ -125,14 +125,14 @@ end
 ---@param entry SpatialGridEntry
 ---@param resourceName string
 function SpatialGrid:add(entry, resourceName)
-    assert(entry.coords, 'SpatialGrid: entry.coords is required')
+    assert(entry.position, 'SpatialGrid: entry.position is required')
     assert(entry.radius or (entry.width and entry.length), 'SpatialGrid: entry must have radius, or both with and length')
 
     entry._resourceName = resourceName
 
     local halfW, halfH = self:_extents(entry)
     local minCol, maxCol, minRow, maxRow = self:_footprint(
-        entry.coords.x, entry.coords.y, halfW, halfH
+        entry.position.x, entry.position.y, halfW, halfH
     )
 
     for row = minRow, maxRow do
@@ -163,7 +163,7 @@ end
 function SpatialGrid:remove(entry)
     local halfW, halfH = self:_extents(entry)
     local minCol, maxCol, minRow, maxRow = self:_footprint(
-        entry.coords.x, entry.coords.y, halfW, halfH
+        entry.position.x, entry.position.y, halfW, halfH
     )
 
     for row = minRow, maxRow do

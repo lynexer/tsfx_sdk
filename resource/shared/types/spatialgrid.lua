@@ -3,7 +3,7 @@
 -- This file is NOT loaded at runtime - only for LuaLS type checking
 
 ---@class SpatialGridEntry
----@field coords vector3 World-space centroid
+---@field position vector2 | vector3 | vector4 World-space centroid
 ---@field _resourceName string Stamped automatically by SpatialGrid:add()
 ---@field radius number? Uniform half-extent. Used when width/length are absent
 ---@field width number? Full X extent. Take precedence over radius for X axis

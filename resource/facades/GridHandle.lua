@@ -17,14 +17,14 @@ function GridHandle.new(name)
     return setmetatable({ _name = name }, GridHandle) --[[@as GridHandleClass]]
 end
 
----@param entry string
+---@param entry SpatialGridEntry
 ---@return GridHandleClass
 function GridHandle:add(entry)
     exports.tsfx_sdk:GridRegistry_add(self._name, entry)
     return self
 end
 
----@param entry string
+---@param entry SpatialGridEntry
 ---@return GridHandleClass
 function GridHandle:remove(entry)
     exports.tsfx_sdk:GridRegistry_remove(self._name, entry)

@@ -17,6 +17,7 @@ EventBus._callbackId = 0
 EventBus._clientTokens = {}
 EventBus._secret = nil
 EventBus._sessionTokens = {}
+EventBus._intercepts = {}
 
 local RESOURCE_NAME = GetCurrentResourceName()
 
@@ -376,6 +377,36 @@ function EventBus.await(event, ...)
     end
 end
 
+---Intercept a raw external net event and re-emit it internally as a bus event.
+---The adapter receives the raw event args and returns a normalized payload or nil to drop.
+---If no adapter is provided, raw args are forwarded as-is.
+---@param rawEvent string The external event name to intercept
+---@param internalEvent string The internal event name to re-emit as
+---@param adapter? fun(...): table | nil Normalizes raw args into a payload, or returns nil to drop
+function EventBus.intercept(rawEvent, internalEvent, adapter)
+    if not EventBus._intercepts then
+        EventBus._intercepts = {}
+    end
+
+    local resourceName = GetInvokingResource() or GetCurrentResourceName()
+
+    RegisterNetEvent(rawEvent, function (...)
+        if adapter then
+            local payload = adapter(...)
+            if payload == nil then return end
+            EventBus.emit(internalEvent, payload)
+        else
+            EventBus.emit(internalEvent, ...)
+        end
+    end)
+
+    table.insert(EventBus._intercepts, {
+        rawEvent = rawEvent,
+        internalEvent = internalEvent,
+        resource =resourceName
+    })
+end
+
 -- Handshake: server issues per-(player, resource) session tokens
 if isServer() then
     RegisterNetEvent('__tsfx:requestHandshake', function(data)
@@ -420,6 +451,7 @@ if isServer() then
         -- Clean up session tokens for the stopped resource across all players
         for playerSrc, tokens in pairs(EventBus._sessionTokens) do
             tokens[stoppedResource] = nil
+
             if next(tokens) == nil then
                 EventBus._sessionTokens[playerSrc] = nil
             end
@@ -428,12 +460,30 @@ if isServer() then
         -- Clean up listeners registered by the stopped resource
         for event, listeners in pairs(EventBus._listeners) do
             local cleaned = {}
+
             for _, entry in ipairs(listeners) do
                 if entry.resource ~= stoppedResource then
                     table.insert(cleaned, entry)
                 end
             end
+
             EventBus._listeners[event] = cleaned
+        end
+
+        if EventBus._intercepts then
+            local remaining = {}
+
+            for _, entry in ipairs(EventBus._intercepts) do
+                if entry.resource ~= stoppedResource then
+                    table.insert(remaining, entry)
+                end
+
+                -- NOTE: FiveM doesn't expose RemoveEventHandler by name, so handlers
+                -- from stopped resources become inert once the resource is gone.
+                -- The table cleanup prevents the reference from lingering.
+            end
+
+            EventBus._intercepts = remaining
         end
     end)
 else

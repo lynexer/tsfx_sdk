@@ -17,7 +17,6 @@ function QBoxClientAdapter:init()
 
     EventBus.intercept('QBCore:Client:OnPlayerLoaded', '__tsfx:qbx:onPlayerLoaded')
     EventBus.on('__tsfx:qbx:onPlayerLoaded', function()
-        print('on loaded triggered')
         self._loaded = true
     end)
 

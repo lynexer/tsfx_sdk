@@ -7,6 +7,17 @@
     Exposes zone registration and removal as exports.
 --]]
 
+if ZoneRegistry then
+    return Module and Module('ZoneRegistry', 'shared')
+        :mode('export')
+        :exportAs('ZoneRegistry')
+        :impl(ZoneRegistry)
+        :methods(function (m)
+            m:add('addSphere', 'addPoly', 'addBox', 'remove', 'removeAll', 'setGridDebug')
+        end)
+        :build()
+end
+
 local glm = require 'glm'
 
 ---@return string
@@ -203,7 +214,7 @@ end
 
 -- !SECTION
 
--- SECTION: ZoneRegiistry // ----------------------------------------
+-- SECTION: ZoneRegistry // ----------------------------------------
 
 ---@type table<string, SphereZoneClass | PolyZoneClass | BoxZoneClass>
 local zones = {}
@@ -239,8 +250,7 @@ local function unregister(id)
 
     if zone.isInside then
         zone.isInside = false
-        print('trigger exit event')
-        -- TODO: trigger exit event
+        EventBus.emit(('tsfx:zone:exit:%s'):format(zone._resourceName), zone.id)
     end
 
     getGrid():remove(zone)
@@ -260,12 +270,10 @@ if isClient() then
 
             if inside and not wasInside then
                 zone.isInside = true
-                print('trigger enter event')
-                -- TODO: trigger enter event
+                EventBus.emit(('tsfx:zone:enter:%s'):format(zone._resourceName), zone.id)
             elseif not inside and wasInside then
                 zone.isInside = false
-                print('trigger exit event')
-                -- TODO: trigger exit event
+                EventBus.emit(('tsfx:zone:exit:%s'):format(zone._resourceName), zone.id)
             end
         end
     end)

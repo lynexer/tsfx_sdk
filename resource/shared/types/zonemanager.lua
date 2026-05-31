@@ -89,6 +89,7 @@
 ---@field _zones table<string, SphereZoneClass | PolyZoneClass | BoxZoneClass>
 ---@field _grid GridHandleClass
 
----@class ZoneHandlerClass
+---@class ZoneHandleClass
 ---@field allZones table<string, SphereZoneMirror | PolyZoneMirror | BoxZoneMirror>
 ---@field currentZones table<string, SphereZoneMirror | PolyZoneMirror | BoxZoneMirror>
+---@field _insideTick LoopHandle?

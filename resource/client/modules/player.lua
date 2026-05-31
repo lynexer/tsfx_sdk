@@ -4,17 +4,19 @@
     Local player data reads and mutation stubs. Delegates to the client framework adapter.
 ]]
 
-local clientAdapter = AdapterRegistry.resolve('framework')
+local function getAdapter()
+    return AdapterRegistry.resolve('framework')
+end
 
 ClientPlayerModule = {}
 ClientPlayerModule.__index = ClientPlayerModule
 
 function ClientPlayerModule.getJob()
-    return clientAdapter:getLocalJob()
+    return getAdapter():getLocalJob()
 end
 
 function ClientPlayerModule.getOnDuty()
-    local job = clientAdapter:getLocalJob()
+    local job = getAdapter():getLocalJob()
 
     if job and job.onDuty ~= nil then
         return job.onDuty
@@ -24,35 +26,35 @@ function ClientPlayerModule.getOnDuty()
 end
 
 function ClientPlayerModule.getGang()
-    if clientAdapter.getLocalGang then
-        return clientAdapter:getLocalGang()
+    if getAdapter().getLocalGang then
+        return getAdapter():getLocalGang()
     end
 
     return nil
 end
 
 function ClientPlayerModule.getGroup()
-    return clientAdapter:getLocalGroup()
+    return getAdapter():getLocalGroup()
 end
 
 function ClientPlayerModule.getIdentity()
-    return clientAdapter:getLocalIdentity()
+    return getAdapter():getLocalIdentity()
 end
 
 function ClientPlayerModule.getIdentifiers()
-    return clientAdapter:getLocalIdentifiers()
+    return getAdapter():getLocalIdentifiers()
 end
 
 function ClientPlayerModule.getMetadata(key)
-    return clientAdapter:getLocalMetadata(key)
+    return getAdapter():getLocalMetadata(key)
 end
 
 function ClientPlayerModule.isLoaded()
-    return clientAdapter:isLoaded()
+    return getAdapter():isLoaded()
 end
 
 function ClientPlayerModule.getMoney(source, account)
-    return clientAdapter:getLocalMoney(account)
+    return getAdapter():getLocalMoney(account)
 end
 
 -- Mutations are server-only; log warnings on client

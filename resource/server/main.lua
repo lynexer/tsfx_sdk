@@ -1,3 +1,5 @@
+---@diagnostic disable: missing-fields
+
 --[[
     ANCHOR: TSFX SDK - Server Bootstrap
 
@@ -5,6 +7,7 @@
     No business logic should be placed here.
 --]]
 
+---@type TSFXClass
 _TSFX = {
     Log = LoggerRegistry.get('SDK')
 }

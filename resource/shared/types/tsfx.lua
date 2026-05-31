@@ -6,7 +6,7 @@
 ---@field Player fun(source?: number): PlayerHandleClass
 ---@field Inventory InventoryHandleClass
 ---@field Notify NotifyHandleClass
----@field EventBus EventBusClass
+---@field Events EventBusClass
 ---@field Cache CacheClass
 ---@field Framework fun(): FrameworkHandleClass
 ---@field Locale LocaleClass

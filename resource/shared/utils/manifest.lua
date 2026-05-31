@@ -41,7 +41,12 @@ function ManifestBuilder:load(path)
 
     local moduleEnv = setmetatable({
         Module = ModuleBuilder.new
-    }, { __index = _ENV })
+    }, {
+        __index = _ENV,
+        __newindex = function (_, k, v)
+            _ENV[k] = v
+        end
+    })
 
     local chunk, err = load(fileContent, ('@%s/%s'):format(resourceName, path), 't', moduleEnv)
 

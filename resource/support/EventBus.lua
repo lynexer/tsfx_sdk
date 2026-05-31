@@ -5,19 +5,6 @@
     Provides typed event handling with rate limiting, validation, and callback support.
 --]]
 
-if EventBus then
-    return Module and Module('Events', 'shared')
-        :mode('export')
-        :exportAs('EventBus')
-        :impl(EventBus)
-        :methods(function(m)
-            m:flat_scoped('on', 'off')
-            m:flat('emit', 'emitNet', 'broadcast', 'await')
-            m:add('hasSessionToken')
-        end)
-        :build()
-end
-
 ---@class EventBusClass
 EventBus = {}
 EventBus.__index = EventBus
@@ -515,9 +502,10 @@ return Module and Module('Events', 'shared')
     :mode('export')
     :exportAs('EventBus')
     :impl(EventBus)
+    :bind()
     :methods(function (m)
         m:flat_scoped('on', 'off')
         m:flat('emit', 'emitNet', 'broadcast', 'await')
-        m:add('hasSessionToken')
+        m:add('hasSessionToken', 'intercept')
     end)
     :build()

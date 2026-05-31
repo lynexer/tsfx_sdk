@@ -26,11 +26,10 @@ shared_scripts {
     'shared/constants.lua',
     'shared/enums.lua',
 
-    'support/*.lua',
-
     'adapters/**/*.lua',
 
-    'facades/GridHandle.lua',
+    'support/LogInstance.lua',
+    'support/LoggerRegistry.lua',
 }
 
 server_scripts {
@@ -44,6 +43,7 @@ client_scripts {
 files {
     'init.lua',
     'facades/*.lua',
+    'support/*.lua',
     'client/modules/*.lua',
     'server/modules/*.lua'
 }

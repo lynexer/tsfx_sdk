@@ -15,19 +15,19 @@ function QBoxClientAdapter:init()
     self._playerData = exports.qbx_core:GetPlayerData() or {}
     self._loaded = false
 
-    EventBus.intercept('QBCore:Client:OnPlayerLoaded', '__tsfx:qbx:onPlayerLoaded')
-    EventBus.on('__tsfx:qbx:onPlayerLoaded', function()
+    _TSFX.Events.intercept('QBCore:Client:OnPlayerLoaded', '__tsfx:qbx:onPlayerLoaded')
+    _TSFX.Events.on('__tsfx:qbx:onPlayerLoaded', function()
         self._loaded = true
     end)
 
-    EventBus.intercept('QBCore:Client:OnPlayerUnload', '__tsfx:qbx:onPlayerUnloaded')
-    EventBus.on('__tsfx:qbx:onPlayerUnloaded', function ()
+    _TSFX.Events.intercept('QBCore:Client:OnPlayerUnload', '__tsfx:qbx:onPlayerUnloaded')
+    _TSFX.Events.on('__tsfx:qbx:onPlayerUnloaded', function ()
         self._playerData = {}
         self._loaded = false
     end)
 
-    EventBus.intercept('QBCore:Player:SetPlayerData', '__tsfx:qbx:setPlayerData')
-    EventBus.on('__tsfx:qbx:setPlayerData', function(data)
+    _TSFX.Events.intercept('QBCore:Player:SetPlayerData', '__tsfx:qbx:setPlayerData')
+    _TSFX.Events.on('__tsfx:qbx:setPlayerData', function(data)
         self._playerData = data
     end)
 end

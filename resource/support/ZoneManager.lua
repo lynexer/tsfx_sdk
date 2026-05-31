@@ -7,17 +7,6 @@
     Exposes zone registration and removal as exports.
 --]]
 
-if ZoneRegistry then
-    return Module and Module('ZoneRegistry', 'shared')
-        :mode('export')
-        :exportAs('ZoneRegistry')
-        :impl(ZoneRegistry)
-        :methods(function (m)
-            m:add('addSphere', 'addPoly', 'addBox', 'remove', 'removeAll', 'setGridDebug')
-        end)
-        :build()
-end
-
 local glm = require 'glm'
 
 ---@return string

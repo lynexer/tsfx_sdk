@@ -14,6 +14,11 @@ _TSFX = {
 
 _TSFX.Log:info('Server bootstrap starting...')
 
+-- Flat-bind constants to _TSFX (primitives direct, tables as categories)
+for key, value in pairs(Constants) do
+    _TSFX[key] = value
+end
+
 -- Load server-side module declarations into manifest
 Manifest:load('server/modules/player.lua')
 Manifest:load('server/modules/players.lua')
@@ -45,11 +50,6 @@ Manifest:load('support/ZoneManager.lua')
 
 -- Auto-bind modules marked with :bind() to _TSFX
 Manifest:bind()
-
--- Flat-bind constants to _TSFX (primitives direct, tables as categories)
-for key, value in pairs(Constants) do
-    _TSFX[key] = value
-end
 
 -- Register all exports
 Manifest:finalize()

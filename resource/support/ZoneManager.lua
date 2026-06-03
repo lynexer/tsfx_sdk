@@ -278,15 +278,19 @@ function ZoneRegistry.addSphere(data)
 end
 
 ---@param data PolyZoneData
----@return string
+---@return { id: number, position: vector3 }
 function ZoneRegistry.addPoly(data)
-    return register(PolyZone.new(generateId(), data))
+    local zone = PolyZone.new(generateId(), data)
+    register(zone)
+    return { id = zone.id, position = zone.position }
 end
 
 ---@param data BoxZoneData
----@return string
+---@return { id: number, position: vector3 }
 function ZoneRegistry.addBox(data)
-    return register(BoxZone.new(generateId(), data))
+    local zone = BoxZone.new(generateId(), data)
+    register(zone)
+    return { id = zone.id, position = zone.position }
 end
 
 ---@param id string

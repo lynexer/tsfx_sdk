@@ -1,274 +1,543 @@
 --[[
     MODULE: TSFX SDK - Zone Handle
 
-    Consumer-facing zone API. Proxies registration and removal to
-    ZoneManager via exports, storing callbacks and debug state
-    locally. Mirrors enter/exit state via targeted resource events fired
-    by the backend, and runs a local per-frame tick for onInside dispatch
-    and debug drawing.
+    Consumer-facing zone API. Proxies registration and removal to the
+    ZoneRegistry via exports. Each zone type returns a typed handle with
+    chainable methods for callbacks, debug, and removal.
+
+    Debug drawing and onInside callbacks are driven by a single per-frame
+    interval that runs whenever any zone has debug enabled or the player
+    is inside a zone. Zones with debug enabled always draw regardless of
+    whether the player is inside.
 --]]
 
----Resolved a debugColour table or vector4 into a consistent vector4
----@param colour vector4 | { r: number, g: number, b: number, a: number }?
----@return vector4
-local function resolveColour(colour)
-    if not colour then
-        return vector4(255, 42, 24, 100)
-    end
+-- SECTION: Debug Drawing // ----------------------------------------
 
-    return vector4(
-        colour.r or 255,
-        colour.g or 42,
-        colour.b or 24,
-        colour.a or 100
+---@type table<string, ZoneFacadeClass | SphereZoneFacadeClass | PolyZoneFacadeClass | BoxZoneFacadeClass>
+local _tickZones = {}
+
+---@type LoopHandle?
+local _tick = nil
+
+local glm = require 'glm'
+local DEBUG_DEFAULTS = {
+    sphere = vector4(30, 144, 255, 100),
+    poly = vector4(255, 165, 0, 100),
+    box = vector4(50, 205, 50, 100)
+}
+
+---@param colour? vector4 | { r: number, g: number, b: number, a: number }
+---@param fallback vector4
+---@return vector4
+local function resolveColour(colour, fallback)
+    if not colour then return fallback end
+
+    return vec4(
+        math.floor(colour.r or fallback.r),
+        math.floor(colour.g or fallback.g),
+        math.floor(colour.b or fallback.b),
+        math.floor(colour.a or fallback.a)
     )
 end
 
----@param zone ZoneMirror
+---@param c vector4
+---@return integer, integer, integer, integer
+local function rgba(c)
+    return math.floor(c.x), math.floor(c.y), math.floor(c.z), math.floor(c.w)
+end
+
+---@param zone ZoneFacadeClass
 local function debugDraw(zone)
-    if not zone._debugEnabled then return end
-    local c = resolveColour(zone.debugColour)
+    local c = zone._debugColour
+    if not c then return end
+
+    local r, g, b, a = rgba(c)
 
     if zone.__type == 'sphere' then
-        local z = zone --[[@as SphereZoneMirror]]
-        local r = z.radius
+        local d = zone._radius * 2
 
         DrawMarker(
             28,
-            z.position.x, z.position.y, z.position.z,
+            zone._position.x, zone._position.y, zone._position.z,
             0.0, 0.0, 0.0,
             0.0, 0.0, 0.0,
-            r * 2, r * 2, r * 2,
-            c.r, c.g, c.b, c.a,
+            d, d, d,
+            r, g, b, a,
             false, false, 0, false, '', '', false
         )
+
+        return
     end
 
-    local z = zone --[[@as PolyZoneMirror]]
-    local pts = z.points
-    if not pts then return end
+    local triangles = zone._triangles
+    local half = vec3(0, 0, (zone._thickness or 4.0) / 2)
 
-    local n = #pts
-    local ht = z.thickness and (z.thickness * 0.5) or 2.0
-    local up = vec3(0, 0, ht)
-    local cc = z.position
-
-    for i = 1, n do
-        local a  = pts[i]
-        local b  = pts[(i % n) + 1]
-        local at = a + up
-        local ab = a - up
-        local bt = b + up
-        local bb = b - up
-
-        DrawLine(at.x, at.y, at.z, bt.x, bt.y, bt.z, c.r, c.g, c.b, 200)
-        DrawLine(ab.x, ab.y, ab.z, bb.x, bb.y, bb.z, c.r, c.g, c.b, 200)
-        DrawLine(at.x, at.y, at.z, ab.x, ab.y, ab.z, c.r, c.g, c.b, 120)
+    if triangles then
+        for i = 1, #triangles do
+            local ta, tb, tc = triangles[i][1], triangles[i][2], triangles[i][3]
+            DrawPoly(ta.x, ta.y, ta.z, tb.x, tb.y, tb.z, tc.x, tc.y, tc.z, r, g, b, a)
+            DrawPoly(tb.x, tb.y, tb.z, ta.x, ta.y, ta.z, tc.x, tc.y, tc.z, r, g, b, a)
+        end
     end
 
-    for i = 1, n do
-        local a   = pts[i]
-        local b   = pts[(i % n) + 1]
-        local t1a = cc + up
-        local t1b = a  + up
-        local t1c = b  + up
-        local t2a = cc - up
-        local t2b = b  - up
-        local t2c = a  - up
+    local pts = zone._points
+    if pts then
+        local n = #pts
+        for i = 1, n do
+            local a1 = pts[i] + half
+            local b1 = pts[i] - half
+            local c1 = pts[i % n + 1] + half
+            local d1 = pts[i % n + 1] - half
 
-        DrawPoly(t1a.x, t1a.y, t1a.z, t1b.x, t1b.y, t1b.z, t1c.x, t1c.y, t1c.z, c.r, c.g, c.b, c.a)
-        DrawPoly(t1c.x, t1c.y, t1c.z, t1b.x, t1b.y, t1b.z, t1a.x, t1a.y, t1a.z, c.r, c.g, c.b, c.a)
-        DrawPoly(t2a.x, t2a.y, t2a.z, t2b.x, t2b.y, t2b.z, t2c.x, t2c.y, t2c.z, c.r, c.g, c.b, c.a)
-        DrawPoly(t2c.x, t2c.y, t2c.z, t2b.x, t2b.y, t2b.z, t2a.x, t2a.y, t2a.z, c.r, c.g, c.b, c.a)
+            DrawLine(a1.x, a1.y, a1.z, b1.x, b1.y, b1.z, r, g, b, 225)
+            DrawLine(a1.x, a1.y, a1.z, c1.x, c1.y, c1.z, r, g, b, 225)
+            DrawLine(b1.x, b1.y, b1.z, d1.x, d1.y, d1.z, r, g, b, 225)
+
+            DrawPoly(a1.x, a1.y, a1.z, b1.x, b1.y, b1.z, c1.x, c1.y, c1.z, r, g, b, a)
+            DrawPoly(c1.x, c1.y, c1.z, b1.x, b1.y, b1.z, a1.x, a1.y, a1.z, r, g, b, a)
+            DrawPoly(b1.x, b1.y, b1.z, c1.x, c1.y, c1.z, d1.x, d1.y, d1.z, r, g, b, a)
+            DrawPoly(d1.x, d1.y, d1.z, c1.x, c1.y, c1.z, b1.x, b1.y, b1.z, r, g, b, a)
+        end
     end
 end
+
+-- !SECTION
+
+-- SECTION: Triangle Decomposition // ----------------------------------------
+
+---@param polygon userdata
+local function unableToSplit(polygon)
+    _TSFX.Log:warn('Zone polygon failed to split into triangles and may be malformed', { points = polygon })
+end
+
+---@param a vector3
+---@param b vector3
+---@param c vector3
+---@return boolean
+local function isCCW(a, b, c)
+    return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) > 0
+end
+
+---@param vertices vector3[]
+---@return number
+local function signedArea(vertices)
+    local area = 0
+    local n = #vertices
+
+    for i = 1, n do
+        local j = (i % n) + 1
+        area += (vertices[i].x * vertices[j].y - vertices[j].x * vertices[i].y)
+    end
+
+    return area * 0.5
+end
+
+---Decomposes a polygon into triangles for DrawPoly.
+---Uses fan triangulation for convex polygons and ear clipping for concave.
+---Returns top and bottom face triangles offset by thickness/2.
+---@param polygon userdata
+---@param thickness number
+---@param __type string
+---@return { [1]: vector3, [2]: vector3, [3]: vector3 }[]?
+local function getTriangles(polygon, thickness, __type)
+    if __type == 'sphere' then return nil end
+
+    local triangles = {}
+
+    -- Defer runs after the function body — offsets all triangles by thickness.
+    local _ <close> = defer(function()
+        local half = vec3(0, 0, thickness / 2)
+        local n    = #triangles
+        for i = 1, n do
+            local tri  = triangles[i]
+            local copy = { tri[1] - half, tri[2] - half, tri[3] - half }
+            tri[1]     = tri[1] + half
+            tri[2]     = tri[2] + half
+            tri[3]     = tri[3] + half
+            triangles[#triangles + 1] = copy
+        end
+    end)
+
+    -- Box: simple two-triangle fan, no ear clipping needed.
+    if __type == 'box' then
+        triangles[1] = { polygon[1], polygon[2], polygon[3] }
+        triangles[2] = { polygon[1], polygon[3], polygon[4] }
+        return triangles
+    end
+
+    ---@diagnostic disable-next-line: undefined-field
+    local n = polygon:size()
+    if n < 3 then
+        unableToSplit(polygon)
+        return triangles
+    end
+
+    -- Convex: fan triangulation from first vertex.
+    ---@diagnostic disable-next-line: undefined-field
+    if polygon:isConvex() then
+        for i = 2, n - 1 do
+            triangles[#triangles + 1] = { polygon[1], polygon[i], polygon[i + 1] }
+        end
+        return triangles
+    end
+
+    -- Non-simple polygons can't be ear clipped.
+    ---@diagnostic disable-next-line: undefined-field
+    if not polygon:isSimple() then
+        unableToSplit(polygon)
+        return triangles
+    end
+
+    -- Concave: ear clipping algorithm.
+    local indices = table.create(n, 0)
+    ---@diagnostic disable-next-line: param-type-mismatch
+    local reverse = signedArea(polygon) < 0
+
+    for i = 1, n do
+        indices[i] = reverse and (n + 1 - i) or i
+    end
+
+    while #indices > 2 do
+        local foundEar = false
+        local count    = #indices
+
+        for i = 1, count do
+            local i1 = indices[(i - 2) % count + 1]
+            local i2 = indices[(i - 1) % count + 1]
+            local i3 = indices[i % count + 1]
+            local a, b, c = polygon[i1], polygon[i2], polygon[i3]
+
+            if isCCW(a, b, c) then
+                local isEar    = true
+                local triangle = glm.polygon.new({ a, b, c })
+
+                for j = 1, count do
+                    local idx = indices[j]
+                    if idx ~= i1 and idx ~= i2 and idx ~= i3 then
+                        if triangle:contains(polygon[idx]) then
+                            isEar = false
+                            break
+                        end
+                    end
+                end
+
+                if isEar then
+                    triangles[#triangles + 1] = { a, b, c }
+                    table.remove(indices, (i - 1) % count + 1)
+                    foundEar = true
+                    break
+                end
+            end
+        end
+
+        if not foundEar then
+            unableToSplit(polygon)
+            break
+        end
+    end
+
+    return triangles
+end
+
+-- !SECTION
+
+-- SECTION: ZoneFacade (Base) // ----------------------------------------
+
+---@class ZoneFacadeClass
+local ZoneFacade = {}
+ZoneFacade.__index = ZoneFacade
+
+---@param fn fun(self: ZoneFacadeClass)
+---@return ZoneFacadeClass
+function ZoneFacade:onEnter(fn)
+    self._onEnter = fn
+    return self
+end
+
+---@param fn fun(self: ZoneFacadeClass)
+---@return ZoneFacadeClass
+function ZoneFacade:onExit(fn)
+    self._onExit = fn
+    return self
+end
+
+---@param fn fun(self: ZoneFacadeClass)
+---@return ZoneFacadeClass
+function ZoneFacade:onInside(fn)
+    self._onInside = fn
+    return self
+end
+
+---Enables or disables debug drawing for this zone.
+---When enabled the zone is always drawn refardless of player proximity.
+---@param enabled boolean
+---@param colour? vector4 | { r: number, g: number, b: number, a: number }
+---@return ZoneFacadeClass
+function ZoneFacade:setDebug(enabled, colour)
+    if not enabled then
+        self._debugColour = nil
+        self._triangles = nil
+        ZoneHandle._removeFromTick(self)
+
+        return self
+    end
+
+    self._debugColour = resolveColour(colour, DEBUG_DEFAULTS[self.__type])
+
+    if self.__type ~= 'sphere' and not self._triangles then
+        self._triangles = getTriangles(self._polygon, self._thickness or 4.0, self.__type)
+    end
+
+    ZoneHandle._addToTick(self)
+
+    return self
+end
+
+function ZoneFacade:remove()
+    exports.tsfx_sdk:ZoneRegistry_remove(self._id)
+    ZoneHandle._onRemove(self)
+end
+
+-- !SECTION
+
+-- SECTION: SphereZoneFacade // ----------------------------------------
+
+---@class SphereZoneFacadeClass
+local SphereZoneFacade = setmetatable({}, ZoneFacade)
+SphereZoneFacade.__index = SphereZoneFacade
+
+---@param id string
+---@param data SphereZoneData
+---@return SphereZoneFacadeClass
+function SphereZoneFacade.new(id, data)
+    return setmetatable({
+        _id = id,
+        __type = 'sphere',
+        _position = data.position,
+        _radius = data.radius or 5.0,
+        _minZ = data.minZ,
+        _maxZ = data.maxZ,
+        _isInside = false
+    }, SphereZoneFacade)
+end
+
+-- !SECTION
+
+-- SECTION: PolyZoneFacade // ----------------------------------------
+
+---@class PolyZoneFacadeClass
+local PolyZoneFacade = setmetatable({}, ZoneFacade)
+PolyZoneFacade.__index = PolyZoneFacade
+
+---@param id string
+---@param data PolyZoneData
+---@param position vector3 Centroid returned by the backend
+---@param polygon userdata glm.polygon for triangle decomposition
+---@return PolyZoneFacadeClass
+function PolyZoneFacade.new(id, data, position, polygon)
+    return setmetatable({
+        _id = id,
+        __type = 'poly',
+        _position = position,
+        _points = data.points,
+        _thickness = data.thickness,
+        _polygon = polygon,
+        _isInside = false
+    }, PolyZoneFacade)
+end
+
+-- !SECTION
+
+-- SECTION: BoxZoneFacade // ----------------------------------------
+
+---@class BoxZoneFacadeClass
+local BoxZoneFacade = setmetatable({}, PolyZoneFacade)
+BoxZoneFacade.__index = BoxZoneFacade
+
+---@param id string
+---@param data BoxZoneData
+---@param position vector3 Centroid returned by the backend
+---@param polygon userdata Rotated world-space polygon for triangle decomposition
+---@return BoxZoneFacadeClass
+function BoxZoneFacade.new(id, data, position, polygon)
+    local size = data.size or vector4(4)
+
+    return setmetatable({
+        _id = id,
+        __type = 'box',
+        _position = position,
+        _size = size,
+        _rotation = data.rotation,
+        _thickness = size.z,
+        _polygon = polygon,
+        _points = { polygon[1], polygon[2], polygon[3], polygon[4] },
+        _isInside = false,
+    }, BoxZoneFacade)
+end
+
+-- !SECTION
+
+-- SECTION: ZoneHandle // ----------------------------------------
 
 ---@class ZoneHandleClass
 ZoneHandle = {}
 ZoneHandle.__index = ZoneHandle
 
----@return ZoneHandleClass
-function ZoneHandle.new()
-    local self = setmetatable({
-        allZones = {},
-        currentZones = {},
-        _insideTick = nil
-    }, ZoneHandle)
+ZoneHandle.allZones = {}
+ZoneHandle.currentZones = {}
 
-    if isClient() then
-        self:_startEventListeners()
-    end
+---Adds a zone to the tick set and starts the tick if not already running
+---@param zone ZoneFacadeClass
+function ZoneHandle._addToTick(zone)
+    _tickZones[zone._id] = zone
 
-    return self
-end
+    if not _tick then
+        _tick = _TSFX.Tick(0, function ()
+            for _, z in pairs(_tickZones) do
+                if z._debugColour then
+                    debugDraw(z)
+                end
 
-function ZoneHandle:_startInsideTick()
-    if self._insideTick then return end
-
-    self._insideTick = _TSFX.Tick(0, function ()
-        for _, zone in pairs(self.currentZones) do
-            debugDraw(zone)
-            if zone.onInside then zone:onInside() end
-        end
-    end)
-end
-
-function ZoneHandle:_stopInsideTick()
-    if self._insideTick then
-        self._insideTick.stop()
-        self._insideTick = nil
+                if z._isInside and z._onInside then
+                    z:_onInside()
+                end
+            end
+        end)
     end
 end
 
-function ZoneHandle:_startEventListeners()
-    local resourceName = GetCurrentResourceName()
+---Removes a zone from the tick set and stops the tick if empty
+---@param zone ZoneFacadeClass
+function ZoneHandle._removeFromTick(zone)
+    _tickZones[zone._id] = nil
 
-    TSFX.Events.on(('tsfx:zone:enter:%s'):format(resourceName), function(id)
-        print('enter event')
-        local zone = self.allZones[id]
-        if not zone then return end
+    if not next(_tickZones) and _tick then
+        _tick.stop()
+        _tick = nil
+    end
+end
 
-        self.currentZones[id] = zone
-        if zone.onEnter then zone:onEnter() end
-        self:_startInsideTick()
-    end)
-
-    TSFX.Events.on(('tsfx:zone:exit:%s'):format(resourceName), function(id)
-        print('exit event')
-        local zone = self.allZones[id]
-        if not zone then return end
-
-        self.currentZones[id] = nil
-        if zone.onExit then zone:onExit() end
-
-        if not next(self.currentZones) then
-            self:_stopInsideTick()
-        end
-    end)
+---Called when a zone is removed. Cleans up all local state
+---@param zone ZoneFacadeClass
+function ZoneHandle._onRemove(zone)
+    ZoneHandle.allZones[zone._id] = nil
+    ZoneHandle.currentZones[zone._id] = nil
+    ZoneHandle._removeFromTick(zone)
 end
 
 ---@param data SphereZoneData
----@return SphereZoneMirror
-function ZoneHandle:sphere(data)
+---@return SphereZoneFacadeClass
+function ZoneHandle.sphere(data)
     local id = exports.tsfx_sdk:ZoneRegistry_addSphere(data)
+    local zone = SphereZoneFacade.new(id, data)
 
-    ---@type SphereZoneMirror
-    local mirror = {
-        id = id,
-        __type = 'sphere',
-        position = data.position,
-        radius = data.radius or 5.0,
-        minZ = data.minZ,
-        maxZ = data.maxZ,
-        onEnter = data.onEnter,
-        onExit = data.onExit,
-        onInside = data.onInside,
-        _debugEnabled = data.debugColour ~= nil,
-        debugColour = resolveColour(data.debugColour),
-    }
+    ZoneHandle.allZones[id] = zone
 
-    self.allZones[id] = mirror
+    if data.onEnter then zone:onEnter(data.onEnter) end
+    if data.onExit then zone:onExit(data.onExit) end
+    if data.onInside then zone:onInside(data.onInside) end
+    if data.debug then zone:setDebug(true, data.debugColour) end
 
-    return mirror
+    return zone
 end
 
 ---@param data PolyZoneData
----@return PolyZoneMirror
-function ZoneHandle:poly(data)
-    local id = exports.tsfx_sdk:ZoneRegistry_addPoly(data)
+---@return PolyZoneFacadeClass
+function ZoneHandle.poly(data)
+    local result = exports.tsfx_sdk:ZoneRegistry_addPoly(data)
+    local zone = PolyZoneFacade.new(
+        result.id,
+        data,
+        result.position,
+        glm.polygon.new(data.points)
+    )
 
-    ---@type PolyZoneMirror
-    local mirror = {
-        id = id,
-        __type = 'poly',
-        position = data.position,
-        points = data.points,
-        thickness = data.thickness,
-        onEnter = data.onEnter,
-        onExit = data.onExit,
-        onInside = data.onInside,
-        _debugEnabled = data.debugColour ~= nil,
-        debugColour = resolveColour(data.debugColour),
-    }
+    ZoneHandle.allZones[result.id] = zone
 
-    self.allZones[id] = mirror
+    if data.onEnter then zone:onEnter(data.onEnter) end
+    if data.onExit then zone:onExit(data.onExit) end
+    if data.onInside then zone:onInside(data.onInside) end
+    if data.debug then zone:setDebug(true, data.debugColour) end
 
-    return mirror
+    return zone
 end
 
 ---@param data BoxZoneData
----@return BoxZoneMirror
-function ZoneHandle:box(data)
-    local id = exports.tsfx_sdk:ZoneRegistry_addBox(data)
+---@return BoxZoneFacadeClass
+function ZoneHandle.box(data)
+    local result = exports.tsfx_sdk:ZoneRegistry_addBox(data)
+    local size = data.size or vector3(4)
+    local halfX = size.x * 0.5
+    local halfY = size.y * 0.5
+    local rot = quat(data.rotation or 0.0, vector3(0, 0, 1))
 
-    ---@type BoxZoneMirror
-    local mirror = {
-        id = id,
-        __type = 'box',
-        position = data.position,
-        size = data.size or vec3(4, 4, 4),
-        rotation = data.rotation,
-        onEnter = data.onEnter,
-        onExit = data.onExit,
-        onInside = data.onInside,
-        _debugEnabled = data.debugColour ~= nil,
-        debugColour = resolveColour(data.debugColour),
-    }
+    local polygon = rot * glm.polygon.new({
+        vector3(halfX, halfY, 0),
+        vector3(-halfX, halfY, 0),
+        vector3(-halfX, -halfY, 0),
+        vector3(halfX, -halfY, 0)
+    }) + data.position
 
-    self.allZones[id] = mirror
+    local zone = BoxZoneFacade.new(result.id, data, result.position, polygon)
 
-    return mirror
+    ZoneHandle.allZones[result.id] = zone
+
+    if data.onEnter then zone:onEnter(data.onEnter) end
+    if data.onExit then zone:onExit(data.onExit) end
+    if data.onInside then zone:onInside(data.onInside) end
+    if data.debug then zone:setDebug(true, data.debugColour) end
+
+    return zone
 end
 
----@param zone SphereZoneMirror | PolyZoneMirror | BoxZoneMirror
----@return ZoneHandleClass
-function ZoneHandle:remove(zone)
-    exports.tsfx_sdk:ZoneRegistry_remove(zone.id)
-
-    self.allZones[zone.id] = nil
-    self.currentZones[zone.id] = nil
-
-    if not next(self.currentZones) then
-        self:_stopInsideTick()
+function ZoneHandle.removeAll()
+    for _, zone in pairs(ZoneHandle.allZones) do
+        zone:remove()
     end
-
-    return self
-end
-
----@return ZoneHandleClass
-function ZoneHandle:removeAll()
-    for id in pairs(self.allZones) do
-        exports.tsfx_sdk:ZoneRegistry_remove(id)
-
-        self.allZones[id] = nil
-        self.currentZones[id] = nil
-    end
-
-    self:_stopInsideTick()
-
-    return self
-end
-
----@param zone SphereZoneMirror | PolyZoneMirror | BoxZoneMirror
----@param enabled boolean
----@param colour? vector4 | { r: number, g: number, b: number, a: number }
----@return ZoneHandleClass
-function ZoneHandle:setZoneDebug(zone, enabled, colour)
-    zone._debugEnabled = enabled
-    zone.debugColour = enabled and resolveColour(colour) or nil
-
-    return self
 end
 
 ---@param enabled boolean
----@return ZoneHandleClass
-function ZoneHandle:setGridDebug(enabled)
+function ZoneHandle.setGridDebug(enabled)
     exports.tsfx_sdk:ZoneRegistry_setGridDebug(enabled)
-    return self
+end
+
+if isClient() and not Manifest then
+    local resourceName = GetCurrentResourceName()
+
+    _TSFX.Events.on(('tsfx:zone:enter:%s'):format(resourceName), function(id)
+        local zone = ZoneHandle.allZones[id]
+        if not zone then return end
+
+        zone._isInside = true
+
+        if zone._onEnter then zone:_onEnter() end
+
+        ZoneHandle._addToTick(zone)
+
+        print('enter')
+    end)
+
+    _TSFX.Events.on(('tsfx:zone:exit:%s'):format(resourceName), function(id)
+        local zone = ZoneHandle.allZones[id]
+        if not zone then return end
+
+        zone._isInside = false
+
+        if zone._onExit then zone:_onExit() end
+
+        if not zone._debugColour then
+            ZoneHandle._removeFromTick(zone)
+        end
+
+        print('exit')
+    end)
 end
 
 return Module('Zone', 'shared')
     :mode('consumer_vm')
     :globalName('ZoneHandle')
-    :callable()
+    :impl(ZoneHandle)
+    :methods(function (m)
+        m:add('sphere', 'poly', 'box', 'setGridDebug')
+    end)
     :build()

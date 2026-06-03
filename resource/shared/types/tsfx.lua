@@ -2,6 +2,9 @@
 -- Public API type definitions for the TSFX global.
 -- This file is NOT loaded at runtime — only for LuaLS type checking in consuming resources.
 
+---@generic T
+---@alias AwaitFn fun(condition: (T | fun(): T?), timeout: (number | false | nil)): T?, string?
+
 ---@class TSFXClass
 ---@field Player fun(source?: number): PlayerHandleClass
 ---@field Inventory InventoryHandleClass
@@ -13,6 +16,8 @@
 ---@field Log LogInstance
 ---@field Streaming StreamingClass
 ---@field StateMachine fun(name: string, opts: StateMachineOptions): StateMachineClass
+---@field Tick fun(interval: (number | fun(): number), fn: fun(deltaTime: number)): LoopHandle
+---@field Await AwaitFn
 
 ---@type fun(key: string, params?: table): string
 _ = nil

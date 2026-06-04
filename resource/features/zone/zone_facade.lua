@@ -513,8 +513,6 @@ if isClient() and not Manifest then
         if zone._onEnter then zone:_onEnter() end
 
         ZoneHandle._addToTick(zone)
-
-        print('enter')
     end)
 
     _TSFX.Events.on(('tsfx:zone:exit:%s'):format(resourceName), function(id)
@@ -528,8 +526,6 @@ if isClient() and not Manifest then
         if not zone._debugColour then
             ZoneHandle._removeFromTick(zone)
         end
-
-        print('exit')
     end)
 end
 

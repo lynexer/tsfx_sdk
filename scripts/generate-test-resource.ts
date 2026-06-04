@@ -428,12 +428,40 @@ function generateCommandsLua(facades: FacadeInfo[], side: 'server' | 'client'): 
 	return lua;
 }
 
+function discoverHandleFiles(): string[] {
+	const resourceDir = path.join(__dirname, '../resource');
+	const loadedPaths = new Set<string>();
+
+	for (const entry of ['server/main.lua', 'client/main.lua']) {
+		const mainPath = path.join(resourceDir, entry);
+		if (!fs.existsSync(mainPath)) continue;
+
+		const content = fs.readFileSync(mainPath, 'utf-8');
+		for (const line of content.split('\n')) {
+			const trimmed = line.trim();
+			if (trimmed.startsWith('--')) continue;
+
+			const match = trimmed.match(/Manifest:load\('([^']+)'\)/);
+			if (match) {
+				loadedPaths.add(path.join(resourceDir, match[1]));
+			}
+		}
+	}
+
+	return Array.from(loadedPaths);
+}
+
+function isTestable(filePath: string): boolean {
+	const content = fs.readFileSync(filePath, 'utf-8');
+	return !/:\s*testable\s*\(\s*false\s*\)/.test(content);
+}
+
 function generateManifest(): string {
 	return `fx_version 'cerulean'
 game 'gta5'
 
 author 'TSFX SDK'
-description 'Auto-generated test commands for TSFX SDK facades'
+description 'Auto-generated test commands for TSFX SDK modules'
 version '0.0.1'
 
 dependency 'tsfx_sdk'
@@ -455,12 +483,12 @@ lua54 'yes'
 }
 
 export async function generateTestResource(targetDir: string): Promise<void> {
-	const facadesDir = path.join(__dirname, '../resource/facades');
-	const files = (await fs.readdir(facadesDir)).filter(f => f.endsWith('.lua') && f !== '_base.lua');
+	const handlePaths = discoverHandleFiles();
 
 	const facades: FacadeInfo[] = [];
-	for (const file of files) {
-		const info = parseFacadeFile(path.join(facadesDir, file));
+	for (const filePath of handlePaths) {
+		if (!isTestable(filePath)) continue;
+		const info = parseFacadeFile(filePath);
 		if (info) facades.push(info);
 	}
 

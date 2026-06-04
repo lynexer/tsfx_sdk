@@ -100,6 +100,7 @@ return Module('Player', 'client')
     :exportAs('Player')
     :impl(ClientPlayerModule)
     :hidden()
+    :testable(false)
     :methods(function (m)
         m:add(
             'getJob', 'getOnDuty', 'getGang', 'getGroup', 

@@ -51,6 +51,7 @@ return Module('Framework', 'server')
     :exportAs('Framework')
     :impl(FrameworkModule)
     :hidden()
+    :testable(false)
     :methods(function (m)
         m:add(
             'getAllJobs', 'getJobDefinition', 'getAllGangs',

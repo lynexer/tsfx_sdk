@@ -106,6 +106,14 @@ function ModuleBuilder:callable()
     return self
 end
 
+---Mark the module as testable
+---@param enabled boolean Default `true`
+---@return ModuleBuilderClass
+function ModuleBuilder:testable(enabled)
+    -- NOTE: This is no-op in Lua as it is only used in the `generate-test-resource.ts` script
+    return self
+end
+
 ---Mark the module as bound to _TSFX (auto-populated in both SDK and consumer VMs)
 ---@return ModuleBuilderClass
 function ModuleBuilder:bind()

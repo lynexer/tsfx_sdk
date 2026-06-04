@@ -88,6 +88,7 @@ return Module('Player', 'server')
     :exportAs('Player')
     :impl(PlayerModule)
     :hidden()
+    :testable(false)
     :methods(function (m)
         m:add(
             'giveMoney', 'takeMoney', 'setMoney', 'getMoney',

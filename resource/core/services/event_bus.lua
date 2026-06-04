@@ -205,6 +205,8 @@ end
 ---@param callback function Callback function
 ---@param resourceName? string Consuming resource name (nil for internal listeners)
 function EventBus.on(event, callback, resourceName)
+    local caller = resourceName or GetInvokingResource() or RESOURCE_NAME
+
     if not EventBus._registered[event] then
         EventBus.register(event)
     end
@@ -213,7 +215,7 @@ function EventBus.on(event, callback, resourceName)
         EventBus._listeners[event] = {}
     end
 
-    table.insert(EventBus._listeners[event], { callback = callback, resource = resourceName })
+    table.insert(EventBus._listeners[event], { callback = callback, resource = caller })
 end
 
 ---Unregister an internal event listener
@@ -222,12 +224,14 @@ end
 ---@param resourceName? string Consuming resource name (nil for internal listeners)
 function EventBus.off(event, callback, resourceName)
     local listeners = EventBus._listeners[event]
+    local caller = resourceName or GetInvokingResource() or RESOURCE_NAME
+
     if not listeners then
         return
     end
 
     for i, entry in ipairs(listeners) do
-        if entry.callback == callback and entry.resource == resourceName then
+        if entry.callback == callback and entry.resource == caller then
             table.remove(listeners, i)
             break
         end
@@ -498,14 +502,11 @@ end
 
 EventBus.register('__eventbus:callback')
 
-return Module and Module('Events', 'shared')
+return Module('EventBus', 'shared')
     :mode('export')
     :exportAs('EventBus')
     :impl(EventBus)
-    :bind()
     :methods(function (m)
-        m:flat_scoped('on', 'off')
-        m:flat('emit', 'emitNet', 'broadcast', 'await')
-        m:add('hasSessionToken', 'intercept')
+        m:add('on', 'off', 'emit', 'emitNet', 'broadcast', 'await', 'intercept', 'hasSessionToken')
     end)
     :build()

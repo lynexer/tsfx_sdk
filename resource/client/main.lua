@@ -21,6 +21,7 @@ end
 
 -- Load client-side service declarations into manifest
 Manifest:load('core/services/event_bus.lua')
+Manifest:load('core/services/event_bus_facade.lua')
 Manifest:load('core/services/cache.lua')
 Manifest:load('core/services/await.lua')
 Manifest:load('core/services/tick.lua')

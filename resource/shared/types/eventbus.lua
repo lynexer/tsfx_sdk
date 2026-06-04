@@ -26,3 +26,5 @@
 ---@field _clientTokens table<string, string> Client-side tokens by resource name
 ---@field _secret? string Server-side session secret
 ---@field _sessionTokens table<number, table<string, {token: string, issuedAt: number}>> Server-side tokens by player and resource
+
+---@class EventBusHandleClass : FacadeClass

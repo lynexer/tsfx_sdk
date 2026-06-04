@@ -32,16 +32,22 @@ local function loadSupportFile(path)
 end
 
 -- Load shared context utilities first
-loadSupportFile('shared/utils/context.lua')
-loadSupportFile('shared/utils/module_builder.lua')
-loadSupportFile('facades/_base.lua')
+loadSupportFile('core/utils/context.lua')
+loadSupportFile('core/utils/module_builder.lua')
+loadSupportFile('core/services/facade.lua')
 loadSupportFile('shared/constants.lua')
+loadSupportFile('core/services/log_instance.lua')
 
--- Pre-load LogInstance and create the per-resource logger instance.
--- Log is a dependency for other consumer_vm modules (StateMachine, etc.)
--- that reference _TSFX.Log in their function bodies.
-loadSupportFile('support/LogInstance.lua')
+Module = ModuleBuilder.new
+
+---@type TSFXClass
+---@diagnostic disable-next-line: missing-fields
 _TSFX = { Log = LogInstance.new(resourceName, '') }
+
+-- Flat-bind constants to _TSFX (primitives direct, tables as categories)
+for key, value in pairs(Constants) do
+    _TSFX[key] = value
+end
 
 -- Auto-bind modules marked with :bind() from manifest metadata.
 -- Ensures _TSFX is populated before other consumer_vm modules load.
@@ -61,13 +67,6 @@ for _, mod in ipairs(manifest) do
         end
     end
 end
-
--- Flat-bind constants to _TSFX (primitives direct, tables as categories)
-for key, value in pairs(Constants) do
-    _TSFX[key] = value
-end
-
-Module = ModuleBuilder.new
 
 for _, mod in ipairs(manifest) do
     if mod.context == 'shared' or mod.context == getContext() then

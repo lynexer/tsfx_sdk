@@ -46,7 +46,7 @@ function Await.new(condition, timeout)
     return value
 end
 
-return Module and Module('Await', 'shared')
+return Module('Await', 'shared')
     :mode('consumer_vm')
     :globalName('Await')
     :callable()

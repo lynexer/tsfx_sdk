@@ -19,38 +19,35 @@ for key, value in pairs(Constants) do
     _TSFX[key] = value
 end
 
--- Load client-side module declarations into manifest
-Manifest:load('client/modules/player.lua')
--- Manifest:load('client/modules/target.lua')
+-- Load client-side service declarations into manifest
+Manifest:load('core/services/event_bus.lua')
+Manifest:load('core/services/cache.lua')
+Manifest:load('core/services/await.lua')
+Manifest:load('core/services/tick.lua')
+Manifest:load('core/services/log_instance.lua')
+-- TODO: Fix exports
 
--- Load shared facades into manifest
-Manifest:load('facades/PlayerHandle.lua')
-Manifest:load('facades/JobHandle.lua')
-Manifest:load('facades/GangHandle.lua')
-Manifest:load('facades/FrameworkHandle.lua')
-Manifest:load('facades/InventoryHandle.lua')
-Manifest:load('facades/NotifyHandle.lua')
-Manifest:load('facades/GridHandle.lua')
-Manifest:load('facades/ZoneHandle.lua')
+-- Load client-side feature declarations into manifest
+Manifest:load('features/player/local_player.lua')
+-- Manifest:load('features/player/interact.lua')
+Manifest:load('features/state/state_machine.lua')
+Manifest:load('features/state/state_machine_builder.lua')
+Manifest:load('features/zone/spatial_grid.lua')
+Manifest:load('features/zone/zone_registry.lua')
+Manifest:load('features/entity/entity_manager.lua')
+Manifest:load('features/entity/streaming.lua')
+Manifest:load('features/locale/locale.lua')
 
--- Load client-only facades into manifest
-Manifest:load('facades/TargetHandle.lua')
-
--- Load shared support module declarations into manifest
-Manifest:load('support/LogInstance.lua')
-Manifest:load('support/EventBus.lua')
-Manifest:load('support/StateMachine.lua')
-Manifest:load('support/StateMachineBuilder.lua')
-Manifest:load('support/Cache.lua')
-Manifest:load('support/Locale.lua')
-Manifest:load('support/Await.lua')
-Manifest:load('support/Tick.lua')
-Manifest:load('support/SpatialGrid.lua')
-Manifest:load('support/ZoneManager.lua')
-
--- Load client-only support module declarations into manifest
-Manifest:load('support/Streaming.lua')
-Manifest:load('support/EntityManager.lua')
+-- Load client-side facade declarations into manifest
+Manifest:load('features/player/player_facade.lua')
+Manifest:load('features/player/job_facade.lua')
+Manifest:load('features/player/gang_facade.lua')
+Manifest:load('features/framework/framework_facade.lua')
+Manifest:load('features/inventory/inventory_facade.lua')
+Manifest:load('features/notify/notify_facade.lua')
+Manifest:load('features/interact/interact_facade.lua')
+Manifest:load('features/zone/grid_facade.lua')
+Manifest:load('features/zone/zone_facade.lua')
 
 -- Auto-bind modules marked with :bind() to _TSFX
 Manifest:bind()

@@ -14,22 +14,14 @@ license 'MIT'
 repository 'https://github.com/lynexer/tsfx_sdk'
 
 shared_scripts {
-    'shared/utils/context.lua',
-    'shared/utils/module_builder.lua',
-    'shared/utils/manifest.lua',
-    'shared/utils/adapter_registry.lua',
+    'core/utils/*.lua',
+    'core/services/logger_registry.lua',
     'shared/adapters.lua',
-
-    'shared/types/*.lua',
-
     'shared/config.lua',
     'shared/constants.lua',
     'shared/enums.lua',
-
     'adapters/**/*.lua',
-
-    'support/LogInstance.lua',
-    'support/LoggerRegistry.lua',
+    'core/services/log_instance.lua'
 }
 
 server_scripts {
@@ -42,10 +34,9 @@ client_scripts {
 
 files {
     'init.lua',
-    'facades/*.lua',
-    'support/*.lua',
-    'client/modules/*.lua',
-    'server/modules/*.lua'
+    'core/**/*.lua',
+    'features/**/*.lua',
+    'shared/**/*.lua'
 }
 
 lua54 'yes'

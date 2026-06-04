@@ -16,6 +16,3 @@
 ---@field _prefix string The prefix for console output (e.g., "[my-resource]")
 ---@field _level LogLevel Current minimum log level
 ---@field _hooks fun(event: LogEvent)[]
-
----@class LoggerRegistryClass
----@field _instances table<string, LogInstance>

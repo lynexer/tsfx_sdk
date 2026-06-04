@@ -9,7 +9,7 @@
 
 ---@type TSFXClass
 _TSFX = {
-    Log = LoggerRegistry.get('SDK')
+    Log = LogInstance.new(GetCurrentResourceName(), ' [SDK]')
 }
 
 _TSFX.Log:info('Client bootstrap starting...')

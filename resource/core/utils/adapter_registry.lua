@@ -45,7 +45,6 @@ end
 ---@return table
 local function instantiate(className, fallbackClassName)
     local class = _G[className]
-    local log = LoggerRegistry.get('SDK')
 
     if class then
         return setmetatable({}, class)
@@ -54,7 +53,7 @@ local function instantiate(className, fallbackClassName)
     local fallback = fallbackClassName and _G[fallbackClassName]
 
     if fallback then
-        log:warn(('Adapter class %s not found, using %s'):format(className, fallbackClassName))
+        _TSFX.Log:warn(('Adapter class %s not found, using %s'):format(className, fallbackClassName))
         return setmetatable({}, fallback)
     end
 
@@ -81,8 +80,6 @@ end
 ---@param category string Category identifier
 ---@return table Adapter instance
 function AdapterRegistry.resolve(category)
-    local log = LoggerRegistry.get('SDK')
-
     if AdapterRegistry._cache[category] then
         return AdapterRegistry._cache[category]
     end
@@ -104,7 +101,7 @@ function AdapterRegistry.resolve(category)
             if GetResourceState(c.resource) == 'started' then
                 candidate = c
 
-                log:info(('%s auto-detected: %s'):format(category, c.resource))
+                _TSFX.Log:info(('%s auto-detected: %s'):format(category, c.resource))
 
                 break
             end

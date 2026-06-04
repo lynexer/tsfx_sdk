@@ -15,13 +15,12 @@ repository 'https://github.com/lynexer/tsfx_sdk'
 
 shared_scripts {
     'core/utils/*.lua',
-    'core/services/logger_registry.lua',
+    'core/services/log_instance.lua',
     'shared/adapters.lua',
     'shared/config.lua',
     'shared/constants.lua',
     'shared/enums.lua',
-    'adapters/**/*.lua',
-    'core/services/log_instance.lua'
+    'adapters/**/*.lua'
 }
 
 server_scripts {

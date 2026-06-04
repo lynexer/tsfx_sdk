@@ -2,8 +2,7 @@
     MODULE: TSFX SDK - LogInstance
 
     Per-resource logger instance.
-    Instances are created by LoggerRegistry and scoped to individual resources.
-    Each instance has its own prefix (resource name) and log level.
+    Each instance has its own prefix and log level.
 --]]
 
 ---@class LogInstance

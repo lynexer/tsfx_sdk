@@ -16,14 +16,13 @@ Instructions:
 
 This is a flat pnpm monorepo with the following layout:
 
-- **`resource/`** — The FiveM resource (`tsfx_sdk`). Contains all runtime code, facades, adapters, modules, and support utilities.
+- **`resource/`** — The FiveM resource (`tsfx_sdk`). Contains all runtime code, features, adapters, core services, and shared contracts.
 - **`scripts/`** — Plain dev tooling folder (not a pnpm package). Contains TypeScript build scripts run from repo root.
-- **`extension/`** — VSCode extension stub (unscoped, future development).
 - **Root-level config files** — Define workspace-wide settings, dependencies, and tooling.
 
 ### Package Boundaries
 
-- `resource/` and `extension/` are declared as pnpm workspace packages
+- `resource/` is declared as a pnpm workspace package
 - `scripts/` is NOT a package — it is a plain folder with its own `package.json` for dependency management but is not part of the workspace
 
 ## Architectural Layers
@@ -32,35 +31,35 @@ The SDK is organized into strict architectural layers. **Never cross these bound
 
 | Layer | Folder | Responsibility |
 |-------|--------|--------------|
-| Public API | `init.lua` | Declares the `TSFX` global, routes calls to facades by context (server/client) |
-| Facades | `facades/` | Chainable handle objects — the surface consuming devs touch |
-| Modules | `server/modules/`, `client/modules/` | Own state, respond to events, contain business logic |
+| Public API | `init.lua` | Declares the `TSFX` global, builds facade from manifest metadata, loads core utilities into consumer VM |
+| Features | `features/` | Chainable facade handles + feature modules — the surface consuming devs touch |
 | Adapters | `adapters/` | Translate SDK calls to framework-specific implementations |
-| Support | `support/` | Internal SDK utilities (EventBus, Log, StateMachine, etc.) |
+| Core | `core/` | Internal SDK utilities (EventBus, Log, Cache, ManifestBuilder, ModuleBuilder, etc.) |
 | Shared contracts | `shared/types/` | LuaLS `@meta` type declarations — never executed at runtime |
 
 ### Layer Rules
 
-- Facades talk to adapters, not directly to modules
-- Modules own state and respond to events via EventBus
+- Feature facades talk to adapters indirectly via exports, not directly to feature modules
+- Feature modules own state and respond to events via EventBus
 - Adapters are the only layer that knows about framework-specific implementations
-- Support modules are utilities used across all layers
+- Core services are utilities used across all layers
 
 ## The TSFX Facade (`init.lua`)
 
 - `init.lua` is the public API entry point
 - It is loaded by consuming resources via `@tsfx_sdk/init.lua` — **it is NOT listed in `fxmanifest.lua`**
-- It declares the global `TSFX` table and routes method calls to the correct facade based on `IsDuplicityVersion()`
+- It bootstraps the consumer VM by loading `core/utils/context.lua`, `core/utils/module_builder.lua`, `core/services/facade_base.lua`, `shared/constants.lua`, and `core/services/log_instance.lua`
+- It consumes `GetFacadeManifest()` export to bind modules into the `TSFX` global
 - Consuming devs **never** call exports directly — everything goes through `TSFX`
 
 ### Usage Pattern
 
 ```lua
 -- Server-side: pass player source
-TSFX:Player(source):GiveMoney('bank', 5000):TakeItem('bread', 1)
+TSFX:Player(source):addMoney('bank', 5000)
 
 -- Client-side: no source needed for local player
-TSFX:Player():ShowNotification('Hello!')
+TSFX:Player():getPosition()
 ```
 
 ## Chainable Handle Pattern
@@ -71,19 +70,33 @@ Facade handles use a chainable API pattern with these strict rules:
 - **Every method returns `self`** to allow chaining
 - **The chain is purely ergonomic** — each call is an independent operation
 - **Handles are instantiated per call** to `TSFX:Player()` etc., not cached singletons
+- **Facades extend `Facade` base class** — use `_serverOnly` and `_clientOnly` guards for context-restricted methods
 
 ### Implementation Template
 
 ```lua
----@class PlayerHandleClass
----@field _source number The player server ID
----@field _adapter FrameworkAdapterClass The injected framework adapter
-PlayerHandle = {}
+---@class PlayerHandleClass : FacadeClass
+PlayerHandle = setmetatable({}, { __index = Facade })
 PlayerHandle.__index = PlayerHandle
 
-function PlayerHandle:GiveMoney(account, amount)
-    self._adapter:giveMoney(self._source, account, amount)
+---@param playerSrc? number
+---@return PlayerHandleClass
+function PlayerHandle.new(playerSrc)
+    local self = setmetatable({}, PlayerHandle)
+    self._class = 'PlayerHandle'
+    self.source = playerSrc
     return self
+end
+
+---Add money to the player
+---@param account MoneyAccount
+---@param amount number
+---@return PlayerHandleClass
+function PlayerHandle:addMoney(account, amount)
+    return self:_serverOnly('addMoney', function()
+        self._export:Player_giveMoney(self.source, account, amount)
+        return self
+    end, self)
 end
 ```
 
@@ -92,8 +105,10 @@ end
 Adapters provide framework-specific implementations behind a common interface:
 
 - **`_base.lua`** in each adapter category defines the interface contract all adapters must implement
+- **Framework adapters are split by context** — `adapters/framework/client/` and `adapters/framework/server/` each have `_base_<context>.lua`
+- **Fallback adapters** — each category includes `_custom.lua` for user-defined overrides
 - **Adapters are NOT server-only** — `adapters/` lives at resource root and may be loaded in either context
-- **Facades receive an injected adapter reference** — they never detect the framework themselves
+- **Facades call exports** — they do not hold injected adapter references; the server-side feature module binds to the adapter
 - **Adapter method names use camelCase** and must match the `_base.lua` interface exactly
 
 ### Adapter Structure
@@ -101,59 +116,92 @@ Adapters provide framework-specific implementations behind a common interface:
 ```
 adapters/
 ├── framework/
-│   ├── _base.lua          -- Interface contract
-│   ├── esx.lua            -- ESX implementation
-│   └── qbcore.lua         -- QBCore implementation
-└── inventory/
-    ├── _base.lua
-    └── ox_inventory.lua
+│   ├── _base_client.lua   -- Client interface contract
+│   ├── _base_server.lua   -- Server interface contract
+│   ├── client/
+│   │   ├── esx.lua
+│   │   ├── qbcore.lua
+│   │   └── qbox.lua
+│   └── server/
+│       ├── esx.lua
+│       ├── qbcore.lua
+│       └── qbox.lua
+├── inventory/
+│   ├── _base.lua
+│   ├── _custom.lua
+│   ├── ox_inventory.lua
+│   └── ps-inventory.lua
+├── notify/
+│   ├── _base.lua
+│   ├── esx.lua
+│   ├── ox_lib.lua
+│   └── qb.lua
+└── ... (dispatch, fuel, interact, keys, medical, phone, progress)
 ```
 
-## Module Conventions
+## Feature Conventions
 
-Modules follow a strict folder pattern with clear separation of definition, events, and transitions:
+Features follow a folder pattern with clear separation of facade, server logic, client logic, and shared logic:
 
-1. **Modules are folders** with `_index.lua`, and optionally `events.lua` and `transitions.lua`
-2. **`_index.lua`** defines the class — no side effects, pure definition
-3. **`events.lua`** contains a `registerEvents(service)` function called from `_index.lua` `:init()`
-4. **`transitions.lua`** contains a `registerTransitions(builder, service)` function called from `_index.lua`
-5. **`main.lua`** is the only place modules are instantiated and wired — no business logic here
-6. **`exports.lua`** is the only place exports are registered
-7. Modules use EventBus and Log from `support/` — never raw FiveM functions directly
+1. **Features are folders** under `features/` (e.g., `features/player/`)
+2. **`facade.lua`** — chainable handle class, consumer_vm mode, extends `Facade`
+3. **`server.lua`** — server-side export module (hidden), talks to adapter
+4. **`client.lua`** — client-side export module (hidden)
+5. **`shared.lua`** — shared export module used by both contexts
+6. **`main.lua`** is the only place features are loaded — no business logic here
+7. Features use EventBus and Log from `core/` — never raw FiveM functions directly
 
-### Module Template
+### Feature Template
 
 ```lua
--- modules/MyService/_index.lua
----@class MyServiceClass
-MyService = {}
-MyService.__index = MyService
+-- features/MyFeature/facade.lua
+---@class MyFeatureHandleClass : FacadeClass
+MyFeatureHandle = setmetatable({}, { __index = Facade })
+MyFeatureHandle.__index = MyFeatureHandle
 
-function MyService.new()
-    local self = setmetatable({}, MyService)
+function MyFeatureHandle.new()
+    local self = setmetatable({}, MyFeatureHandle)
+    self._class = 'MyFeatureHandle'
     return self
 end
 
-function MyService:init()
-    registerEvents(self)
-    -- Additional initialization
+function MyFeatureHandle:doThing()
+    self._export:MyFeature_doThing()
+    return self
 end
 
--- modules/MyService/events.lua
-function registerEvents(service)
-    EventBus:on('playerJoined', function(data)
-        service:handlePlayerJoin(data.source)
-    end)
+return Module('MyFeature', 'shared')
+    :mode('consumer_vm')
+    :globalName('MyFeatureHandle')
+    :callable()
+    :build()
+
+-- features/MyFeature/server.lua
+MyFeatureModule = {}
+MyFeatureModule.__index = MyFeatureModule
+
+function MyFeatureModule.doThing()
+    -- adapter call
 end
+
+return Module('MyFeature', 'server')
+    :mode('export')
+    :exportAs('MyFeature')
+    :impl(MyFeatureModule)
+    :hidden()
+    :methods(function(m)
+        m:add('doThing')
+    end)
+    :build()
 ```
 
-## Support Module Conventions
+## Core Service Conventions
 
-Support modules (`support/`) provide internal utilities:
+Core services (`core/`) provide internal utilities:
 
-- **Support modules are flat files** — no `_index.lua` folder pattern
-- They are loaded via `shared_scripts` in `fxmanifest.lua` and available as globals in both contexts
-- Support files that participate in the manifest have a **dual responsibility**:
+- **`core/services/`** — runtime services (EventBus, Cache, Log, Await, Tick, Exports, FacadeBase)
+- **`core/utils/`** — builder/registration utilities (Context, ManifestBuilder, ModuleBuilder, AdapterRegistry)
+- Core files that participate in the manifest have a **dual responsibility**:
   define their global class (for runtime use) AND return a `ModuleDeclaration`
   built via `ModuleBuilder` (for the manifest builder)
 - Use the `ModuleBuilder` API to declare modules — never hand-write the
@@ -164,9 +212,10 @@ Support modules (`support/`) provide internal utilities:
   2. `:mode('export'|'consumer_vm')` — optional, defaults to `'export'`
   3. `:exportAs('Prefix')` — optional, sets the public export prefix
   4. `:impl(ImplementationTable)` — required, table containing the functions to expose
-  5. Optional flags — `:preloaded()`, `:callable()`, `:globalName('Name')`, `:hidden()`
+  5. Optional flags — `:bind()`, `:callable()`, `:globalName('Name')`, `:hidden()`, `:testable(false)`
   6. `:methods(function(m) ... end)` — required, declares methods via `MethodsBuilder`
   7. `:build()` — required, finalizes and returns the `ModuleDeclaration` table
+- **`:bind()`** (formerly `:preloaded()`) marks a module for auto-binding to `_TSFX`
 - **`ModuleDeclaration.mode`** controls how the module is exposed:
   - `mode = 'export'` (default) — methods are registered as FiveM exports and
     wrapped by `init.lua`. Safe for stateless/static methods.
@@ -177,7 +226,7 @@ Support modules (`support/`) provide internal utilities:
 - **Dependencies between consumer_vm modules:** If a consumer_vm module
   references internal globals (e.g., `_TSFX.Log`) that are set up by another
   module, init.lua pre-loads the dependency before iterating the manifest.
-- **Do not add folder-based modules to `support/`** — keep it flat
+- **Do not add folder-based modules to `core/`** — keep `services/` and `utils/` flat
 
 ### Builder Example
 
@@ -205,17 +254,24 @@ return Module('MyService', 'shared')
     :build()
 ```
 
-### Support Files
+### Core Files
 
 ```
-support/
-├── EventBus.lua          -- mode = 'export' (stateless, shared)
-├── LogInstance.lua       -- mode = 'consumer_vm' (per-resource logger instance)
-├── LoggerRegistry.lua    -- bridge-only, no manifest participation
-├── StateMachine.lua      -- mode = 'consumer_vm' (returns method-bearing objects)
-├── StateMachineBuilder.lua -- mode = 'consumer_vm'
-├── Exports.lua
-└── Cache.lua
+core/
+├── services/
+│   ├── event_bus.lua          -- mode = 'export' (stateless, shared)
+│   ├── event_bus_facade.lua   -- mode = 'consumer_vm'
+│   ├── cache.lua              -- mode = 'export'
+│   ├── await.lua              -- mode = 'export'
+│   ├── tick.lua               -- mode = 'export'
+│   ├── log_instance.lua       -- mode = 'consumer_vm'
+│   ├── exports.lua            -- mode = 'export'
+│   └── facade_base.lua        -- mode = 'consumer_vm'
+└── utils/
+    ├── context.lua            -- isServer(), isClient(), getContext()
+    ├── manifest.lua           -- ManifestBuilder
+    ├── module_builder.lua     -- ModuleBuilder + MethodsBuilder
+    └── adapter_registry.lua   -- AdapterRegistry
 ```
 
 ## FiveM Lua Rules
@@ -225,7 +281,7 @@ FiveM's Lua environment has specific constraints:
 - **No `require()`** — All scripts are loaded via `fxmanifest.lua` load order
 - **Globals are automatically in scope** — Files loaded earlier can be accessed from later files
 - **Do NOT `return` at the end of module files** — Globals are the export mechanism
-  - **Exception:** `support/*.lua` and module files that participate in the manifest
+  - **Exception:** `core/*.lua` and feature files that participate in the manifest
     MUST return a `ModuleDeclaration` built via `ModuleBuilder` as their final
     statement. Use `return Module('Namespace', 'context')...:build()`. The global
     class definition and the returned declaration coexist.
@@ -235,39 +291,28 @@ FiveM's Lua environment has specific constraints:
 
 ```lua
 shared_scripts {
-    -- 1. Type definitions (not executed)
-    'shared/types/*.lua',
-    -- 2. Shared configuration
+    'core/utils/*.lua',
+    'core/services/log_instance.lua',
+    'shared/adapters.lua',
     'shared/config.lua',
     'shared/constants.lua',
     'shared/enums.lua',
-    -- 3. Support utilities
-    'support/*.lua',
-    -- 4. Adapters (framework abstraction)
-    'adapters/framework/_base.lua',
-    'adapters/framework/*.lua',
-    'adapters/inventory/_base.lua',
-    'adapters/inventory/*.lua',
-    -- 5. Facades (public API handles)
-    'facades/*.lua',
+    'adapters/**/*.lua'
 }
 
 server_scripts {
-    -- 6. Server modules
-    'server/modules/**/*_index.lua',
-    'server/modules/**/*.lua',
-    -- 7. Server bootstrap
     'server/main.lua',
-    'server/exports.lua',
 }
 
 client_scripts {
-    -- 6. Client modules
-    'client/modules/**/*_index.lua',
-    'client/modules/**/*.lua',
-    -- 7. Client bootstrap
     'client/main.lua',
-    'client/exports.lua',
+}
+
+files {
+    'init.lua',
+    'core/**/*.lua',
+    'features/**/*.lua',
+    'shared/**/*.lua'
 }
 ```
 
@@ -302,7 +347,7 @@ function LogInstance:debug(msg)  -- DON'T DO THIS
 ---@class LogInstance
 ---@field level string Current log level
 
--- support/Log.lua (implementation file)
+-- core/services/log_instance.lua (implementation file)
 ---@param msg string The message to log
 function LogInstance:debug(msg)
     self:log('debug', msg)
@@ -314,30 +359,34 @@ Adding functions to types causes LuaLS warnings because the functions are alread
 ### Annotation Template
 
 ```lua
----@class PlayerHandleClass
----@field _source number The player server ID
----@field _adapter FrameworkAdapterClass The injected framework adapter
-PlayerHandle = {}
+---@class PlayerHandleClass : FacadeClass
+---@field source number? The player server ID
+---@field citizenId string The player's citizen ID
+---@field isOnline boolean Whether the player is online
+PlayerHandle = setmetatable({}, { __index = Facade })
 PlayerHandle.__index = PlayerHandle
 
 ---Create a new player handle
----@param source number The player server ID
----@param adapter FrameworkAdapterClass The framework adapter instance
+---@param playerSrc? number The player server ID
 ---@return PlayerHandleClass
-function PlayerHandle.new(source, adapter)
+function PlayerHandle.new(playerSrc)
     local self = setmetatable({}, PlayerHandle)
-    self._source = source
-    self._adapter = adapter
+    self._class = 'PlayerHandle'
+    self.source = playerSrc
+    self.citizenId = ''
+    self.isOnline = true
     return self
 end
 
----Give money to the player
+---Add money to the player
 ---@param account string The account type ('cash', 'bank', etc.)
----@param amount number The amount to give
+---@param amount number The amount to add
 ---@return PlayerHandleClass
-function PlayerHandle:GiveMoney(account, amount)
-    self._adapter:giveMoney(self._source, account, amount)
-    return self
+function PlayerHandle:addMoney(account, amount)
+    return self:_serverOnly('addMoney', function()
+        self._export:Player_giveMoney(self.source, account, amount)
+        return self
+    end, self)
 end
 ```
 
@@ -346,7 +395,7 @@ end
 The SDK must remain dependency-free:
 
 - **Never use `lib` (ox_lib)** or other external libraries in the SDK itself
-- Only use: FiveM native functions, `support/` APIs, and resource-specific utilities
+- Only use: FiveM native functions, `core/` APIs, and resource-specific utilities
 - The SDK *wraps* external frameworks via adapters — it does not depend on them directly outside of adapter files
 
 ## Naming Conventions
@@ -358,7 +407,8 @@ Consistent naming improves readability and maintainability:
 - `<relationship>Src` — other players' server IDs (e.g., `targetSrc`)
 - **Handle classes** use PascalCase with `Handle` suffix: `PlayerHandle`, `VehicleHandle`
 - **Adapter implementations** use PascalCase with framework prefix: `ESXAdapter`, `QBCoreAdapter`
-- **Support modules** use PascalCase: `EventBus`, `Log`, `StateMachine`
+- **Core services** use PascalCase: `EventBus`, `LogInstance`, `ManifestBuilder`
+- **Feature modules** use `<Feature>Module` (e.g., `FrameworkModule`, `PlayerModule`)
 
 ## File Header and Section Separators
 
@@ -423,7 +473,7 @@ Before submitting changes:
 - [ ] No mixing of singleton and instance patterns
 - [ ] No direct framework calls outside of adapters
 - [ ] All globals properly declared before use
-- [ ] Load order in fxmanifest.lua updated if new files added
+- [ ] Load order in fxmanifest.lua updated if new runtime files added (type files are **never** added)
 - [ ] Use EventBus for all network events (never native handlers)
 - [ ] No indentation on empty lines
 

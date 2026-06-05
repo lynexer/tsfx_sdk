@@ -95,36 +95,38 @@ ClassName.__index = ClassName
 ### ❌ Wrong — Methods in Type File
 
 ```lua
--- shared/types/PlayerHandle.lua (WRONG)
+-- shared/types/facades/player.lua (WRONG)
 ---@class PlayerHandleClass
 ---@field _source number Player server ID
----@field GiveMoney fun(account: string, amount: number): PlayerHandleClass  -- DON'T
+---@field addMoney fun(account: string, amount: number): PlayerHandleClass  -- DON'T
 ```
 
 ### ✅ Correct — Fields Only
 
 ```lua
--- shared/types/PlayerHandle.lua (CORRECT)
+-- shared/types/facades/player.lua (CORRECT)
 ---@class PlayerHandleClass
----@field _source number Player server ID
----@field _adapter FrameworkAdapterClass Injected adapter reference
+---@field source number? Player server ID
+---@field citizenId string The player's citizen ID
 ```
 
 ### ✅ Correct — Methods in Implementation
 
 ```lua
--- facades/PlayerHandle.lua
----@class PlayerHandleClass
-PlayerHandle = {}
+-- features/player/facade.lua
+---@class PlayerHandleClass : FacadeClass
+PlayerHandle = setmetatable({}, { __index = Facade })
 PlayerHandle.__index = PlayerHandle
 
----Give money to the player
+---Add money to the player
 ---@param account string The account type ('cash', 'bank', etc.)
----@param amount number The amount to give
+---@param amount number The amount to add
 ---@return PlayerHandleClass
-function PlayerHandle:GiveMoney(account, amount)
-    self._adapter:giveMoney(self._source, account, amount)
-    return self
+function PlayerHandle:addMoney(account, amount)
+    return self:_serverOnly('addMoney', function()
+        self._export:Player_giveMoney(self.source, account, amount)
+        return self
+    end, self)
 end
 ```
 
@@ -229,7 +231,7 @@ Most TSFX handles use chainable methods that return `self`. For simple classes, 
 
 ```lua
 ---@return PlayerHandleClass
-function PlayerHandle:GiveMoney(account, amount)
+function PlayerHandle:addMoney(account, amount)
     -- ...
     return self
 end
@@ -382,7 +384,7 @@ end
 ### ❌ Methods in `shared/types/`
 
 ```lua
--- shared/types/Log.lua (WRONG)
+-- shared/types/log.lua (WRONG)
 ---@class LogInstance
 ---@field debug fun(msg: string)  -- DON'T
 ```
@@ -413,8 +415,8 @@ local froms = type(t.from) == 'table' and t.from or { t.from --[[@as string]] } 
 
 ```lua
 -- WRONG
-function PlayerHandle:GiveMoney(account, amount)
-    self._adapter:giveMoney(self._source, account, amount)
+function PlayerHandle:addMoney(account, amount)
+    -- ...
     return self  -- LuaLS infers as any without @return
 end
 ```
@@ -423,7 +425,7 @@ end
 
 ```lua
 ---@return PlayerHandleClass
-function PlayerHandle:GiveMoney(account, amount)
+function PlayerHandle:addMoney(account, amount)
     -- ...
     return self
 end

@@ -92,7 +92,7 @@ function simpleType(type: string): string {
 
 function isComplexType(type: string): boolean {
 	const t = type.toLowerCase();
-	return t.includes('table') || t.includes('{') || t.includes('fun(') || t.includes('function');
+	return t.includes('table') || t.trim().startsWith('{') || t.includes('fun(') || t.includes('function');
 }
 
 export function parseFacadeFile(filePath: string): FacadeInfo | null {
@@ -208,12 +208,14 @@ function generateMethodCall(facade: FacadeInfo, method: FacadeMethod, side: 'ser
 	if (implName) {
 		if (namespace === 'Target') {
 			// Target methods do not take player source
-		} else if (side === 'server') {
-			argExpressions.push('(tonumber(args[1]) or source)');
-			argIndex = 2;
-		} else {
-			// Client-side shared impl methods need the local player's server id
-			argExpressions.push('GetPlayerServerId(PlayerId())');
+		} else if (params[0]?.name === 'source') {
+			if (side === 'server') {
+				argExpressions.push('(tonumber(args[1]) or source)');
+				argIndex = 2;
+			} else {
+				// Client-side shared impl methods need the local player's server id
+				argExpressions.push('GetPlayerServerId(PlayerId())');
+			}
 		}
 	} else if (callable && className) {
 		if (namespace === 'Player') {
@@ -456,6 +458,62 @@ function isTestable(filePath: string): boolean {
 	return !/:\s*testable\s*\(\s*false\s*\)/.test(content);
 }
 
+function generateTestCommand(testFiles: string[]): string {
+	let lua = `-- Auto-generated TSFX SDK test command\n`;
+	lua += `-- Regenerated on every link.\n\n`;
+	lua += `local testFiles = {\n`;
+	for (const file of testFiles) {
+		lua += `    '${file}',\n`;
+	}
+	lua += `}\n\n`;
+	lua += `RegisterCommand('tsfx_test', function(source, args, raw)\n`;
+	lua += `    -- Reset test state\n`;
+	lua += `    TestRunner._results = {}\n`;
+	lua += `    TestRunner._currentState = 'Unnamed'\n\n`;
+	lua += `    local filesToRun = {}\n`;
+	lua += `    if args[1] then\n`;
+	lua += `        local target = ('tests/%s.lua'):format(args[1])\n`;
+	lua += `        local found = false\n`;
+	lua += `        for _, file in ipairs(testFiles) do\n`;
+	lua += `            if file == target then\n`;
+	lua += `                found = true\n`;
+	lua += `                table.insert(filesToRun, file)\n`;
+	lua += `                break\n`;
+	lua += `            end\n`;
+	lua += `        end\n`;
+	lua += `        if not found then\n`;
+	lua += `            print(('[TSFX] No test file named %q. Available tests:'):format(args[1]))\n`;
+	lua += `            for _, file in ipairs(testFiles) do\n`;
+	lua += `                print('  - ' .. file:gsub('tests/', ''):gsub('%.lua$', ''))\n`;
+	lua += `            end\n`;
+	lua += `            return\n`;
+	lua += `        end\n`;
+	lua += `    else\n`;
+	lua += `        for _, file in ipairs(testFiles) do\n`;
+	lua += `            table.insert(filesToRun, file)\n`;
+	lua += `        end\n`;
+	lua += `    end\n\n`;
+	lua += `    for _, file in ipairs(filesToRun) do\n`;
+	lua += `        local content = LoadResourceFile(GetCurrentResourceName(), file)\n`;
+	lua += `        if not content then\n`;
+	lua += `            print(('[TSFX] Could not load test file: %s'):format(file))\n`;
+	lua += `        else\n`;
+	lua += `            local chunk, err = load(content, ('@%s/%s'):format(GetCurrentResourceName(), file), 't', _ENV)\n`;
+	lua += `            if not chunk then\n`;
+	lua += `                print(('[TSFX] Syntax error in %s: %s'):format(file, err))\n`;
+	lua += `            else\n`;
+	lua += `                local ok, runErr = pcall(chunk)\n`;
+	lua += `                if not ok then\n`;
+	lua += `                    print(('[TSFX] Error running %s: %s'):format(file, runErr))\n`;
+	lua += `                end\n`;
+	lua += `            end\n`;
+	lua += `        end\n`;
+	lua += `    end\n\n`;
+	lua += `    TestRunner.report()\n`;
+	lua += `end, false)\n`;
+	return lua;
+}
+
 function generateManifest(): string {
 	return `fx_version 'cerulean'
 game 'gta5'
@@ -467,7 +525,9 @@ version '0.0.1'
 dependency 'tsfx_sdk'
 
 shared_scripts {
-    '@tsfx_sdk/init.lua'
+    '@tsfx_sdk/init.lua',
+    'shared/test_runner.lua',
+    'shared/test_command.lua'
 }
 
 server_scripts {
@@ -476,6 +536,10 @@ server_scripts {
 
 client_scripts {
     'client/commands.lua'
+}
+
+files {
+    'tests/*.lua'
 }
 
 lua54 'yes'
@@ -494,7 +558,30 @@ export async function generateTestResource(targetDir: string): Promise<void> {
 
 	await fs.ensureDir(path.join(targetDir, 'server'));
 	await fs.ensureDir(path.join(targetDir, 'client'));
+	await fs.ensureDir(path.join(targetDir, 'shared'));
+	await fs.ensureDir(path.join(targetDir, 'tests'));
+
+	// Copy test runner from the main SDK resource
+	const testRunnerSource = path.join(__dirname, '../resource/core/utils/test_runner.lua');
+	if (await fs.pathExists(testRunnerSource)) {
+		await fs.copy(testRunnerSource, path.join(targetDir, 'shared', 'test_runner.lua'));
+	}
+
+	// Copy test files and collect their paths
+	const testsDir = path.join(__dirname, '../tests');
+	const testFiles: string[] = [];
+	if (await fs.pathExists(testsDir)) {
+		const entries = await fs.readdir(testsDir);
+		for (const entry of entries) {
+			if (entry.endsWith('.lua')) {
+				await fs.copy(path.join(testsDir, entry), path.join(targetDir, 'tests', entry));
+				testFiles.push(`tests/${entry}`);
+			}
+		}
+	}
+
 	await fs.writeFile(path.join(targetDir, 'fxmanifest.lua'), generateManifest());
 	await fs.writeFile(path.join(targetDir, 'server', 'commands.lua'), generateCommandsLua(facades, 'server'));
 	await fs.writeFile(path.join(targetDir, 'client', 'commands.lua'), generateCommandsLua(facades, 'client'));
+	await fs.writeFile(path.join(targetDir, 'shared', 'test_command.lua'), generateTestCommand(testFiles));
 }

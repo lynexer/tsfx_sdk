@@ -48,7 +48,6 @@ function String.random(pattern, charset)
     local result = {}
     local customChars = nil
     local i = 1
-    local len = #pattern
 
     if charset then
         customChars = {}
@@ -57,10 +56,12 @@ function String.random(pattern, charset)
             customChars[#customChars + 1] = c
         end
 
-        assert(#customChars > 0, 'String.random charset must be a non-empty string')
+        if #customChars == 0 then
+            _TSFX.Log:error('String.random charset must be a non-empty string')
+        end
     end
 
-    while i < len do
+    while i <= #pattern do
         local char = pattern:sub(i, i)
 
         if char ~= '{' then
@@ -71,25 +72,34 @@ function String.random(pattern, charset)
             i += 2
         else
             local close = pattern:find('}', i + 1, true)
-            assert(close, ('String.random has unclosed `{` at position %d'):format(i))
+
+            if not close then
+                _TSFX.Log:error(('String.random has unclosed `{` at position %d'):format(i))
+            end
 
             local inner = pattern:sub(i + 1, close - 1)
             local token, countStr = inner:match('^([^:]+):?(%d*)$')
 
-            assert(token and #token == 1, ('String.random has an invalid token "{%s}"'):format(inner))
+            if not token or #token ~= 1 then
+                _TSFX.Log:error(('String.random has an invalid token "{%s}"'):format(inner))
+            end
 
             local count = (countStr ~= '' and tonumber(countStr) or 1)
 
             if token == 'x' then
-                assert(customChars, 'String.random {x} token requires a charset argument')
-
-                for _ = 1, count do
-                    result[#result + 1] = customChars[math.random(1, #customChars)]
+                if not customChars then
+                    _TSFX.Log:error('String.random {x} token requires a charset argument')
+                else
+                    for _ = 1, count do
+                        result[#result + 1] = customChars[math.random(1, #customChars)]
+                    end
                 end
             else
                 local fn = TOKEN_MAP[token]
 
-                assert(fn, ('String.random has an invalid token "{%s}"'):format(token))
+                if not fn then
+                    _TSFX.Log:error(('String.random has an invalid token "{%s}"'):format(token))
+                end
 
                 for _ = 1, count do
                     result[#result + 1] = fn()
@@ -114,8 +124,13 @@ end
 ---@param plain? boolean If true, treats sep as a plain string instead of a Lua pattern
 ---@return string[]
 function String.split(str, sep, limit, plain)
-    assert(type(str) == 'string', 'String.split `str` must be a string')
-    assert(type(sep) == 'string', 'String.split `sep` must be a non-empty string')
+    if type(str) ~= 'string' then
+        _TSFX.Log:error('String.split `str` must be a string')
+    end
+
+    if type(sep) ~= 'string' or sep == '' then
+        _TSFX.Log:error('String.split `sep` must be a non-empty string')
+    end
 
     local result = {}
     local count = 0

@@ -59,6 +59,18 @@ function QBoxClientAdapter:getLocalJob()
     }
 end
 
+function QBoxClientAdapter:getLocalGang()
+    local data = self._playerData or {}
+    local gang = data.gang or {}
+
+    return {
+        name = gang.name or 'none',
+        label = gang.label or 'No Gang',
+        grade = gang.grade and (tonumber(gang.grade.level) or tonumber(gang.grade)) or 0,
+        gradeLabel = gang.grade and gang.grade.name or 'Unaffiliated'
+    }
+end
+
 function QBoxClientAdapter:getLocalMoney(account)
     local data = self._playerData or {}
 

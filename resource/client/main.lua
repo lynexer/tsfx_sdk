@@ -27,6 +27,7 @@ Manifest:load('core/services/await.lua')
 Manifest:load('core/services/tick.lua')
 Manifest:load('core/services/log_instance.lua')
 Manifest:load('core/services/try.lua')
+Manifest:load('core/services/string.lua')
 -- TODO: Fix exports
 
 -- Load client-side feature declarations into manifest

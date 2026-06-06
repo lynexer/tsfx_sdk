@@ -34,7 +34,7 @@ end
 -- Load shared context utilities first
 loadSupportFile('core/utils/context.lua')
 loadSupportFile('core/utils/module_builder.lua')
-loadSupportFile('core/services/facade.lua')
+loadSupportFile('core/services/facade_base.lua')
 loadSupportFile('shared/constants.lua')
 loadSupportFile('core/services/log_instance.lua')
 

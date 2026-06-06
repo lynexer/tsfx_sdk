@@ -4,6 +4,7 @@
 
 ---@generic T
 ---@alias AwaitFn fun(condition: (T | fun(): T?), timeout: (number | false | nil)): T?, string?
+---@alias TryFn fun(fn: fun(): T?): TryResult
 
 ---@class TSFXClass
 ---@field Player fun(source?: number): PlayerHandleClass
@@ -18,6 +19,7 @@
 ---@field StateMachine fun(name: string, opts: StateMachineOptions): StateMachineClass
 ---@field Tick fun(interval: (number | fun(): number), fn: fun(deltaTime: number)): LoopHandle
 ---@field Await AwaitFn
+---@field Try TryFn
 
 ---@type fun(key: string, params?: table): string
 _ = nil

@@ -301,7 +301,7 @@ function PlayerHandle:isInVehicle(atGetIn)
         return self:getVehicle() ~= 0
     end
 
-    return IsPedInAnyVehicle(self:getPed(), atGetIn or false)
+    return IsPedInAnyVehicle(self:getPed(), atGetIn or false) == 1
 end
 
 ---@return number
@@ -340,20 +340,20 @@ end
 ---@return boolean
 function PlayerHandle:isInWater()
     return self:_clientOnly('isInWater', function ()
-        return IsEntityInWater(self:getPed())
+        return IsEntityInWater(self:getPed()) == 1
     end, false)
 end
 
 ---@return boolean
 function PlayerHandle:isOnFoot()
     return self:_clientOnly('isOnFoot', function ()
-        return IsPedOnFoot(self:getPed())
+        return IsPedOnFoot(self:getPed()) == 1
     end, false)
 end
 
 ---@return boolean
 function PlayerHandle:isFrozen()
-    return IsEntityPositionFrozen(self:getPed())
+    return IsEntityPositionFrozen(self:getPed()) == 1
 end
 
 ---@param toggle boolean
@@ -365,7 +365,7 @@ end
 
 ---@return boolean
 function PlayerHandle:isVisible()
-    return IsEntityVisible(self:getPed())
+    return IsEntityVisible(self:getPed()) == 1
 end
 
 ---@return boolean
@@ -379,7 +379,7 @@ end
 
 ---@return boolean
 function PlayerHandle:isRagdolling()
-    return IsPedRagdoll(self:getPed())
+    return IsPedRagdoll(self:getPed()) == 1
 end
 
 ---@return boolean
@@ -406,7 +406,7 @@ end
 ---@return boolean
 function PlayerHandle:isSwimming()
     return self:_clientOnly('isSwimming', function ()
-        return IsPedSwimming(self:getPed())
+        return IsPedSwimming(self:getPed()) == 1
     end, false)
 end
 
@@ -420,7 +420,7 @@ end
 ---@return boolean
 function PlayerHandle:isAiming()
     return self:_clientOnly('isAiming', function ()
-        return IsPlayerFreeAiming(self:getPlayerId())
+        return IsPlayerFreeAiming(self:getPlayerId()) == 1
     end, false)
 end
 

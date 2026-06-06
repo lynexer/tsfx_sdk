@@ -45,7 +45,7 @@ function ClientPlayerModule.getIdentifiers()
     return getAdapter():getLocalIdentifiers()
 end
 
-function ClientPlayerModule.getMetadata(key)
+function ClientPlayerModule.getMetadata(source, key)
     return getAdapter():getLocalMetadata(key)
 end
 

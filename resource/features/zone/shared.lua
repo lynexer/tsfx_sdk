@@ -9,14 +9,6 @@
 
 local glm = require 'glm'
 
----@return string
-local function generateId()
-    return ('%04x%04x'):format(
-        math.random(0, 0xFFFF),
-        math.random(0, 0xFFFF)
-    )
-end
-
 ---@param v vector3 | vector4 | table
 ---@return vector3
 local function toVector3(v)
@@ -274,13 +266,13 @@ ZoneRegistry.__index = ZoneRegistry
 ---@param data SphereZoneData
 ---@return string
 function ZoneRegistry.addSphere(data)
-    return register(SphereZone.new(generateId(), data))
+    return register(SphereZone.new(_TSFX.String.uuid(), data))
 end
 
 ---@param data PolyZoneData
 ---@return { id: number, position: vector3 }
 function ZoneRegistry.addPoly(data)
-    local zone = PolyZone.new(generateId(), data)
+    local zone = PolyZone.new(_TSFX.String.uuid(), data)
     register(zone)
     return { id = zone.id, position = zone.position }
 end
@@ -288,7 +280,7 @@ end
 ---@param data BoxZoneData
 ---@return { id: number, position: vector3 }
 function ZoneRegistry.addBox(data)
-    local zone = BoxZone.new(generateId(), data)
+    local zone = BoxZone.new(_TSFX.String.uuid(), data)
     register(zone)
     return { id = zone.id, position = zone.position }
 end

@@ -111,6 +111,9 @@ for key, value in pairs(Constants) do
     end
 end
 
+TSFX.isServer = isServer
+TSFX.isClient = isClient
+
 _ENV.TSFX = TSFX
 Module = nil
 Facade = nil
@@ -122,7 +125,7 @@ if TSFX.Locale and TSFX.Locale.get then
 end
 
 -- Synchronous-style handshake: acquire session token before first emitNet
-if getContext() == 'client' then
+if isClient() then
     CreateThread(function()
         TriggerServerEvent('__tsfx:requestHandshake', { resource = resourceName })
 

@@ -5,14 +5,13 @@
 
     Shared utility for detecting execution context (server vs client).
     All SDK code routes through this module instead of calling IsDuplicityVersion() directly.
-    Must be the first file loaded in shared_scripts so other modules can depend on it.
 --]]
 
----@type TSFXContext
+---@type 'server' | 'client' | nil
 local _cachedContext = nil
 
 ---Get the current execution context
----@return TSFXContext The execution context: 'server' or 'client'
+---@return 'server' | 'client'
 function getContext()
     if _cachedContext then
         return _cachedContext

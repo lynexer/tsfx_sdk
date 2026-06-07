@@ -124,10 +124,10 @@ expectEqual('reduce returns initial for empty', initial, 99)
 TestRunner.describe('TSFX.Table.flatten')
 
 local flat = TSFX.Table.flatten({ 1, { 2, 3 }, { 4, { 5 } } })
-expectEqual('flatten depth 1 count', #flat, 4)
+expectEqual('flatten depth 1 count', #flat, 5)
 expectEqual('flatten depth 1 first', flat[1], 1)
 expectEqual('flatten depth 1 second', flat[2], 2)
-expectEqual('flatten depth 1 keeps nested table', type(flat[4]), 'table')
+expectEqual('flatten depth 1 keeps nested table', type(flat[5]), 'table')
 
 local flatDeep = TSFX.Table.flatten({ 1, { 2, { 3, { 4 } } } }, math.huge)
 expectEqual('flatten full depth count', #flatDeep,  4)

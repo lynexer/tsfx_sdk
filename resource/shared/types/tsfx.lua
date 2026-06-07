@@ -20,6 +20,8 @@
 ---@field Tick fun(interval: (number | fun(): number), fn: fun(deltaTime: number)): LoopHandle
 ---@field Await AwaitFn
 ---@field Try TryFn
+---@field String StringClass
+---@field Table TableClass
 
 ---@type fun(key: string, params?: table): string
 _ = nil

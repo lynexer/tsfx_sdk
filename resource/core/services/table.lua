@@ -4,6 +4,7 @@
     Useful table utilities missing from the default Lua table library
 --]]
 
+---@class TableClass
 Table = {}
 Table.__index = Table
 

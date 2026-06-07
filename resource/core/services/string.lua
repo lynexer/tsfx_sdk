@@ -6,6 +6,7 @@
     Useful string utilities missing from the default Lua string library
 --]]
 
+---@class StringClass
 String = {}
 String.__index = String
 

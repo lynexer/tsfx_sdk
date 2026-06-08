@@ -29,6 +29,7 @@ Manifest:load('core/services/log_instance.lua')
 Manifest:load('core/services/try.lua')
 Manifest:load('core/services/string.lua')
 Manifest:load('core/services/table.lua')
+Manifest:load('core/services/version.lua')
 -- TODO: Fix exports
 
 -- Load server-side feature declarations into manifest
@@ -60,3 +61,6 @@ Manifest:bind()
 Manifest:finalize()
 
 _TSFX.Log:info('Server bootstrap complete')
+
+-- TODO: Add version check after release creation
+-- _TSFX.Version.run({ github = 'lynexer/tsfx_sdk' })

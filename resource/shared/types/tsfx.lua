@@ -22,6 +22,7 @@
 ---@field Try TryFn
 ---@field String StringClass
 ---@field Table TableClass
+---@field Version VersionClass
 
 ---@type fun(key: string, params?: table): string
 _ = nil

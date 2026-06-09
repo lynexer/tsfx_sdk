@@ -2,7 +2,8 @@
 -- Type definitions for TSFX PlayerHandle
 -- This file is NOT loaded at runtime - only for LuaLS type checking
 
----@alias AnimationFlags number
+---@alias AnimationFlags
+---| number
 ---| 0 DEFAULT
 ---| 1 LOOPING
 ---| 2 HOLD_LAST_FRAME
@@ -36,7 +37,8 @@
 ---| 536870912 BLENDOUT_WRT_LAST_FRAME
 ---| 1073741824 USE_FULL_BLENDING
 
----@alias ControlFlags number
+---@alias ControlFlags
+---| number
 ---| 0 NONE
 ---| 1 DISABLE_LEG_IK
 ---| 2 DISABLE_ARM_IK

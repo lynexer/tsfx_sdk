@@ -4,6 +4,8 @@
 
 ---@generic T
 ---@alias AwaitFn fun(condition: (T | fun(): T?), timeout: (number | false | nil)): T?, string?
+
+---@generic T
 ---@alias TryFn fun(fn: fun(): T?): TryResult
 
 ---@class TSFXClass

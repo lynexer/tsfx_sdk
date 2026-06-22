@@ -131,61 +131,6 @@ classMT.__call = function (_, name)
         return nil
     end
 
-    local staticsPromoted = false
-
-    kMeta.__call = function (cls, ...)
-        assert(not rawget(cls, '__abstract'), ("Cannot instantiate abstract class '%s'"):format(rawget(cls, '__name')))
-
-        for _, iface in ipairs(rawget(cls, '__interfaces')) do
-            local missing = {}
-
-            for _, method in ipairs(iface.__methods) do
-                local c = cls
-                local found = false
-
-                while c do
-                    if type(rawget(c, method)) == 'function' then
-                        found = true
-                        break
-                    end
-
-                    c = rawget(c, '__super')
-                end
-
-                if not found then
-                    table.insert(missing, method)
-                end
-            end
-
-            if #missing > 0 then
-                _TSFX.Log:error(("Class '%s' does not implement '%s'. Missing: %s"):format(rawget(cls, '__name'), iface.__name, table.concat(missing, ', ')))
-            end
-        end
-
-        if not staticsPromoted then
-            for k, v in pairs(rawget(cls, '__static')) do
-                rawset(cls, k, v)
-            end
-
-            staticsPromoted = true
-        end
-
-        ---@class ClassInstance
-        local instance = {}
-
-        rawset(instance, '__inst', INSTANCE_MARKER)
-        rawset(instance, '__class', rawget(cls, '__name'))
-        setmetatable(instance, instanceMeta)
-
-        instance.instanceOf = instanceOf
-
-        if type(rawget(cls, 'new')) == 'function' then
-            cls.new(instance, ...)
-        end
-
-        return instance
-    end
-
     setmetatable(klass, kMeta)
 
     rawget(klass, '__static').instanceOf = function (instance)
@@ -197,6 +142,10 @@ classMT.__call = function (_, name)
     klass.sealed = Class.sealed
     klass.implements = Class.implements
     klass.mixin = Class.mixin
+
+    klass.build = function (self)
+        return Class.build(self, instanceMeta)
+    end
 
     return klass
 end
@@ -220,7 +169,7 @@ end
 ---Sets the parent class for inheritance. Wires .super and the __index chain.
 ---Inherits parent interface obligations onto this class.
 ---@param self ClassDef
----@param parent ClassDef
+---@param parent ClassInstance
 ---@return ClassDef
 function Class.extends(self, parent)
     assert(Class.isClass(parent), ('extends() expects a Class, got %s'):format(type(parent)))
@@ -298,6 +247,76 @@ function Class.mixin(self, source, force)
     end
 
     return self
+end
+
+---Seals the class definition and returns a constructor function
+---@param self ClassDef
+---@param instanceMeta table
+---@return ClassInstance
+function Class.build(self, instanceMeta)
+    local cls = self
+    local staticsPromoted = false
+
+    cls.new = function (...)
+        assert(not rawget(cls, '__abstract'), ("Cannot instantiate abstract class '%s'"):format(rawget(cls, '__name')))
+
+        if not staticsPromoted then
+            for k, v in pairs(rawget(cls, '__static')) do
+                rawset(cls, k, v)
+            end
+
+            for _, iface in ipairs(rawget(cls, '__interfaces')) do
+                local missing = {}
+
+                for _, method in ipairs(iface.__methods) do
+                    local c = cls
+                    local found = false
+
+                    while c do
+                        if type(rawget(c, method)) == 'function' then
+                            found = true
+                            break
+                        end
+
+                        c = rawget(c, '__super')
+                    end
+
+                    if not found then table.insert(missing, method) end
+                end
+
+                if #missing > 0 then
+                    _TSFX.Log:error(("Class '%s' does not implement '%s'. Missing: %s"):format(rawget(cls, '__name'), iface.__name, table.concat(missing, ', ')))
+                end
+            end
+
+            staticsPromoted = true
+        end
+
+        ---@class ClassInstance
+        local instance = {}
+
+        rawset(instance, '__inst', INSTANCE_MARKER)
+        rawset(instance, '__class', rawget(cls, '__name'))
+        setmetatable(instance, instanceMeta)
+
+        instance.instanceOf = instanceOf
+
+        if type(rawget(cls, 'constructor')) == 'function' then
+            ---@diagnostic disable-next-line: undefined-field
+            cls.constructor(instance, ...)
+        end
+
+        return instance
+    end
+
+    cls.extends = nil
+    cls.abstract = nil
+    cls.sealed = nil
+    cls.implements = nil
+    cls.mixin = nil
+    cls.build = nil
+
+    return cls --[[@as ClassInstance]]
 end
 
 ---@param name string

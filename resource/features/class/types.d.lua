@@ -15,3 +15,12 @@
 
 ---@class ClassInstance
 ---@field __class string The name of the class thisi instance belongs to
+---@field new fun(...): ClassInstance Create a new instance of the class
+---@field super ClassInstance | nil Parent class reference. Call parent methods via Classname.super.method(self, ...)
+---@field instanceof fun(self: ClassInstance, klass: ClassInstance): boolean Returns true if this instance is of the given class or any ancestor
+---@field __get table Getter namespace. Define as `function MyClass.__get:propName()`. Read-only if no matching __set defined
+---@field __set table Setter namespace. Define as `function MyClass.__set:propName(value)`. Throws if no matching __get defined
+---@field constructor? fun(self: ClassInstance, ...) Optional. Called by .new(...) with all arguments passed through
+---@field toString? fun(self: ClassInstance): string Optional. Override for custom string representation. Called by tostring()
+---@field equals? fun(self: ClassInstance, other: ClassInstance): boolean Optional. Override to define equality. Called by == operator
+---@field lessThan? fun(self: ClassInstance, other: ClassInstance): boolean Optional. Override to define ordering. Required to use < operator

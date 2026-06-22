@@ -55,5 +55,9 @@
             "scope": "workspace",
             "behavior": "link"
         }
-    }
+    },
+    "Lua.diagnostics.disable": [
+        "duplicate-doc-alias",
+        "duplicate-doc-field"
+    ]
 }

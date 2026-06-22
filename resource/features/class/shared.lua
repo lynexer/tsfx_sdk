@@ -136,6 +136,32 @@ classMT.__call = function (_, name)
     kMeta.__call = function (cls, ...)
         assert(not rawget(cls, '__abstract'), ("Cannot instantiate abstract class '%s'"):format(rawget(cls, '__name')))
 
+        for _, iface in ipairs(rawget(cls, '__interfaces')) do
+            local missing = {}
+
+            for _, method in ipairs(iface.__methods) do
+                local c = cls
+                local found = false
+
+                while c do
+                    if type(rawget(c, method)) == 'function' then
+                        found = true
+                        break
+                    end
+
+                    c = rawget(c, '__super')
+                end
+
+                if not found then
+                    table.insert(missing, method)
+                end
+            end
+
+            if #missing > 0 then
+                _TSFX.Log:error(("Class '%s' does not implement '%s'. Missing: %s"):format(rawget(cls, '__name'), iface.__name, table.concat(missing, ', ')))
+            end
+        end
+
         if not staticsPromoted then
             for k, v in pairs(rawget(cls, '__static')) do
                 rawset(cls, k, v)
@@ -237,30 +263,6 @@ end
 ---@return ClassDef
 function Class.implements(self, iface)
     assert(Interface.isInterface(iface), ('implements() expects an Interface, got %s'):format(type(iface)))
-
-    local missing = {}
-
-    for _, method in ipairs(iface.__methods) do
-        local cls = self
-        local found = false
-
-        while cls do
-            if type(rawget(cls, method)) == 'function' then
-                found = true
-                break
-            end
-
-            cls = rawget(cls, '__super')
-        end
-
-        if not found then
-            table.insert(missing, method)
-        end
-    end
-
-    if #missing > 0 then
-        _TSFX.Log:error(("Class '%s' does not implement '%s'. Missing: %s"):format(rawget(self, '__name'), iface.__name, table.concat(missing, ', ')))
-    end
 
     table.insert(rawget(self, '__interfaces'), iface)
 

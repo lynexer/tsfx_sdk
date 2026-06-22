@@ -25,6 +25,7 @@
 ---@field String StringClass
 ---@field Table TableClass
 ---@field Version VersionClass
+---@field Interface fun(name: string, methods: string[]): InterfaceDef
 ---@field Class fun(name: string): ClassDef
 
 ---@type fun(key: string, params?: table): string

@@ -43,6 +43,7 @@ Manifest:load('features/state/builder.lua')
 Manifest:load('features/grid/shared.lua')
 Manifest:load('features/zone/shared.lua')
 Manifest:load('features/locale/shared.lua')
+Manifest:load('features/interface/shared.lua')
 Manifest:load('features/class/shared.lua')
 
 -- Load server-side facade declarations into manifest

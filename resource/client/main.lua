@@ -41,6 +41,7 @@ Manifest:load('features/zone/shared.lua')
 Manifest:load('features/entity/manager.lua')
 Manifest:load('features/entity/streaming.lua')
 Manifest:load('features/locale/shared.lua')
+Manifest:load('features/interface/shared.lua')
 Manifest:load('features/class/shared.lua')
 
 -- Load client-side facade declarations into manifest

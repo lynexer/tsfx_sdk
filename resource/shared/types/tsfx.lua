@@ -25,6 +25,7 @@
 ---@field String StringClass
 ---@field Table TableClass
 ---@field Version VersionClass
+---@field Class fun(name: string): ClassDef
 
 ---@type fun(key: string, params?: table): string
 _ = nil

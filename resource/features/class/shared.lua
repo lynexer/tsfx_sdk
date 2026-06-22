@@ -143,8 +143,8 @@ classMT.__call = function (_, name)
     klass.implements = Class.implements
     klass.mixin = Class.mixin
 
-    klass.build = function (self)
-        return Class.build(self, instanceMeta)
+    klass.define = function (self)
+        return Class.define(self, instanceMeta)
     end
 
     return klass
@@ -253,7 +253,7 @@ end
 ---@param self ClassDef
 ---@param instanceMeta table
 ---@return ClassInstance
-function Class.build(self, instanceMeta)
+function Class.define(self, instanceMeta)
     local cls = self
     local staticsPromoted = false
 
@@ -314,7 +314,7 @@ function Class.build(self, instanceMeta)
     cls.sealed = nil
     cls.implements = nil
     cls.mixin = nil
-    cls.build = nil
+    cls.define = nil
 
     return cls --[[@as ClassInstance]]
 end

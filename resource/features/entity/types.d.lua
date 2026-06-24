@@ -29,6 +29,7 @@
 ---@field renderDistance? number
 ---@field onRender? fun(entity: number)
 ---@field onDestroy? fun(entity: number)
+---@field interact? InteractOption | InteractOption[]
 
 ---@class PedData : EntityData
 ---@field animation? PedAnimationData
@@ -45,9 +46,11 @@
 ---@field onDestroy? fun(entity: number)
 ---@field animation? PedAnimationData
 ---@field scenario? string
+---@field interact? InteractOption | InteractOption[]
 
 ---@class EntityClass : SpatialGridEntry
 ---@field _key number? Cached hash key/ Set on first call to hash()
+---@field _interactHandle InteractHandleClass?
 ---@field model string | number
 ---@field position vector4
 ---@field renderDistance number
@@ -55,6 +58,7 @@
 ---@field entity number?
 ---@field onRender fun(entity: number)?
 ---@field onDestroy fun(entity: number)?
+---@field interact InteractOption | InteractOption[] | nil
 
 ---@alias PedAnimationData { dict: string, name: string, flag?: number }
 

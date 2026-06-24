@@ -21,10 +21,10 @@ function Entity:init(data)
     self.renderDistance = data.renderDistance or 100
     self.onRender = data.onRender
     self.onDestroy = data.onDestroy
+    self.interact = data.interact or nil
+    self._interactHandle = nil
     self.entity = nil
     self.isRendered = false
-
-    -- TODO: Add interactions
 end
 
 ---@return number
@@ -59,6 +59,10 @@ function Entity:_postSpawn()
         self.onRender(self.entity)
     end
 
+    if self.interact then
+        self._interactHandle = _TSFX.Interact('localEntity'):localEntities(self.entity):mergeOptions(self.interact):register()
+    end
+
     self.isRendered = true
 
     _TSFX.Log:debug('Entity rendered', { entity = self.entity, model = self.model, position = self.position })
@@ -77,6 +81,11 @@ function Entity:_despawn()
 
     if self.onDestroy then
         self.onDestroy(self.entity)
+    end
+
+    if self._interactHandle then
+        self._interactHandle:remove()
+        self._interactHandle = nil
     end
 
     if DoesEntityExist(self.entity) then

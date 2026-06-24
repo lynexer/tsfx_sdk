@@ -121,17 +121,6 @@ function InteractHandle.new(targetType)
     return self --[[@as InteractHandleClass]]
 end
 
----Static constructor. Accepts a raw InteractOption or InteractOption[] table and
----bulk-assigns all recognised fields onto the handle's option accumulator.
----Returns the handle so target specifiers and register() can follow.
----@param targetType InteractTargetType
----@param options InteractOption | InteractOption[]
----@return InteractHandleClass
-function InteractHandle.fromTable(targetType, options)
-    local self = InteractHandle.new(targetType)
-    return self:mergeOptions(options)
-end
-
 ---Instance method variant of fromTable. Merges a raw option table into the
 ---current handle's accumulator. Useful mid-chain after target specifiers have
 ---already been set.

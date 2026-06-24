@@ -42,10 +42,13 @@ AdapterRegistry.register('inventory', {
 
 -- SECTION: Interaction // ----------------------------------------
 
--- AdapterRegistry.register('interact', {
---     candidates = {},
---     custom = 'CustomInteractAdapter'
--- })
+AdapterRegistry.register('interact', {
+    candidates = {
+        { resource = 'ox_target', config = 'ox_target', class = 'OxTargetAdapter' },
+        { resource = 'sleepless_interact', config = 'sleepless_interact', class = 'SleeplessInteractAdapter' }
+    },
+    custom = 'CustomInteractAdapter'
+})
 
 -- !SECTION
 

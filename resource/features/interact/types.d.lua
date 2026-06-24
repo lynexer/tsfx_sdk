@@ -1,0 +1,33 @@
+--- @meta
+-- Type definitions for TSFX Interact Adapters
+-- This file is NOT loaded at runtime - only for LuaLS type checking
+
+---@alias InteractTargetType
+---| 'globalObject'
+---| 'globalPed'
+---| 'globalPlayer'
+---| 'globalVehicle'
+---| 'globalOption'
+---| 'model'
+---| 'entity'
+---| 'localEntity'
+---| 'coords'
+---| 'sphere'
+---| 'box'
+---| 'poly'
+
+---@alias InteractTarget vector3 | vector3[] | number | string | (number | string)[] | nil
+
+---@class InteractHandleClass : FacadeClass
+---@field _targetType InteractTargetType
+---@field _id string | number | nil
+---@field _registered boolean
+---@field _option InteractOption
+---@field _target InteractTarget
+---@field _zoneRadius number | nil
+---@field _zoneSize number | nil
+---@field _zoneRotation number | nil
+---@field _zoneThickness number | nil
+---@field _zoneName string | nil
+---@field _zoneDebug boolean
+---@field _zoneDrawSprite boolean

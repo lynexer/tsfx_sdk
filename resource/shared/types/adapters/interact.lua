@@ -2,39 +2,56 @@
 -- Type definitions for TSFX Interact Adapters
 -- This file is NOT loaded at runtime - only for LuaLS type checking
 
----@class InteractOption
----@field name string Unique option identifier
----@field icon string Icon identifier
----@field label string Display label
----@field action function Callback function
----@field canInteract? function Optional visibility predicate
+---@class InteractCallbackData
+---@field entity? number Entity handle. nil when no entity is involved (coord/zone targets).
+---@field coords vector3 World position where the interaction was triggered.
+---@field distance number Player distance from coords at time of selection.
+---@field zone? number Zone id. Populated by ox_target for zone-based targets only.
+---@field name? string Option name. Populated by sleepless_interact for active callbacks only.
 
----@class BoxZoneParams
----@field name string Zone identifier
----@field coords vector3|table Center coordinates
----@field size vector3|table Box dimensions
----@field rotation? number Rotation in degrees
----@field debug? boolean Debug visualization
----@field drawSprite? boolean Draw interaction sprite
----@field options InteractOption[] Interaction options
+---@class InteractOption
+---@field label string
+---@field name? string Identifier used when removing a specific option.
+---@field icon? string Font Awesome icon name.
+---@field iconColour? string
+---@field distance? number Max distance at which the option is displayed.
+---@field canInteract? fun(entity: number, distance: number, coords: vector3, name: string, bone: string): boolean
+---@field onSelect? fun(data: InteractCallbackData)
+---@field groups? string|string[]|table<string, number>
+---@field items? string|string[]|table<string, number>
+---@field anyItem? boolean
+---@field bones? string|string[]
+---@field event? string
+---@field serverEvent? string
+---@field command? string
+---@field export? string
+---@field onActive? fun(data: InteractCallbackData)
+---@field onInactive? fun(data: InteractCallbackData)
+---@field whileActive? fun(data: InteractCallbackData)
+---@field holdDuration? number
+---@field cooldown? number
 
 ---@class SphereZoneParams
----@field name string Zone identifier
----@field coords vector3|table Center coordinates
----@field radius number Sphere radius
----@field debug? boolean Debug visualization
----@field drawSprite? boolean Draw interaction sprite
----@field options InteractOption[] Interaction options
+---@field coords vector3
+---@field name? string
+---@field radius? number
+---@field debug? boolean
+---@field drawSprite? boolean
+---@field options InteractOption|InteractOption[]
 
----@class EntityZoneParams
----@field name string Zone identifier
----@field entity number Entity handle or network ID
----@field debug? boolean Debug visualization
----@field drawSprite? boolean Draw interaction sprite
----@field options InteractOption[] Interaction options
+---@class BoxZoneParams
+---@field coords vector3
+---@field name? string
+---@field size? vector3
+---@field rotation? number
+---@field debug? boolean
+---@field drawSprite? boolean
+---@field options InteractOption|InteractOption[]
 
----@class IInteract : IAdapter
----@field addBoxZone fun(params: BoxZoneParams)
----@field addSphereZone fun(params: SphereZoneParams)
----@field addEntityZone fun(entity: number, params: EntityZoneParams)
----@field removeZone fun(name: string)
+---@class PolyZoneParams
+---@field points vector3[]
+---@field name? string
+---@field thickness? number
+---@field debug? boolean
+---@field drawSprite? boolean
+---@field options InteractOption|InteractOption[]

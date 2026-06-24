@@ -58,6 +58,7 @@
     },
     "Lua.diagnostics.disable": [
         "duplicate-doc-alias",
-        "duplicate-doc-field"
+        "duplicate-doc-field",
+        "duplicate-set-field"
     ]
 }

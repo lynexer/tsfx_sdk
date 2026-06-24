@@ -8,4 +8,5 @@
 Config = {
     framework = 'auto',     -- Valid: 'auto' | 'esx' | 'qbcore' | 'qbox' | 'custom'
     inventory = 'auto',     -- Valid: 'auto' | 'ox_inventory' | 'qs-inventory' | 'ps-inventory' | 'custom'
+    interact = 'auto'       -- Valid: 'auto' | 'ox_target' | 'sleepless_interact' | 'custom'
 }

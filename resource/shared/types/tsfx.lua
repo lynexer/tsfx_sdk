@@ -10,6 +10,7 @@
 
 ---@class TSFXClass
 ---@field Player fun(source?: number): PlayerHandleClass
+---@field Interact fun(targetType: InteractTargetType): InteractHandleClass
 ---@field Inventory InventoryHandleClass
 ---@field Notify NotifyHandleClass
 ---@field Events EventBusClass

@@ -141,7 +141,10 @@ function AdapterRegistry.resolve(category)
     local adapter = instantiate(className, fallbackClassName)
 
     AdapterRegistry._cache[category] = adapter
-    adapter:init()
+
+    if type(adapter.init) == 'function' then
+        adapter:init()
+    end
 
     return adapter
 end
